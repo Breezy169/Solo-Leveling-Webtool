@@ -1,0 +1,50 @@
+/* styles.css */
+
+/* Keyframes for the thunder effect */
+@keyframes thunder {
+    0% {
+      transform: translateY(0);
+    }
+    25% {
+      transform: translateY(-10px);
+    }
+    50% {
+      transform: translateY(0);
+    }
+    75% {
+      transform: translateY(10px);
+    }
+    100% {
+      transform: translateY(0);
+    }
+  }
+  
+  @keyframes travel {
+    0% {
+      left: -25px; /* Start off-screen */
+    }
+    100% {
+      left: 100%; /* Move to the right */
+    }
+  }
+  
+  .glowing-border {
+    position: relative;
+    padding: 10px;
+    border: 4px solid transparent;
+    border-radius: 8px;
+    overflow: hidden; /* Prevents overflow from the bolt */
+  }
+  
+  .bolt {
+    content: '';
+    position: absolute;
+    top: 50%; /* Center vertically */
+    left: -25px; /* Start from the left */
+    width: 50px; /* Width of the thunderbolt */
+    height: 5px; /* Height of the thunderbolt */
+    background: #f2b5d5; /* Color of the thunderbolt */
+    border-radius: 5px; /* Rounded edges */
+    animation: travel 1.5s linear infinite; /* Move across */
+  }
+  
