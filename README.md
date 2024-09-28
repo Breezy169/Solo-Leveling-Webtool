@@ -1,2 +1,2 @@
-# slfi
-Solo Leveling Fitness &amp; Improvement Web App Project
+# Personal-Website
+A personal website with achievements and tracking progress
