@@ -136,7 +136,7 @@ function AboutMe() {
               </Link>
             </Grid2>
             <Grid2 xs={6}>
-              <Link to="/fitness" style={{ textDecoration: 'none' }}>
+              <Link to="/Career" style={{ textDecoration: 'none' }}>
                 <Box
                   sx={{
                     height: '150px',
@@ -153,7 +153,7 @@ function AboutMe() {
                     }
                   }}
                 >
-                  Fitness
+                  Career
                 </Box>
               </Link>
             </Grid2>

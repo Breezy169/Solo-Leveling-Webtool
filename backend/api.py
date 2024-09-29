@@ -7,6 +7,9 @@ from tasks_db import (
 from profiles_db import (
     init_profiles_db, get_all_profiles, update_profile_level_and_xp
 )
+from titles_db import (
+    init_titles_db, get_titles
+)
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -16,7 +19,7 @@ CORS(app, resources={r"/api/*": {"origins": "*"}})
 
 init_tasks_db()
 init_profiles_db()
-
+init_titles_db()
 
 @app.route('/api/tasks', methods=['GET'])
 def get_all_tasks():
@@ -24,14 +27,21 @@ def get_all_tasks():
     task_list = [{
         'id': task[0],
         'category': task[1],
-        'name': task[2],
-        'difficulty': task[3],
-        'description': task[4],
-        'xp': task[5],
-        'status': task[6]
+        'difficulty': task[2],
+        'description': task[3],
+        'xp': task[4],
+        'status': task[5]
     } for task in tasks]
     return jsonify(task_list)
 
+@app.route('/api/titles', methods=['GET'])
+def get_all_titles():
+    titles = get_titles()
+    title_list = [{
+        'id': title[0],
+        'title': title[1],
+    } for title in titles]
+    return jsonify(title_list)
 
 @app.route('/api/profile', methods=['GET'])
 def get_profile():
@@ -77,6 +87,21 @@ def update_task(task_id):
         logger.error(f'Task {task_id} not found or failed to update.')
         return jsonify({'message': 'Task not found'}), 404
 
+
+
+# # Login API route
+# @app.route('/api/login', methods=['POST'])
+# def login():
+#     data = request.json
+#     username = data.get('username')
+#     password = data.get('password')
+    
+#     # Verify the user from the database
+#     if verify_user(username, password):
+#         return jsonify({'message': 'Login successful', 'status': 'success'}), 200
+#     else:
+#         return jsonify({'message': 'Invalid credentials', 'status': 'fail'}), 401
+    
 
 if __name__ == '__main__':
     app.run(host="0.0.0.0", port=5000, debug=True)

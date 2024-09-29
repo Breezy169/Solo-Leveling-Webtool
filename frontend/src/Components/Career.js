@@ -4,7 +4,7 @@ import Grid2 from '@mui/material/Grid2'; // Import Grid2
 import gojo from '../Images/gojo.jpg';
 import { Link } from 'react-router-dom'; // Import Link
 
-function Home() {
+function Career() {
   const [profile, setProfile] = useState(null); // Initialize profile as null
   // const [isLoggedIn, setIsLoggedIn] = useState(false); // State for login status
   // const [loginData, setLoginData] = useState({ username: '', password: '' }); // State for login form data
@@ -155,4 +155,4 @@ function Home() {
   );
 }
 
-export default Home;
+export default Career;

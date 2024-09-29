@@ -3,14 +3,15 @@ import Home from './Components/Home';
 import AboutMe from './Components/AboutMe';
 import Tasks from './Components/Tasks';
 import Achievements from './Components/Achievements';
-import Fitness from './Components/Fitness';
+import Career from './Components/Career';
 
 function App() {
   return (
       <Routes>
         <Route path="/" element={<Home />} />
+        <Route path="/home" element={<Home />} />
         <Route path="/tasks" element={<Tasks />} />
-        <Route path="/fitness" element={<Fitness />} />
+        <Route path="/career" element={<Career />} />
         <Route path="/achievements" element={<Achievements />} />
         <Route path="/about" element={<AboutMe />} />
       </Routes>

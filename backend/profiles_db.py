@@ -13,7 +13,8 @@ def init_profiles_db():
         level INTEGER,
         xp INTEGER DEFAULT 0,  -- Add XP column with a default value
         rank TEXT,
-        title TEXT
+        title TEXT,
+        password TEXT
     )
     ''')
     conn.commit()
@@ -34,15 +35,16 @@ def add_profile_to_db(profile):
     
     # Proceed to insert the new profile if the name is unique
     cursor.execute('''
-    INSERT INTO profiles (name, age, level, xp, rank, title)
-    VALUES (?, ?, ?, ?, ?, ?) 
+    INSERT INTO profiles (name, age, level, xp, rank, title, password)
+    VALUES (?, ?, ?, ?, ?, ?, ?) 
     ''', (
         profile['name'],
         profile['age'],
         1,              # Default value for level
         0,              # Default value for xp
         'iron',         # Default value for rank
-        'beginner'      # Default value for title
+        'beginner',     # Default value for title
+        profile['password']
     ))
     conn.commit()
     conn.close()
@@ -79,5 +81,11 @@ def update_profile_level_and_xp(profile_id, new_level, new_xp):
     finally:
         conn.close()
 
-
+# def verify_user(username, password):
+#     conn = sqlite3.connect(PROFILES_DB)  # Assume a database named users.db
+#     cursor = conn.cursor()
+#     cursor.execute("SELECT * FROM profiles WHERE name = ? AND password = ?", (username, password))
+#     user = cursor.fetchone()
+#     conn.close()
+#     return user is not None
 

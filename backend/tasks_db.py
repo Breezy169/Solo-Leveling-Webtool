@@ -13,7 +13,6 @@ def init_tasks_db():
     CREATE TABLE IF NOT EXISTS tasks (
         id INTEGER PRIMARY KEY,
         category TEXT,
-        name TEXT,
         difficulty TEXT,                   
         description TEXT,
         xp INTEGER,              
@@ -31,6 +30,8 @@ def get_xp_for_difficulty(difficulty):
         return 450
     elif difficulty.lower() == 'hard':
         return 925
+    elif difficulty.lower() == 'extreme':
+        return 1900
     return 0  # Default if difficulty level is not recognized
 
 def add_task_to_db(task):
@@ -41,11 +42,10 @@ def add_task_to_db(task):
     xp = get_xp_for_difficulty(task['difficulty'])
     
     cursor.execute('''
-    INSERT INTO tasks (category, name, difficulty, description, xp, status)
-    VALUES (?, ?, ?, ?, ?, ?) 
+    INSERT INTO tasks (category, difficulty, description, xp, status)
+    VALUES (?, ?, ?, ?, ?) 
     ''', (
         task['category'],
-        task['name'],
         task['difficulty'],
         task['description'],
         xp,  # Assign calculated XP

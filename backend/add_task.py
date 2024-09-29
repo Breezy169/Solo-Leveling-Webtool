@@ -13,6 +13,7 @@ def get_xp_for_difficulty(difficulty):
         return 925
     elif difficulty.lower() == 'extreme':
         return 1900
+
     return 0  # Default if difficulty level is not recognized
 
 def submit_task():

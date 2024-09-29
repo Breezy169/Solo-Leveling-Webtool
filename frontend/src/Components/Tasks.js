@@ -1,11 +1,15 @@
 import { Box, List, ListItem, ListItemText, Typography, IconButton, Collapse, LinearProgress, Button } from '@mui/material';
 import React, { useEffect, useState } from 'react';
+import Grid2 from '@mui/material/Grid2'; // Import Grid2
 import gojo from '../Images/gojo.jpg';
+import { Link } from 'react-router-dom'; // Import Link
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'; // Import icon for expanding
 import ResetIcon from '@mui/icons-material/Refresh'; // Import reset icon
 import { useTheme } from '@mui/material/styles'; // Import useTheme
 import StarIcon from '@mui/icons-material/Star'; // Filled star
 import StarBorderIcon from '@mui/icons-material/StarBorder'; // Empty star
+import TextField from '@mui/material/TextField';
+import Autocomplete from '@mui/material/Autocomplete';
 import { border } from '@mui/system';
 
 // Create a theme
@@ -16,6 +20,30 @@ function Tasks() {
   const [tasks, setTasks] = useState([]);
   const [expandedTask, setExpandedTask] = useState(null);
   const [profile, setProfile] = useState(null); // Initialize profile as null
+  const [options, setOptions] = useState([]);
+
+  // Fetch options from the database
+  useEffect(() => {
+    const fetchOptions = async () => {
+      try {
+        const response = await fetch('http://localhost:5000/api/titles'); // Replace with your API endpoint
+        const data = await response.json();
+        setOptions(data);
+      } catch (error) {
+        console.error('Error fetching options:', error);
+      }
+    };
+
+    fetchOptions();
+  }, [])
+
+  const titles = options.map((option) => {
+    const firstLetter = option.title[0].toUpperCase();
+    return {
+      firstLetter: /[0-9]/.test(firstLetter) ? '0-9' : firstLetter,
+      ...option,
+    };
+  });
 
   const fetchProfiles = async () => {
     const response = await fetch('http://localhost:5000/api/profile'); // API endpoint
@@ -108,8 +136,8 @@ function Tasks() {
         <Box
           sx={{
             padding: '10px',
-            height: '250px',
-            width: '450px',
+            height: '300px',
+            width: '500px',
             display: 'flex',
             position: 'absolute',
             justifyContent: 'center',
@@ -126,8 +154,8 @@ function Tasks() {
             alt=""
             style={{
               position: 'absolute', // Position the image absolutely
-              top: '10px', // Adjust vertical position
-              left: '15px', // Adjust horizontal position
+              top: '30px', // Adjust vertical position
+              left: '25px', // Adjust horizontal position
               width: '200px', // Set a fixed width for the image
               height: 'auto', // Maintain aspect ratio
               border: 1,
@@ -135,7 +163,7 @@ function Tasks() {
             }}
             src={gojo}
           />
-          <List sx={{ color: '#f2b5d5', padding: 0, left: '20%' }}>
+          <List sx={{ color: '#f2b5d5', padding: 0, left: '25%' }}>
             <ListItem sx={{ padding: '2px 0' }}>
               <ListItemText
                 primary={<Typography sx={{ fontSize: '16px', fontWeight: 'bold' }}>Name: {profile?.name}</Typography>}
@@ -156,18 +184,52 @@ function Tasks() {
                 primary={<Typography sx={{ fontSize: '16px', fontWeight: 'bold' }}>Rank: {profile?.rank}</Typography>}
               />
             </ListItem>
-            <ListItem sx={{ padding: '2px 0' }}>
+            {/* <ListItem sx={{ padding: '2px 0' }}>
               <ListItemText
                 primary={<Typography sx={{ fontSize: '16px', fontWeight: 'bold' }}>Title: {profile?.title}</Typography>}
+              />
+            </ListItem> */}
+            <ListItem sx={{ padding: '2px 0'}}>
+              <ListItemText>
+              <Typography sx={{ fontSize: '16px', fontWeight: 'bold', marginRight: '10px'}}>Title:
+                </Typography>
+              </ListItemText>
+              <ListItemText
+                primary={<Autocomplete
+                  options={titles.sort((a, b) => -b.firstLetter.localeCompare(a.firstLetter))}
+                  groupBy={(option) => option.firstLetter}
+                  getOptionLabel={(option) => option.title}
+                  sx={{ width: 150 }}
+                  renderInput={(params) => (
+                    <TextField 
+                      {...params} 
+                      label="" 
+                      sx={{
+                        '& .MuiInputBase-input': {
+                          color: '#f2b5d5', // Input text color
+                        },
+                        '& .MuiInputLabel-root': {
+                          color: '#f2b5d5', // Label color
+                        },
+                        '& .MuiOutlinedInput-notchedOutline': {
+                          borderColor: '#f2b5d5', // Border color (optional)
+                        }
+                      }} 
+                    />
+                  )}
+
+                />
+                
+                }
               />
             </ListItem>
           </List>
 
           {/* Progress Bar */}
-          <Typography sx={{ fontSize: '16px', fontWeight: 'bold', marginTop: '5px' }}>
+          <Typography sx={{ fontSize: '16px', fontWeight: 'bold', marginTop: '5px',  marginBottom: '5px' }}>
             XP: {profile?.xp}/{Math.floor(profile?.level ** 1.15 * 1000)}
           </Typography>
-          <LinearProgress variant="determinate" value={(profile?.xp / Math.floor(profile?.level ** 1.15 * 1000)) * 100} sx={{ width: '100%', height: '10px' }} />
+          <LinearProgress color='secondary' variant="determinate" value={(profile?.xp / Math.floor(profile?.level ** 1.15 * 1000)) * 100} sx={{ width: '100%', height: '10px' }} />
         </Box>
 
         <Box
@@ -350,7 +412,27 @@ function Tasks() {
             ))}
           </Box>
         </Box>
+        <Box   sx={{
+    width: '722px',
+    height: '500px',
+    border: 'none',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    position: 'fixed', // Use fixed positioning to keep it in the same spot
+    top: '800px',    // Adjust as necessary for spacing from the bottom
+    left: '20px',      // Adjust as necessary for spacing from the left
+    zIndex: 1000,      // Ensure it appears above other content
+  }}>
+          <Grid2 container spacing={2} sx={{ height: '100%' }}>
+            <Grid2 xs={6}><Link to="/home" style={{ textDecoration: 'none' }}><Box sx={{ height: '50px', width: '150px', display: 'flex', justifyContent: 'center', alignItems: 'center', border: 1, color: '#f2b5d5', transition: 'transform 0.3s, box-shadow 0.3s', '&:hover': { transform: 'scale(1.05)', boxShadow: '0 0 10px #f2b5d5' }}}>Home</Box></Link></Grid2>
+            <Grid2 xs={6}><Link to="/career" style={{ textDecoration: 'none' }}><Box sx={{ height: '50px', width: '150px', display: 'flex', justifyContent: 'center', alignItems: 'center', border: 1, color: '#f2b5d5', transition: 'transform 0.3s, box-shadow 0.3s', '&:hover': { transform: 'scale(1.05)', boxShadow: '0 0 10px #f2b5d5' }}}>Career</Box></Link></Grid2>
+            <Grid2 xs={6}><Link to="/achievements" style={{ textDecoration: 'none' }}><Box sx={{ height: '50px', width: '150px', display: 'flex', justifyContent: 'center', alignItems: 'center', border: 1, color: '#f2b5d5', transition: 'transform 0.3s, box-shadow 0.3s', '&:hover': { transform: 'scale(1.05)', boxShadow: '0 0 10px #f2b5d5' }}}>Achievements</Box></Link></Grid2>
+            <Grid2 xs={6}><Link to="/about" style={{ textDecoration: 'none' }}><Box sx={{ height: '50px', width: '150px', display: 'flex', justifyContent: 'center', alignItems: 'center', border: 1, color: '#f2b5d5', transition: 'transform 0.3s, box-shadow 0.3s', '&:hover': { transform: 'scale(1.05)', boxShadow: '0 0 10px #f2b5d5' }}}>About me</Box></Link></Grid2>
+          </Grid2>
+        </Box>
       </Box>
+      
     </div>
   );
 }

@@ -96,6 +96,7 @@ function Achievements() {
                 primary={<Typography sx={{ fontSize: '8px', fontWeight: 'bold' }}>Title: {title}</Typography>} // Bold text
               />
             </ListItem>
+            
           </List>
         </Box>
         {/* Outer container Box without visible border */}
@@ -135,7 +136,7 @@ function Achievements() {
               </Link>
             </Grid2>
             <Grid2 xs={6}>
-              <Link to="/fitness" style={{ textDecoration: 'none' }}>
+              <Link to="/career" style={{ textDecoration: 'none' }}>
                 <Box
                   sx={{
                     height: '150px',
@@ -152,7 +153,7 @@ function Achievements() {
                     }
                   }}
                 >
-                  Fitness
+                  Career
                 </Box>
               </Link>
             </Grid2>

@@ -6,15 +6,14 @@ def main():
         'age': int(input("Enter profile age: ")),
         'level': 1,  # Default level
         'xp': 0,     # Default XP
-        'rank': 'iron',  # Default rank
-        'title': 'beginner'  # Default title
+        'rank': "Iron",  # Default rank
+        'title': "Beginner",  # Default title
+        'password': input("Enter a password: ")
     }
 
-    result = add_profile_to_db(profile)
-    if result:
-        print("Profile added successfully.")
-    else:
-        print("Failed to add profile.")
+    add_profile_to_db(profile)
+    print("Profile added successfully.")
+
 
 if __name__ == "__main__":
     main()
