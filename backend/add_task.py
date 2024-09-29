@@ -21,7 +21,7 @@ def submit_task():
         'category': category_var.get(),
         'name': name_entry.get(),
         'difficulty': difficulty_var.get(),
-        'description': description_entry.get("1.0", tk.END).strip(),
+        'description': 'Description: ' + description_entry.get("1.0", tk.END).strip(),
     }
 
     # Check if all fields are filled

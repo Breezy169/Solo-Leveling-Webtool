@@ -4,6 +4,9 @@ import gojo from '../Images/gojo.jpg';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'; // Import icon for expanding
 import ResetIcon from '@mui/icons-material/Refresh'; // Import reset icon
 import { useTheme } from '@mui/material/styles'; // Import useTheme
+import StarIcon from '@mui/icons-material/Star'; // Filled star
+import StarBorderIcon from '@mui/icons-material/StarBorder'; // Empty star
+import { border } from '@mui/system';
 
 // Create a theme
 
@@ -55,6 +58,39 @@ function Tasks() {
   const handleReset = () => {
     fetchTasks();
     setExpandedTask(null);
+  };
+
+  const getStarRating = (difficulty) => {
+    let stars = 0;
+    switch (difficulty) {
+      case 'Easy':
+        stars = 1;
+        break;
+      case 'easy':
+        stars = 1;
+        break;
+      case 'Medium':
+        stars =  3;
+        break;
+      case 'medium':
+        stars = 3;
+        break;
+      case 'Hard':
+        stars = 4;
+        break;
+      case 'hard':
+        stars = 4;
+        break;
+      case 'Extreme':
+        stars = 5;
+        break;
+      case 'extreme':
+        stars = 5;
+        break;
+      default:
+        stars = 0;
+    }
+    return stars;
   };
 
   return (
@@ -163,6 +199,9 @@ function Tasks() {
                   onClick={() => setSelectedCategory(category)}
                   sx={{
                     cursor: 'pointer',
+                    border: selectedCategory === category ? 1 : 'none',
+                    boxShadow: selectedCategory === category ? '0 0 10px #f2b5d5' : 'none',
+                    color: selectedCategory === category ? '#f2b5d5' : '#f2b5d5',
                     '&:hover': {
                       border: 1,
                       color: '#f2b5d5',
@@ -185,7 +224,7 @@ function Tasks() {
           <Box
             sx={{
               width: '100%',
-              padding: '10px',
+              padding: '20px',
               overflowY: 'scroll',
               height: '100%',
               color: '#f2b5d5',
@@ -216,21 +255,37 @@ function Tasks() {
                   padding: '5px',
                   marginBottom: '10px',
                   cursor: 'pointer',
+                  backgroundColor: task.status === 'done' ? '#5ced73' : null,
+                  color: task.status === 'done' ? 'black' : null,
+                  border: task.status === 'done' ? '3px solid black' : '1px solid #f2b5d5',
                 }}
               >
                 <Box
-                  sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
+                  sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}
                   onClick={() => setExpandedTask(expandedTask === index ? null : index)}
                 >
                   <Typography>{task.name}</Typography>
                   <IconButton>
-                    <ExpandMoreIcon />
+                    <ExpandMoreIcon sx={{color: task.status === 'done' ? 'black' : '#f2b5d5'}} />
                   </IconButton>
                 </Box>
                 {/* Display the difficulty of the task */}
-                <Typography variant="caption" sx={{ color: '#f2b5d5', fontWeight: 'bold' }}>
+                <Typography variant="caption" sx={{color: task.status === 'done' ? 'black' : '#f2b5d5', fontWeight: 'bold' }}>
                   Difficulty: {task.difficulty}
                 </Typography>
+
+                 {/* Star Rating */}
+                 <Box sx={{ display: 'flex', alignItems: 'center', marginTop: '5px' }}>
+                  {Array.from({ length: 5 }).map((_, i) => (
+                    <IconButton key={i} disableRipple>
+                      {i < getStarRating(task.difficulty) ? (
+                        <StarIcon sx={{ color: task.status === 'done' ? 'black' : '#f2b5d5', fontSize: '16px' }} />
+                      ) : (
+                        <StarBorderIcon sx={{ color: task.status === 'done' ? 'black' : '#f2b5d5', fontSize: '16px' }} />
+                      )}
+                    </IconButton>
+                  ))}
+                </Box>
 
                 <Collapse in={expandedTask === index}>
                   <Box sx={{ padding: '10px' }} theme={theme}>
@@ -242,6 +297,7 @@ function Tasks() {
                       variant="contained"
                       color="success"
                       sx={{marginTop: '18px',
+                        opacity: task.status === 'done' ? 0 : 1,
                         color: task.status === 'done' ? 'white' : 'black', // Set text color based on status
                         backgroundColor: task.status === 'done' ? theme.palette.success.main : 'green', // Maintain normal background color
                         '&.Mui-disabled': {

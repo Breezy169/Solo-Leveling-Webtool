@@ -60,14 +60,14 @@ function Home() {
           minHeight: '100vh',
           flexDirection: 'column',
           justifyContent: 'center',
-          alignItems: 'center'
+          alignItems: 'center',
         }}
       >
         <Box
           sx={{
             padding: '10px',
-            height: '150px',
-            width: '250px',
+            height: '250px',
+            width: '450px',
             display: 'flex',
             position: 'absolute',
             justifyContent: 'center',
@@ -76,7 +76,7 @@ function Home() {
             color: '#f2b5d5',
             left: '3%',
             top: '5%',
-            borderRadius: '8px',
+            borderRadius: '16px',
             flexDirection: 'column', // Ensures content is stacked
           }}
         >
@@ -86,53 +86,53 @@ function Home() {
               position: 'absolute', // Position the image absolutely
               top: '10px', // Adjust vertical position
               left: '15px', // Adjust horizontal position
-              width: '120px', // Set a fixed width for the image
+              width: '200px', // Set a fixed width for the image
               height: 'auto', // Maintain aspect ratio
               border: 1,
               borderRadius: '150px',
             }}
             src={gojo}
           />
-          <List sx={{ color: '#f2b5d5', padding: 0, left: '20%' }}> {/* Remove default padding */}
+          <List sx={{ color: '#f2b5d5', padding: 0, left: '20%' }}>
             <ListItem sx={{ padding: '2px 0' }}>
               <ListItemText
-                primary={<Typography sx={{ fontSize: '8px', fontWeight: 'bold' }}>Name: {name}</Typography>} // Bold text
+                primary={<Typography sx={{ fontSize: '16px', fontWeight: 'bold' }}>Name: {profile?.name}</Typography>}
               />
             </ListItem>
             <ListItem sx={{ padding: '2px 0' }}>
               <ListItemText
-                primary={<Typography sx={{ fontSize: '8px', fontWeight: 'bold' }}>Age: {age}</Typography>} // Bold text
+                primary={<Typography sx={{ fontSize: '16px', fontWeight: 'bold' }}>Age: {profile?.age}</Typography>}
               />
             </ListItem>
             <ListItem sx={{ padding: '2px 0' }}>
               <ListItemText
-                primary={<Typography sx={{ fontSize: '8px', fontWeight: 'bold' }}>Level: {level}</Typography>} // Bold text
+                primary={<Typography sx={{ fontSize: '16px', fontWeight: 'bold' }}>Level: {profile?.level}</Typography>}
               />
             </ListItem>
             <ListItem sx={{ padding: '2px 0' }}>
               <ListItemText
-                primary={<Typography sx={{ fontSize: '8px', fontWeight: 'bold' }}>Rank: {rank}</Typography>} // Bold text
+                primary={<Typography sx={{ fontSize: '16px', fontWeight: 'bold' }}>Rank: {profile?.rank}</Typography>}
               />
             </ListItem>
             <ListItem sx={{ padding: '2px 0' }}>
               <ListItemText
-                primary={<Typography sx={{ fontSize: '8px', fontWeight: 'bold' }}>Title: {title}</Typography>} // Bold text
+                primary={<Typography sx={{ fontSize: '16px', fontWeight: 'bold' }}>Title: {profile?.title}</Typography>}
               />
             </ListItem>
           </List>
-          
+
           {/* Progress Bar */}
-          <Typography sx={{ fontSize: '8px', fontWeight: 'bold', marginTop: '5px' }}>
-            XP: {xp}/{max_xp}
+          <Typography sx={{ fontSize: '16px', fontWeight: 'bold', marginTop: '5px' }}>
+            XP: {profile?.xp}/{Math.floor(profile?.level ** 1.15 * 1000)}
           </Typography>
-          <LinearProgress variant="determinate" value={(xp / max_xp) * 100} sx={{ width: '100%', height: '10px' }} />
+          <LinearProgress variant="determinate" value={(profile?.xp / Math.floor(profile?.level ** 1.15 * 1000)) * 100} sx={{ width: '100%', height: '10px' }} />
         </Box>
 
         {/* Outer container Box without visible border */}
         <Box
           sx={{
-            width: '419px',     // Outer container width
-            height: '300px',    // Outer container height
+            width: '622px',     // Outer container width
+            height: '500px',    // Outer container height
             border: 'none',     // No outer border
             display: 'flex',
             justifyContent: 'center',
@@ -146,8 +146,8 @@ function Home() {
               <Link to="/tasks" style={{ textDecoration: 'none' }}>
                 <Box
                   sx={{
-                    height: '150px',
-                    width: '200px',
+                    height: '250px',
+                    width: '300px',
                     display: 'flex',
                     justifyContent: 'center',
                     alignItems: 'center',
@@ -168,8 +168,8 @@ function Home() {
               <Link to="/fitness" style={{ textDecoration: 'none' }}>
                 <Box
                   sx={{
-                    height: '150px',
-                    width: '200px',
+                    height: '250px',
+                    width: '300px',
                     display: 'flex',
                     justifyContent: 'center',
                     alignItems: 'center',
@@ -190,8 +190,8 @@ function Home() {
               <Link to="/achievements" style={{ textDecoration: 'none' }}>
                 <Box
                   sx={{
-                    height: '150px',
-                    width: '200px',
+                    height: '250px',
+                    width: '300px',
                     display: 'flex',
                     justifyContent: 'center',
                     alignItems: 'center',
@@ -212,8 +212,8 @@ function Home() {
               <Link to="/about" style={{ textDecoration: 'none' }}>
                 <Box
                   sx={{
-                    height: '150px',
-                    width: '200px',
+                    height: '250px',
+                    width: '300px',
                     display: 'flex',
                     justifyContent: 'center',
                     alignItems: 'center',
