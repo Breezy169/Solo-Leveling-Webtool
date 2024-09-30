@@ -3,7 +3,7 @@ import { Box, List, ListItem, ListItemText, Typography, LinearProgress, TextFiel
 import Grid2 from '@mui/material/Grid2'; // Import Grid2
 import gojo from '../Images/gojo.jpg';
 import { Link } from 'react-router-dom'; // Import Link
-
+import Settings from './Settings';
 function Home() {
   const [profile, setProfile] = useState(null); // Initialize profile as null
   // const [isLoggedIn, setIsLoggedIn] = useState(false); // State for login status
@@ -70,34 +70,76 @@ function Home() {
           flexDirection: 'column',
           justifyContent: 'center',
           alignItems: 'center',
-          // filter: isLoggedIn ? 'none' : 'blur(10px)', Apply blur effect
-          transition: 'filter 0.3s ease', // Smooth transition for blur
         }}
       >
-        {/* Main content */}
-        <Box sx={{ padding: '10px', height: '250px', width: '450px', display: 'flex', position: 'absolute', justifyContent: 'center', alignItems: 'center', border: 1.3, color: '#f2b5d5', left: '3%', top: '5%', borderRadius: '16px', flexDirection: 'column' }}>
-          <img alt="" style={{ position: 'absolute', top: '10px', left: '15px', width: '200px', height: 'auto', border: 1, borderRadius: '150px' }} src={gojo} />
-          <List sx={{ color: '#f2b5d5', padding: 0, left: '20%' }}>
+        <Box
+          sx={{
+            padding: '10px',
+            height: '250px',
+            width: '450px',
+            display: 'flex',
+            position: 'absolute',
+            justifyContent: 'center',
+            alignItems: 'center',
+            border: 1.3,
+            color: '#f2b5d5',
+            left: '3%',
+            top: '5%',
+            borderRadius: '16px',
+            flexDirection: 'column', // Ensures content is stacked
+          }}
+        >
+          <img
+            alt=""
+            style={{
+              position: 'absolute', // Position the image absolutely
+              top: '30px', // Adjust vertical position
+              left: '25px', // Adjust horizontal position
+              width: '200px', // Set a fixed width for the image
+              height: 'auto', // Maintain aspect ratio
+              border: 1,
+              borderRadius: '150px',
+            }}
+            src={gojo}
+          />
+          <Box sx={{ marginLeft: '410px'}}>
+            <Settings />
+          </Box>
+          <List sx={{bottom: '10px', color: '#f2b5d5', padding: 0, left: '15%' }}>
             <ListItem sx={{ padding: '2px 0' }}>
-              <ListItemText primary={<Typography sx={{ fontSize: '16px', fontWeight: 'bold' }}>Name: {profile?.name}</Typography>} />
+              <ListItemText
+                primary={<Typography sx={{ fontSize: '16px', fontWeight: 'bold' }}>Name: {profile?.name}</Typography>}
+              />
             </ListItem>
             <ListItem sx={{ padding: '2px 0' }}>
-              <ListItemText primary={<Typography sx={{ fontSize: '16px', fontWeight: 'bold' }}>Age: {profile?.age}</Typography>} />
+              <ListItemText
+                primary={<Typography sx={{ fontSize: '16px', fontWeight: 'bold' }}>Age: {profile?.age}</Typography>}
+              />
             </ListItem>
             <ListItem sx={{ padding: '2px 0' }}>
-              <ListItemText primary={<Typography sx={{ fontSize: '16px', fontWeight: 'bold' }}>Level: {profile?.level}</Typography>} />
+              <ListItemText
+                primary={<Typography sx={{ fontSize: '16px', fontWeight: 'bold' }}>Level: {profile?.level}</Typography>}
+              />
             </ListItem>
             <ListItem sx={{ padding: '2px 0' }}>
-              <ListItemText primary={<Typography sx={{ fontSize: '16px', fontWeight: 'bold' }}>Rank: {profile?.rank}</Typography>} />
+              <ListItemText
+                primary={<Typography sx={{ fontSize: '16px', fontWeight: 'bold' }}>Rank: {profile?.rank}</Typography>}
+              />
             </ListItem>
             <ListItem sx={{ padding: '2px 0' }}>
-              <ListItemText primary={<Typography sx={{ fontSize: '16px', fontWeight: 'bold' }}>Title: {profile?.title}</Typography>} />
+              <ListItemText
+                primary={<Typography sx={{ fontSize: '16px', fontWeight: 'bold' }}>Title: {profile?.title}</Typography>}
+              />
             </ListItem>
           </List>
-          <Typography sx={{ fontSize: '16px', fontWeight: 'bold', marginTop: '8px', marginBottom: '5px' }}>XP: {profile?.xp}/{Math.floor(profile?.level ** 1.15 * 1000)}</Typography>
+          
+          {/* Progress Bar */}
+          <Typography sx={{ fontSize: '16px', fontWeight: 'bold', marginTop: '5px',  marginBottom: '5px' }}>
+            XP: {profile?.xp}
+            </Typography>
           <LinearProgress color='secondary' variant="determinate" value={(profile?.xp / Math.floor(profile?.level ** 1.15 * 1000)) * 100} sx={{ width: '100%', height: '10px' }} />
+         
         </Box>
-
         <Box sx={{ width: '622px', height: '500px', border: 'none', display: 'flex', justifyContent: 'center', alignItems: 'center', fontWeight: 'bold' }}>
           <Grid2 container spacing={2} sx={{ height: '100%' }}>
             <Grid2 xs={6}><Link to="/tasks" style={{ textDecoration: 'none' }}><Box sx={{ height: '250px', width: '300px', display: 'flex', justifyContent: 'center', alignItems: 'center', border: 1, color: '#f2b5d5', transition: 'transform 0.3s, box-shadow 0.3s', '&:hover': { transform: 'scale(1.05)', boxShadow: '0 0 10px #f2b5d5' }}}>Tasks</Box></Link></Grid2>

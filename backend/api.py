@@ -5,7 +5,7 @@ from tasks_db import (
     init_tasks_db, get_tasks, update_task_in_db
 )
 from profiles_db import (
-    init_profiles_db, get_all_profiles, update_profile_level_and_xp
+    init_profiles_db, get_all_profiles, update_profile_level_and_xp, get_profile_by_id
 )
 from titles_db import (
     init_titles_db, get_titles
@@ -27,10 +27,11 @@ def get_all_tasks():
     task_list = [{
         'id': task[0],
         'category': task[1],
-        'difficulty': task[2],
-        'description': task[3],
-        'xp': task[4],
-        'status': task[5]
+        'name': task[2],
+        'difficulty': task[3],
+        'description': task[4],
+        'xp': task[5],
+        'status': task[6]
     } for task in tasks]
     return jsonify(task_list)
 
@@ -44,7 +45,7 @@ def get_all_titles():
     return jsonify(title_list)
 
 @app.route('/api/profile', methods=['GET'])
-def get_profile():
+def get_profiles():
     profiles = get_all_profiles()
     profile_list = [{
         'id': profile[0],
@@ -63,16 +64,22 @@ def update_profile():
     profile_id = 1  # Assuming there's only one profile
     new_level = data.get('level')
     new_xp = data.get('xp')
+    new_title = data.get('title')
 
     if new_level is None or new_xp is None:
         return jsonify({"message": "Level and XP must be provided"}), 400
 
-    if update_profile_level_and_xp(profile_id, new_level, new_xp):
+    # Update the profile in the database
+    if update_profile_level_and_xp(profile_id, new_level, new_xp, new_title):
         logger.info(f'Profile {profile_id} updated successfully.')
-        return jsonify({"message": "Profile updated successfully"}), 200
+
+        # Fetch the updated profile details from the database
+        updated_profile = get_profile_by_id(profile_id)  # Function to fetch the updated profile
+        return jsonify(updated_profile), 200  # Return the updated profile details
     else:
         logger.error(f'Failed to update profile {profile_id}.')
         return jsonify({"message": "Failed to update profile"}), 500
+
 
 @app.route('/api/tasks/<int:task_id>', methods=['PUT'])
 def update_task(task_id):

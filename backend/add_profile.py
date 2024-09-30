@@ -7,7 +7,7 @@ def main():
         'level': 1,  # Default level
         'xp': 0,     # Default XP
         'rank': "Iron",  # Default rank
-        'title': "Beginner",  # Default title
+        'title': "",  # Default title
         'password': input("Enter a password: ")
     }
 

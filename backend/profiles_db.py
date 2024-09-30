@@ -42,8 +42,8 @@ def add_profile_to_db(profile):
         profile['age'],
         1,              # Default value for level
         0,              # Default value for xp
-        'iron',         # Default value for rank
-        'beginner',     # Default value for title
+        'Iron',         # Default value for rank
+        'Beginner',     # Default value for title
         profile['password']
     ))
     conn.commit()
@@ -58,7 +58,7 @@ def get_all_profiles():
     conn.close()
     return profiles
 
-def update_profile_level_and_xp(profile_id, new_level, new_xp):
+def update_profile_level_and_xp(profile_id, new_level, new_xp, new_title):
     """
     Update the level and experience points (XP) for a given profile in the database.
     """
@@ -69,9 +69,9 @@ def update_profile_level_and_xp(profile_id, new_level, new_xp):
         # Update the profile's level and XP
         cursor.execute('''
             UPDATE profiles
-            SET level = ?, xp = ?
+            SET level = ?, xp = ?, title = ?
             WHERE id = ?
-        ''', (new_level, new_xp, profile_id))
+        ''', (new_level, new_xp, new_title, profile_id))
         
         conn.commit()
         return True
@@ -80,6 +80,18 @@ def update_profile_level_and_xp(profile_id, new_level, new_xp):
         return False
     finally:
         conn.close()
+
+
+def get_profile_by_id(profile_id):
+    """
+    Retrieve a profile by its ID from the database.
+    """
+    conn = sqlite3.connect(PROFILES_DB)
+    cursor = conn.cursor()
+    cursor.execute('SELECT * FROM profiles WHERE id = ?', (profile_id,))
+    profile = cursor.fetchone()  # Fetch the profile
+    conn.close()
+    return profile  # Return the profile data or None if not found
 
 # def verify_user(username, password):
 #     conn = sqlite3.connect(PROFILES_DB)  # Assume a database named users.db

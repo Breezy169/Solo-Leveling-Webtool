@@ -8,9 +8,8 @@ import ResetIcon from '@mui/icons-material/Refresh'; // Import reset icon
 import { useTheme } from '@mui/material/styles'; // Import useTheme
 import StarIcon from '@mui/icons-material/Star'; // Filled star
 import StarBorderIcon from '@mui/icons-material/StarBorder'; // Empty star
-import TextField from '@mui/material/TextField';
-import Autocomplete from '@mui/material/Autocomplete';
 import { border } from '@mui/system';
+import Settings from './Settings';
 
 // Create a theme
 
@@ -20,30 +19,7 @@ function Tasks() {
   const [tasks, setTasks] = useState([]);
   const [expandedTask, setExpandedTask] = useState(null);
   const [profile, setProfile] = useState(null); // Initialize profile as null
-  const [options, setOptions] = useState([]);
 
-  // Fetch options from the database
-  useEffect(() => {
-    const fetchOptions = async () => {
-      try {
-        const response = await fetch('http://localhost:5000/api/titles'); // Replace with your API endpoint
-        const data = await response.json();
-        setOptions(data);
-      } catch (error) {
-        console.error('Error fetching options:', error);
-      }
-    };
-
-    fetchOptions();
-  }, [])
-
-  const titles = options.map((option) => {
-    const firstLetter = option.title[0].toUpperCase();
-    return {
-      firstLetter: /[0-9]/.test(firstLetter) ? '0-9' : firstLetter,
-      ...option,
-    };
-  });
 
   const fetchProfiles = async () => {
     const response = await fetch('http://localhost:5000/api/profile'); // API endpoint
@@ -136,8 +112,8 @@ function Tasks() {
         <Box
           sx={{
             padding: '10px',
-            height: '300px',
-            width: '500px',
+            height: '250px',
+            width: '450px',
             display: 'flex',
             position: 'absolute',
             justifyContent: 'center',
@@ -163,7 +139,10 @@ function Tasks() {
             }}
             src={gojo}
           />
-          <List sx={{ color: '#f2b5d5', padding: 0, left: '25%' }}>
+          <Box sx={{ marginLeft: '410px'}}>
+            <Settings />
+          </Box>
+          <List sx={{bottom: '10px', color: '#f2b5d5', padding: 0, left: '15%' }}>
             <ListItem sx={{ padding: '2px 0' }}>
               <ListItemText
                 primary={<Typography sx={{ fontSize: '16px', fontWeight: 'bold' }}>Name: {profile?.name}</Typography>}
@@ -184,54 +163,22 @@ function Tasks() {
                 primary={<Typography sx={{ fontSize: '16px', fontWeight: 'bold' }}>Rank: {profile?.rank}</Typography>}
               />
             </ListItem>
-            {/* <ListItem sx={{ padding: '2px 0' }}>
+            <ListItem sx={{ padding: '2px 0' }}>
               <ListItemText
                 primary={<Typography sx={{ fontSize: '16px', fontWeight: 'bold' }}>Title: {profile?.title}</Typography>}
               />
-            </ListItem> */}
-            <ListItem sx={{ padding: '2px 0'}}>
-              <ListItemText>
-              <Typography sx={{ fontSize: '16px', fontWeight: 'bold', marginRight: '10px'}}>Title:
-                </Typography>
-              </ListItemText>
-              <ListItemText
-                primary={<Autocomplete
-                  options={titles.sort((a, b) => -b.firstLetter.localeCompare(a.firstLetter))}
-                  groupBy={(option) => option.firstLetter}
-                  getOptionLabel={(option) => option.title}
-                  sx={{ width: 150 }}
-                  renderInput={(params) => (
-                    <TextField 
-                      {...params} 
-                      label="" 
-                      sx={{
-                        '& .MuiInputBase-input': {
-                          color: '#f2b5d5', // Input text color
-                        },
-                        '& .MuiInputLabel-root': {
-                          color: '#f2b5d5', // Label color
-                        },
-                        '& .MuiOutlinedInput-notchedOutline': {
-                          borderColor: '#f2b5d5', // Border color (optional)
-                        }
-                      }} 
-                    />
-                  )}
-
-                />
-                
-                }
-              />
             </ListItem>
           </List>
-
+          
           {/* Progress Bar */}
           <Typography sx={{ fontSize: '16px', fontWeight: 'bold', marginTop: '5px',  marginBottom: '5px' }}>
             XP: {profile?.xp}/{Math.floor(profile?.level ** 1.15 * 1000)}
           </Typography>
           <LinearProgress color='secondary' variant="determinate" value={(profile?.xp / Math.floor(profile?.level ** 1.15 * 1000)) * 100} sx={{ width: '100%', height: '10px' }} />
+         
         </Box>
-
+  
+        
         <Box
           sx={{
             position: 'absolute',
@@ -245,6 +192,8 @@ function Tasks() {
             right: '150px',
           }}
         >
+          
+       
           <Box
             sx={{
               width: '20%',
