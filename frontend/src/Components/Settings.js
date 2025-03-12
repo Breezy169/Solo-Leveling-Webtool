@@ -18,6 +18,9 @@ import SaveIcon from '@mui/icons-material/Save';
 import SettingsIcon from '@mui/icons-material/Settings';
 
 const BootstrapDialog = styled(Dialog)(({ theme }) => ({
+  '& .MuiPaper-root': {
+    backgroundColor: '#30324a',
+  },
   '& .MuiDialogContent-root': {
     padding: theme.spacing(2),
   },
@@ -69,7 +72,6 @@ export default function Settings() {
         setSuccess(true);
         setLoading(false);
         await handleSave();
-        await fetchProfiles();
       }, 2000);
     }
   };
