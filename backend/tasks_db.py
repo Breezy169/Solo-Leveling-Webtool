@@ -1,10 +1,14 @@
 import sqlite3
 import logging
+import os
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-TASKS_DB = 'tasks.db'
+
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+TASKS_DB = os.path.join(BASE_DIR, 'tasks.db')
 
 def init_tasks_db():
     conn = sqlite3.connect(TASKS_DB)
@@ -25,14 +29,17 @@ def init_tasks_db():
 
 def get_xp_for_difficulty(difficulty):
     """Return the XP associated with the given difficulty level."""
-    if difficulty.lower() == 'easy':
+  # Umwandlung in Kleinbuchstaben
+    if difficulty == 'Easy':
         return 200
-    elif difficulty.lower() == 'medium':
+    elif difficulty == 'Medium':
         return 450
-    elif difficulty.lower() == 'hard':
+    elif difficulty == 'Hard':
         return 925
-    elif difficulty.lower() == 'extreme':
+    elif difficulty == 'Extreme':
         return 1900
+    elif difficulty == 'Special':
+        return 25000
     return 0  # Default if difficulty level is not recognized
 
 def add_task_to_db(task):

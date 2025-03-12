@@ -1,0 +1,89 @@
+.knight-border {
+  position: relative;
+  border: 5px solid rgb(3, 82, 253);
+  animation: knight 1.5s infinite alternate;
+}
+
+
+
+.elite-border {
+    position: relative;
+    border: 5px solid rgb(3, 82, 253);
+    animation: elite 1.5s infinite alternate;
+  }
+  
+  /* Animation, die den Rahmen „flackern“ lässt */
+  @keyframes elite {
+    0% {
+      box-shadow: 0 0 5px rgb(3, 82, 253);
+    }
+    50% {
+      box-shadow: 0 0 20px rgb(3, 82, 253);
+    }
+    100% {
+      box-shadow: 0 0 5px rgb(3, 82, 253);
+    }
+  }
+
+
+
+  .general-border {
+    position: relative;
+    border: 5px solid rgb(130, 75, 234);
+    animation: general 1.5s infinite alternate;
+  }
+  
+  /* Animation, die den Rahmen „flackern“ lässt */
+  @keyframes general {
+    0% {
+      box-shadow: 0 0 5px rgb(130, 75, 234);
+    }
+    50% {
+      box-shadow: 0 0 20px rgb(130, 75, 234);
+    }
+    100% {
+      box-shadow: 0 0 5px rgb(130, 75, 234);
+    }
+  }
+
+  
+.marshal-border {
+  position: relative;
+  border: 5px solid rgb(130, 75, 234);
+  animation: marshal 1.5s infinite alternate;
+}
+
+/* Animation, die den Rahmen „flackern“ lässt */
+@keyframes marshal {
+  0% {
+    box-shadow: 0 0 5px rgb(130, 75, 234);
+  }
+  50% {
+    box-shadow: 0 0 20px rgb(130, 75, 234);
+  }
+  100% {
+    box-shadow: 0 0 5px rgb(130, 75, 234);
+  }
+}
+
+
+.grandmarshal-border {
+  position: relative;
+  border: 5px solid rgb(130, 75, 234);
+  animation: grandmarshal 1.5s infinite alternate;
+}
+
+/* Animation, die den Rahmen „flackern“ lässt */
+@keyframes grandmarshal {
+  0% {
+    box-shadow: 0 0 5px rgb(130, 75, 234);
+  }
+  50% {
+    box-shadow: 0 0 20px rgb(130, 75, 234);
+  }
+  100% {
+    box-shadow: 0 0 5px rgb(130, 75, 234);
+  }
+}
+
+

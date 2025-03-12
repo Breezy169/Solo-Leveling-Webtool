@@ -135,8 +135,8 @@ function Home() {
           
           {/* Progress Bar */}
           <Typography sx={{ fontSize: '16px', fontWeight: 'bold', marginTop: '5px',  marginBottom: '5px' }}>
-            XP: {profile?.xp}
-            </Typography>
+            XP: {profile?.xp}/{Math.floor(profile?.level ** 1.15 * 1000)}
+          </Typography>
           <LinearProgress color='secondary' variant="determinate" value={(profile?.xp / Math.floor(profile?.level ** 1.15 * 1000)) * 100} sx={{ width: '100%', height: '10px' }} />
          
         </Box>

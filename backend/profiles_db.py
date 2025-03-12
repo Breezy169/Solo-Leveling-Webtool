@@ -1,6 +1,9 @@
 import sqlite3
+import os
 
-PROFILES_DB = 'profiles.db'
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+PROFILES_DB = os.path.join(BASE_DIR, 'profiles.db')
+
 
 def init_profiles_db():
     conn = sqlite3.connect(PROFILES_DB)
@@ -15,6 +18,7 @@ def init_profiles_db():
         rank TEXT,
         title TEXT,
         password TEXT
+
     )
     ''')
     conn.commit()
@@ -58,7 +62,7 @@ def get_all_profiles():
     conn.close()
     return profiles
 
-def update_profile_level_and_xp(profile_id, new_level, new_xp, new_title):
+def update_profile_level_and_xp(profile_id, new_level, new_xp, new_title, new_rank):
     """
     Update the level and experience points (XP) for a given profile in the database.
     """
@@ -69,9 +73,9 @@ def update_profile_level_and_xp(profile_id, new_level, new_xp, new_title):
         # Update the profile's level and XP
         cursor.execute('''
             UPDATE profiles
-            SET level = ?, xp = ?, title = ?
+            SET level = ?, xp = ?, title = ?, rank = ?
             WHERE id = ?
-        ''', (new_level, new_xp, new_title, profile_id))
+        ''', (new_level, new_xp, new_title, new_rank, profile_id))
         
         conn.commit()
         return True

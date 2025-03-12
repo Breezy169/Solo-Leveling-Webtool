@@ -1,47 +1,137 @@
-import { Box, List, ListItem, ListItemText, Typography, IconButton, Collapse, LinearProgress, Button } from '@mui/material';
 import React, { useEffect, useState } from 'react';
-import Grid2 from '@mui/material/Grid2'; // Import Grid2
+import { Box, List, ListItem, ListItemText, Typography, IconButton, Collapse, LinearProgress, Button } from '@mui/material';
+import Grid2 from '@mui/material/Grid2';
 import gojo from '../Images/gojo.jpg';
-import { Link } from 'react-router-dom'; // Import Link
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore'; // Import icon for expanding
-import ResetIcon from '@mui/icons-material/Refresh'; // Import reset icon
-import { useTheme } from '@mui/material/styles'; // Import useTheme
-import StarIcon from '@mui/icons-material/Star'; // Filled star
-import StarBorderIcon from '@mui/icons-material/StarBorder'; // Empty star
-import { border } from '@mui/system';
+import { Link } from 'react-router-dom';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import ResetIcon from '@mui/icons-material/Refresh';
+import AddIcon from '@mui/icons-material/Add'; // Plus Icon
+import StarIcon from '@mui/icons-material/Star';
+import StarBorderIcon from '@mui/icons-material/StarBorder';
+import { useTheme } from '@mui/material/styles';
 import Settings from './Settings';
+import '../Css/borders.css';
+import grandmarshal from '../Images/grand-marshal.png'
 
-// Create a theme
+// TaskModal-Komponente (wie bisher)
+const TaskModal = ({ show, onClose, onSubmit }) => {
+  const [category, setCategory] = useState('');
+  const [name, setName] = useState('');
+  const [difficulty, setDifficulty] = useState('');
+  const [description, setDescription] = useState('');
+
+  const categories = ['Intelligence', 'Strength', 'Agility', 'Durability', 'Skills', 'Projects'];
+  const difficulties = ['Easy', 'Medium', 'Hard', 'Extreme', 'Special'];
+
+  const handleSubmit = () => {
+    if (!category || !name || !difficulty || !description) {
+      alert("Bitte alle Felder ausfüllen.");
+      return;
+    }
+    const task = {
+      category,
+      name,
+      difficulty,
+      description: 'Description: ' + description,
+    };
+    onSubmit(task);
+    setCategory('');
+    setName('');
+    setDifficulty('');
+    setDescription('');
+    onClose();
+  };
+
+  if (!show) return null;
+
+  return (
+    <Box
+      sx={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        backgroundColor: 'rgba(0,0,0,0.5)',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        zIndex: 2000,
+      }}
+    >
+      <Box sx={{ backgroundColor: '#30324a', padding: '20px', border: "2px solid #f2b5d5", width: '400px' }}>
+        <Typography variant="h6" sx={{ marginBottom: '30px', color: "#f2b5d5" }}>Add new task</Typography>
+        <Box sx={{ marginBottom: '30px', color: "#f2b5d5"}}>
+          <Typography>Category:</Typography>
+          <select value={category} onChange={e => setCategory(e.target.value)}>
+            <option value="" >Select category</option>
+            {categories.map((cat, idx) => (
+              <option key={idx} value={cat}>{cat}</option>
+            ))}
+          </select>
+        </Box>
+        <Box sx={{ marginBottom: '30px', color: "#f2b5d5" }}>
+          <Typography>Task Name:</Typography>
+          <input type="text" value={name} onChange={e => setName(e.target.value)} style={{ width: '100%' }} />
+        </Box>
+        <Box sx={{ marginBottom: '30px', color: "#f2b5d5" }}>
+          <Typography>Difficulty:</Typography>
+          <select value={difficulty} onChange={e => setDifficulty(e.target.value)}>
+            <option value="">Select difficulty</option>
+            {difficulties.map((diff, idx) => (
+              <option key={idx} value={diff}>{diff}</option>
+            ))}
+          </select>
+        </Box>
+        <Box sx={{ marginBottom: '30px',color: "#f2b5d5" }}>
+          <Typography>Description:</Typography>
+          <textarea value={description} onChange={e => setDescription(e.target.value)} style={{ width: '100%' }} />
+        </Box>
+        <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+          <Button onClick={handleSubmit} variant="contained" color="#30324a" sx={{color: "#f2b5d5", '&:hover': {
+                      border: 0,
+                      transition: 'transform 0.3s, box-shadow 0.3s',
+                      '&:hover': {
+                        transform: 'scale(1.02)',
+                        boxShadow: '0 0 10px #f2b5d5',
+                      },
+                    }}}>Add</Button>
+          <Button onClick={onClose} variant="contained" color="#30324a" sx={{ marginLeft: '10px', color: "#f2b5d5", '&:hover': {
+                      border: 0,
+                      transition: 'transform 0.3s, box-shadow 0.3s',
+                      '&:hover': {
+                        transform: 'scale(1.02)',
+                        boxShadow: '0 0 10px #f2b5d5',
+                      },
+                    }}}>Cancel</Button>
+        </Box>
+      </Box>
+    </Box>
+  );
+};
 
 function Tasks() {
   const theme = useTheme();
   const [selectedCategory, setSelectedCategory] = useState();
   const [tasks, setTasks] = useState([]);
   const [expandedTask, setExpandedTask] = useState(null);
-  const [profile, setProfile] = useState(null); // Initialize profile as null
+  const [profile, setProfile] = useState(null);
+  const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
 
-
+  // API-Aufrufe bleiben unverändert
   const fetchProfiles = async () => {
-    const response = await fetch('http://localhost:5000/api/profile'); // API endpoint
-    if (!response.ok) {
-      throw new Error('Network response was not ok');
-    }
-
+    const response = await fetch('http://localhost:5000/api/profile');
+    if (!response.ok) throw new Error('Network response was not ok');
     const data = await response.json();
-    console.log(data);
-    setProfile(data.length > 0 ? data[0] : null); // Set the first profile if available
+    setProfile(data.length > 0 ? data[0] : null);
   };
 
   const fetchTasks = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/tasks'); // API endpoint
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
-      }
+      const response = await fetch('http://localhost:5000/api/tasks');
+      if (!response.ok) throw new Error('Network response was not ok');
       const data = await response.json();
-
-      // Filter tasks based on the selected category
-      const filteredTasks = data.filter(task => task.category === selectedCategory); // Use 'category' instead of 'Category'
+      const filteredTasks = data.filter(task => task.category === selectedCategory);
       setTasks(filteredTasks);
     } catch (error) {
       console.error('Error fetching tasks:', error);
@@ -55,7 +145,7 @@ function Tasks() {
   useEffect(() => {
     if (selectedCategory) {
       fetchTasks();
-      setExpandedTask(null); // Fetch tasks when category is selected or changed
+      setExpandedTask(null);
     }
   }, [selectedCategory]);
 
@@ -64,38 +154,45 @@ function Tasks() {
     setExpandedTask(null);
   };
 
+  const handleAddTask = async (task) => {
+    try {
+      const response = await fetch('http://localhost:5000/api/addTask', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(task)
+      });
+      if (response.ok) {
+        const data = await response.json();
+        alert(`Task erfolgreich hinzugefügt! XP: ${data.xp}`);
+        fetchTasks();
+      } else {
+        alert('Fehler beim Hinzufügen des Tasks.');
+      }
+    } catch (error) {
+      console.error('Fehler:', error);
+      alert('Ein Fehler ist aufgetreten.');
+    }
+  };
+
   const getStarRating = (difficulty) => {
     let stars = 0;
-    switch (difficulty) {
-      case 'Easy':
-        stars = 1;
-        break;
-      case 'easy':
-        stars = 1;
-        break;
-      case 'Medium':
-        stars =  3;
-        break;
-      case 'medium':
-        stars = 3;
-        break;
-      case 'Hard':
-        stars = 4;
-        break;
-      case 'hard':
-        stars = 4;
-        break;
-      case 'Extreme':
-        stars = 5;
-        break;
-      case 'extreme':
-        stars = 5;
-        break;
-      default:
-        stars = 0;
+    switch (difficulty.toLowerCase()) {
+      case 'easy': stars = 1; break;
+      case 'medium': stars = 2; break;
+      case 'hard': stars = 3; break;
+      case 'extreme': stars = 4; break;
+      case 'special': stars = 5; break;
+      default: stars = 0;
     }
     return stars;
   };
+
+  const imgClassName = [
+    profile?.rank === "Knight" && "knight-border",
+    profile?.rank === "Elite" && "elite-border",
+    profile?.rank === "General" && "general-border",
+    profile?.rank === "Marshal" && "marshal-border",
+  ].filter(Boolean).join(" ");
 
   return (
     <div>
@@ -109,6 +206,7 @@ function Tasks() {
           alignItems: 'center',
         }}
       >
+        {/* Profil-Panel bleibt unverändert */}
         <Box
           sx={{
             padding: '10px',
@@ -123,68 +221,73 @@ function Tasks() {
             left: '3%',
             top: '5%',
             borderRadius: '16px',
-            flexDirection: 'column', // Ensures content is stacked
+            flexDirection: 'column',
           }}
         >
           <img
+            
             alt=""
             style={{
-              position: 'absolute', // Position the image absolutely
-              top: '30px', // Adjust vertical position
-              left: '25px', // Adjust horizontal position
-              width: '200px', // Set a fixed width for the image
-              height: 'auto', // Maintain aspect ratio
-              border: 1,
+              position: 'absolute',
+              right: '185px',
+              bottom: '18px',
+              width: '300px',
+              height: 'auto',
+              borderRadius: '150px',
+              opacity: profile?.rank === "Grand Marshal" ? 100 : 0
+            }}
+            src={grandmarshal}
+          />
+          <img
+            alt=""
+            className={imgClassName}
+            style={{
+              position: 'absolute',
+              top: '55px',
+              left: '67px',
+              width: '125px',
+              height: 'auto',
               borderRadius: '150px',
             }}
             src={gojo}
           />
-          <Box sx={{ marginLeft: '410px'}}>
+          <Box sx={{ marginLeft: '410px' }}>
             <Settings />
           </Box>
-          <List sx={{bottom: '10px', color: '#f2b5d5', padding: 0, left: '15%' }}>
+          <List sx={{ bottom: '10px', color: '#f2b5d5', padding: 0, left: '25%' }}>
             <ListItem sx={{ padding: '2px 0' }}>
-              <ListItemText
-                primary={<Typography sx={{ fontSize: '16px', fontWeight: 'bold' }}>Name: {profile?.name}</Typography>}
-              />
+              <ListItemText primary={<Typography sx={{ fontSize: '16px', fontWeight: 'bold' }}>Name: {profile?.name}</Typography>} />
             </ListItem>
             <ListItem sx={{ padding: '2px 0' }}>
-              <ListItemText
-                primary={<Typography sx={{ fontSize: '16px', fontWeight: 'bold' }}>Age: {profile?.age}</Typography>}
-              />
+              <ListItemText primary={<Typography sx={{ fontSize: '16px', fontWeight: 'bold' }}>Age: {profile?.age}</Typography>} />
             </ListItem>
             <ListItem sx={{ padding: '2px 0' }}>
-              <ListItemText
-                primary={<Typography sx={{ fontSize: '16px', fontWeight: 'bold' }}>Level: {profile?.level}</Typography>}
-              />
+              <ListItemText primary={<Typography sx={{ fontSize: '16px', fontWeight: 'bold' }}>Level: {profile?.level}</Typography>} />
             </ListItem>
             <ListItem sx={{ padding: '2px 0' }}>
-              <ListItemText
-                primary={<Typography sx={{ fontSize: '16px', fontWeight: 'bold' }}>Rank: {profile?.rank}</Typography>}
-              />
+              <ListItemText primary={<Typography sx={{ fontSize: '16px', fontWeight: 'bold' }}>Rank: {profile?.rank}</Typography>} />
             </ListItem>
             <ListItem sx={{ padding: '2px 0' }}>
-              <ListItemText
-                primary={<Typography sx={{ fontSize: '16px', fontWeight: 'bold' }}>Title: {profile?.title}</Typography>}
-              />
+              <ListItemText primary={<Typography sx={{ fontSize: '16px', fontWeight: 'bold' }}>Title: {profile?.title}</Typography>} />
             </ListItem>
           </List>
-          
-          {/* Progress Bar */}
-          <Typography sx={{ fontSize: '16px', fontWeight: 'bold', marginTop: '5px',  marginBottom: '5px' }}>
+          <Typography sx={{ fontSize: '16px', fontWeight: 'bold', marginTop: '5px', marginBottom: '5px' }}>
             XP: {profile?.xp}/{Math.floor(profile?.level ** 1.15 * 1000)}
           </Typography>
-          <LinearProgress color='secondary' variant="determinate" value={(profile?.xp / Math.floor(profile?.level ** 1.15 * 1000)) * 100} sx={{ width: '100%', height: '10px' }} />
-         
+          <LinearProgress
+            color='secondary'
+            variant="determinate"
+            value={(profile?.xp / Math.floor(profile?.level ** 1.15 * 1000)) * 100}
+            sx={{ width: '100%', height: '10px' }}
+          />
         </Box>
-  
-        
+
+        {/* Aufgaben-Bereich */}
         <Box
           sx={{
             position: 'absolute',
             width: '1100px',
             height: '625px',
-            border: 'none',
             display: 'flex',
             fontWeight: 'bold',
             color: '#f2b5d5',
@@ -192,8 +295,7 @@ function Tasks() {
             right: '150px',
           }}
         >
-          
-       
+          {/* Linke Kategorie-Spalte mit Plus-Button oberhalb der Liste */}
           <Box
             sx={{
               width: '20%',
@@ -203,6 +305,16 @@ function Tasks() {
               flexDirection: 'column',
             }}
           >
+            <IconButton
+              onClick={() => setIsTaskModalOpen(true)}
+              sx={{
+                color: '#f2b5d5',
+                alignSelf: 'flex-start',
+                marginBottom: '10px'
+              }}
+            >
+              <AddIcon />
+            </IconButton>
             <List sx={{ color: '#f2b5d5', padding: 0 }}>
               {['Intelligence', 'Strength', 'Agility', 'Durability', 'Skills', 'Projects'].map((category) => (
                 <ListItem
@@ -212,10 +324,8 @@ function Tasks() {
                     cursor: 'pointer',
                     border: selectedCategory === category ? 1 : 'none',
                     boxShadow: selectedCategory === category ? '0 0 10px #f2b5d5' : 'none',
-                    color: selectedCategory === category ? '#f2b5d5' : '#f2b5d5',
                     '&:hover': {
                       border: 1,
-                      color: '#f2b5d5',
                       transition: 'transform 0.3s, box-shadow 0.3s',
                       '&:hover': {
                         transform: 'scale(1.02)',
@@ -224,14 +334,13 @@ function Tasks() {
                     },
                   }}
                 >
-                  <ListItemText
-                    primary={<Typography sx={{ fontWeight: 'bold', fontSize: '22px' }}>{category}</Typography>}
-                  />
+                  <ListItemText primary={<Typography sx={{ fontWeight: 'bold', fontSize: '22px' }}>{category}</Typography>} />
                 </ListItem>
               ))}
             </List>
           </Box>
 
+          {/* Rechte Aufgaben-Spalte */}
           <Box
             sx={{
               width: '100%',
@@ -243,7 +352,7 @@ function Tasks() {
             }}
           >
             <IconButton
-              onClick={handleReset} // Reset and fetch tasks when clicked
+              onClick={handleReset}
               sx={{
                 border: 1,
                 position: 'absolute',
@@ -260,7 +369,7 @@ function Tasks() {
             </Typography>
             {tasks.map((task, index) => (
               <Box
-                key={task.id} // Use task.id for unique keys
+                key={task.id}
                 sx={{
                   border: 1,
                   padding: '5px',
@@ -272,21 +381,18 @@ function Tasks() {
                 }}
               >
                 <Box
-                  sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}
+                  sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
                   onClick={() => setExpandedTask(expandedTask === index ? null : index)}
                 >
                   <Typography>{task.name}</Typography>
                   <IconButton>
-                    <ExpandMoreIcon sx={{color: task.status === 'done' ? 'black' : '#f2b5d5'}} />
+                    <ExpandMoreIcon sx={{ color: task.status === 'done' ? 'black' : '#f2b5d5' }} />
                   </IconButton>
                 </Box>
-                {/* Display the difficulty of the task */}
-                <Typography variant="caption" sx={{color: task.status === 'done' ? 'black' : '#f2b5d5', fontWeight: 'bold' }}>
+                <Typography variant="caption" sx={{ color: task.status === 'done' ? 'black' : '#f2b5d5', fontWeight: 'bold' }}>
                   Difficulty: {task.difficulty}
                 </Typography>
-
-                 {/* Star Rating */}
-                 <Box sx={{ display: 'flex', alignItems: 'center', marginTop: '5px' }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', marginTop: '5px' }}>
                   {Array.from({ length: 5 }).map((_, i) => (
                     <IconButton key={i} disableRipple>
                       {i < getStarRating(task.difficulty) ? (
@@ -301,54 +407,39 @@ function Tasks() {
                 <Collapse in={expandedTask === index}>
                   <Box sx={{ padding: '10px' }} theme={theme}>
                     <Typography>{task.description}</Typography>
-                    <Typography sx={{marginTop:'2px'}}> Exp: {task.xp} </Typography>
+                    <Typography sx={{ marginTop: '2px' }}>Exp: {task.xp}</Typography>
                     <Button
                       disabled={task.status === 'done'}
-                      opacity = "0.1"
                       variant="contained"
                       color="success"
-                      sx={{marginTop: '18px',
-                        opacity: task.status === 'done' ? 0 : 1,
-                        color: task.status === 'done' ? 'white' : 'black', // Set text color based on status
-                        backgroundColor: task.status === 'done' ? theme.palette.success.main : 'green', // Maintain normal background color
-                        '&.Mui-disabled': {
-                          color: 'green', // Change text color to grey when disabled
-                          border: 1,
-                         
-                        },
+                      sx={{
+                        marginTop: '18px',
+                        backgroundColor: task.status === 'done' ? theme.palette.success.main : 'green',
                         '&:hover': {
-                          boxShadow: task.status !== 'done' ? '0 0 10px rgba(76, 175, 80, 1)' : 'none', // Glow effect on hover
-                          transition: 'box-shadow 0.3s ease-in-out', // Smooth transition for the glow effect
+                          boxShadow: task.status !== 'done' ? '0 0 10px rgba(76, 175, 80, 1)' : 'none',
+                          transition: 'box-shadow 0.3s ease-in-out',
                         },
                       }}
                       onClick={async () => {
-
-                        // Update task status to 'done'
                         await fetch(`http://localhost:5000/api/tasks/${task.id}`, {
                           method: 'PUT',
                           headers: { 'Content-Type': 'application/json' },
                           body: JSON.stringify({ status: 'done' }),
-                        });                   
-
-                        // Calculate the XP and possibly update level
+                        });
                         const xpToAdd = task.xp;
                         let updatedXP = profile?.xp + xpToAdd;
-                        let newLevel = profile?.level;                    
-
-                        // Check if leveling up is required
-                        if (updatedXP >= Math.floor(profile?.level**1.15*1000)) {
-                          newLevel = profile?.level + 1;
-                          updatedXP = 0; // Reset XP after leveling up
-                        }                   
-
-                        // Always send both level and xp values in the request
+                        let newLevel = profile?.level;
+                        let xpNeededForNextLevel = Math.floor(profile?.level ** 1.15 * 1000);
+                        while (updatedXP >= xpNeededForNextLevel) {
+                          newLevel++;
+                          updatedXP -= xpNeededForNextLevel;
+                          xpNeededForNextLevel = Math.floor(newLevel ** 1.15 * 1000);
+                        }
                         await fetch('http://localhost:5000/api/profile/update', {
                           method: 'PUT',
                           headers: { 'Content-Type': 'application/json' },
-                          body: JSON.stringify({ level: newLevel, xp: updatedXP }), // Include both level and xp
-                        });                   
-
-                        // Refresh the profile and tasks
+                          body: JSON.stringify({ level: newLevel, xp: updatedXP }),
+                        });
                         fetchProfiles();
                         fetchTasks();
                       }}
@@ -361,27 +452,98 @@ function Tasks() {
             ))}
           </Box>
         </Box>
-        <Box   sx={{
-    width: '722px',
-    height: '500px',
-    border: 'none',
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    position: 'fixed', // Use fixed positioning to keep it in the same spot
-    top: '800px',    // Adjust as necessary for spacing from the bottom
-    left: '20px',      // Adjust as necessary for spacing from the left
-    zIndex: 1000,      // Ensure it appears above other content
-  }}>
+
+        <Box
+          sx={{
+            width: '722px',
+            height: '500px',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            position: 'fixed',
+            top: '800px',
+            left: '20px',
+            zIndex: 1000,
+          }}
+        >
           <Grid2 container spacing={2} sx={{ height: '100%' }}>
-            <Grid2 xs={6}><Link to="/home" style={{ textDecoration: 'none' }}><Box sx={{ height: '50px', width: '150px', display: 'flex', justifyContent: 'center', alignItems: 'center', border: 1, color: '#f2b5d5', transition: 'transform 0.3s, box-shadow 0.3s', '&:hover': { transform: 'scale(1.05)', boxShadow: '0 0 10px #f2b5d5' }}}>Home</Box></Link></Grid2>
-            <Grid2 xs={6}><Link to="/career" style={{ textDecoration: 'none' }}><Box sx={{ height: '50px', width: '150px', display: 'flex', justifyContent: 'center', alignItems: 'center', border: 1, color: '#f2b5d5', transition: 'transform 0.3s, box-shadow 0.3s', '&:hover': { transform: 'scale(1.05)', boxShadow: '0 0 10px #f2b5d5' }}}>Career</Box></Link></Grid2>
-            <Grid2 xs={6}><Link to="/achievements" style={{ textDecoration: 'none' }}><Box sx={{ height: '50px', width: '150px', display: 'flex', justifyContent: 'center', alignItems: 'center', border: 1, color: '#f2b5d5', transition: 'transform 0.3s, box-shadow 0.3s', '&:hover': { transform: 'scale(1.05)', boxShadow: '0 0 10px #f2b5d5' }}}>Achievements</Box></Link></Grid2>
-            <Grid2 xs={6}><Link to="/about" style={{ textDecoration: 'none' }}><Box sx={{ height: '50px', width: '150px', display: 'flex', justifyContent: 'center', alignItems: 'center', border: 1, color: '#f2b5d5', transition: 'transform 0.3s, box-shadow 0.3s', '&:hover': { transform: 'scale(1.05)', boxShadow: '0 0 10px #f2b5d5' }}}>About me</Box></Link></Grid2>
+            <Grid2 xs={6}>
+              <Link to="/home" style={{ textDecoration: 'none' }}>
+                <Box sx={{
+                  height: '50px',
+                  width: '150px',
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  border: 1,
+                  color: '#f2b5d5',
+                  transition: 'transform 0.3s, box-shadow 0.3s',
+                  '&:hover': { transform: 'scale(1.05)', boxShadow: '0 0 10px #f2b5d5' }
+                }}>
+                  Home
+                </Box>
+              </Link>
+            </Grid2>
+            <Grid2 xs={6}>
+              <Link to="/career" style={{ textDecoration: 'none' }}>
+                <Box sx={{
+                  height: '50px',
+                  width: '150px',
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  border: 1,
+                  color: '#f2b5d5',
+                  transition: 'transform 0.3s, box-shadow 0.3s',
+                  '&:hover': { transform: 'scale(1.05)', boxShadow: '0 0 10px #f2b5d5' }
+                }}>
+                  Career
+                </Box>
+              </Link>
+            </Grid2>
+            <Grid2 xs={6}>
+              <Link to="/achievements" style={{ textDecoration: 'none' }}>
+                <Box sx={{
+                  height: '50px',
+                  width: '150px',
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  border: 1,
+                  color: '#f2b5d5',
+                  transition: 'transform 0.3s, box-shadow 0.3s',
+                  '&:hover': { transform: 'scale(1.05)', boxShadow: '0 0 10px #f2b5d5' }
+                }}>
+                  Achievements
+                </Box>
+              </Link>
+            </Grid2>
+            <Grid2 xs={6}>
+              <Link to="/about" style={{ textDecoration: 'none' }}>
+                <Box sx={{
+                  height: '50px',
+                  width: '150px',
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  border: 1,
+                  color: '#f2b5d5',
+                  transition: 'transform 0.3s, box-shadow 0.3s',
+                  '&:hover': { transform: 'scale(1.05)', boxShadow: '0 0 10px #f2b5d5' }
+                }}>
+                  About me
+                </Box>
+              </Link>
+            </Grid2>
           </Grid2>
         </Box>
       </Box>
-      
+
+      <TaskModal
+        show={isTaskModalOpen}
+        onClose={() => setIsTaskModalOpen(false)}
+        onSubmit={handleAddTask}
+      />
     </div>
   );
 }
