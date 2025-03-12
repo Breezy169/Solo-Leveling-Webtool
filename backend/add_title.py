@@ -1,3 +1,5 @@
-from titles_db import add_title_to_db
+from titles_db import add_title_to_db, init_titles_db
 
-add_title_to_db('XD')
+
+init_titles_db()
+add_title_to_db('Beginner')
