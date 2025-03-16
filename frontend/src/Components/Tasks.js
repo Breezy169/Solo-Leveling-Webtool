@@ -21,7 +21,7 @@ const TaskModal = ({ show, onClose, onSubmit }) => {
   const [description, setDescription] = useState('');
 
   const categories = ['Intelligence', 'Strength', 'Agility', 'Durability', 'Skills', 'Projects'];
-  const difficulties = ['Easy', 'Medium', 'Hard', 'Extreme', 'Special'];
+  const difficulties = ['E-Rank', 'D-Rank', 'C-Rank', 'B-Rank', 'A-Rank', 'S-Rank'];
 
   const handleSubmit = () => {
     if (!category || !name || !difficulty || !description) {
@@ -177,11 +177,12 @@ function Tasks() {
   const getStarRating = (difficulty) => {
     let stars = 0;
     switch (difficulty.toLowerCase()) {
-      case 'easy': stars = 1; break;
-      case 'medium': stars = 2; break;
-      case 'hard': stars = 3; break;
-      case 'extreme': stars = 4; break;
-      case 'special': stars = 5; break;
+      case 'E-Rank': stars = 1; break;
+      case 'D-Rank': stars = 2; break;
+      case 'C-Rank': stars = 3; break;
+      case 'B-Rank': stars = 4; break;
+      case 'A-Rank': stars = 5; break;
+      case 'S-Rank': stars = 6; break;
       default: stars = 0;
     }
     return stars;

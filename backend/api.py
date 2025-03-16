@@ -20,8 +20,8 @@ CORS(app, resources={r"/api/*": {"origins": "*"}})
 init_tasks_db()
 init_profiles_db()
 init_titles_db()
-ranks = ['Knight', 'Elite', 'General', 'Marshal', 'Grand Marshal']
-rank_levels = [5, 20, 50, 75, 100]
+ranks = ['E-Rank', 'D-Rank', 'C-Rank', 'B-Rank', 'A-Rank', 'S-Rank']
+rank_levels = [5, 20, 50, 75, 125, 200]
 
 @app.route('/api/tasks', methods=['GET'])
 def get_all_tasks():
@@ -125,7 +125,7 @@ def add_task():
         return jsonify({"message": "Missing fields"}), 400
 
     difficulty = data.get('difficulty', '')
-    if difficulty not in ['Easy', 'Medium', 'Hard', 'Extreme', 'Special']:
+    if difficulty not in ['E-Rank', 'D-Rank', 'C-Rank', 'B-Rank', 'A-Rank', 'S-Rank']:
         return jsonify({"message": "Invalid difficulty value"}), 400
 
     try:

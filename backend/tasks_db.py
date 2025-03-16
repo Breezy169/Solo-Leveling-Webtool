@@ -30,15 +30,17 @@ def init_tasks_db():
 def get_xp_for_difficulty(difficulty):
     """Return the XP associated with the given difficulty level."""
   # Umwandlung in Kleinbuchstaben
-    if difficulty == 'Easy':
+    if difficulty == 'E-Rank':
         return 200
-    elif difficulty == 'Medium':
+    elif difficulty == 'D-Rank':
         return 450
-    elif difficulty == 'Hard':
+    elif difficulty == 'C-Rank':
         return 925
-    elif difficulty == 'Extreme':
-        return 1900
-    elif difficulty == 'Special':
+    elif difficulty == 'B-Rank':
+        return 2500
+    elif difficulty == 'A-Rank':
+        return 10000
+    elif difficulty == 'S-Rank':
         return 25000
     return 0  # Default if difficulty level is not recognized
 
