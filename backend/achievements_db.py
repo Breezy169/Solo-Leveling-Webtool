@@ -1,6 +1,7 @@
 import sqlite3
 import logging
 import os
+import json
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -15,11 +16,12 @@ def init_ACHIEVEMENTS_DB():
     CREATE TABLE IF NOT EXISTS achievements (
         id INTEGER PRIMARY KEY,
         name TEXT,
-        reward_type TEXT,     -- 'EXP' oder 'Title'
-        reward_text TEXT,     -- Für Titel-Belohnungen
+        reward_type TEXT,     -- 'EXP', 'Title' oder 'Skill'
+        reward_text TEXT,     -- Für Titel-Belohnungen oder Skill-Daten (als JSON)
         reward_int INTEGER,   -- Für EXP-Belohnungen
         description TEXT,
-        status TEXT
+        status TEXT,
+        increase_level TEXT   -- "ja" oder "nein"
     )
     ''')
     conn.commit()
@@ -36,6 +38,10 @@ def add_achievement_to_db(achievement):
     elif reward_type == 'Title':
         reward_int = None
         reward_text = achievement.get('reward')
+    elif reward_type == 'Skill':
+        reward_int = None
+        # Konvertiere das Skill-Dictionary in einen JSON-String
+        reward_text = json.dumps(achievement.get('reward'))
     else:
         # Falls rewardType nicht gesetzt ist, automatisch erkennen:
         try:
@@ -46,16 +52,19 @@ def add_achievement_to_db(achievement):
             reward_int = None
             reward_text = achievement.get('reward')
             reward_type = 'Title'
+    # Hole den Wert für increase_level, standardmäßig "nein"
+    increase_level = achievement.get('increaseLevel', 'nein')
     cursor.execute('''
-    INSERT INTO achievements (name, reward_type, reward_text, reward_int, description, status)
-    VALUES (?, ?, ?, ?, ?, ?)
+    INSERT INTO achievements (name, reward_type, reward_text, reward_int, description, status, increase_level)
+    VALUES (?, ?, ?, ?, ?, ?, ?)
     ''', (
         achievement['name'],
         reward_type,
         reward_text,
         reward_int,
         achievement['description'],
-        achievement.get('status', 'pending')
+        achievement.get('status', 'pending'),
+        increase_level
     ))
     conn.commit()
     conn.close()

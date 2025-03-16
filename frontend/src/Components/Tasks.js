@@ -564,7 +564,7 @@ function Tasks() {
               </Link>
             </Grid2>
             <Grid2 xs={6}>
-              <Link to="/career" style={{ textDecoration: 'none' }}>
+              <Link to="/Skills" style={{ textDecoration: 'none' }}>
                 <Box sx={{
                   height: '50px',
                   width: '150px',
@@ -576,7 +576,7 @@ function Tasks() {
                   transition: 'transform 0.3s, box-shadow 0.3s',
                   '&:hover': { transform: 'scale(1.05)', boxShadow: '0 0 10px #CFA63D' }
                 }}>
-                  Career
+                  Skills
                 </Box>
               </Link>
             </Grid2>
