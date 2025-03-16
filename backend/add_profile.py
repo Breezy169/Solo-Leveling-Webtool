@@ -6,8 +6,14 @@ def main():
         'age': int(input("Enter profile age: ")),
         'level': 1,  # Standardwert für Level
         'xp': 0,     # Standardwert für XP
-        'rank': "Iron",  # Standardwert für Rank
+        'rank': "E-Rank",  # Standardwert für Rank
         'title': "Beginner",  # Standardwert für Title
+        'strength': 10,
+        'agility': 10,
+        'stamina': 10,
+        'intelligence': 10,
+        'perception': 10,
+        'ap': 0,
         'password': input("Enter a password: "),
     }
 

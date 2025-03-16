@@ -39,9 +39,6 @@ export default function Settings() {
   const [selectedTitle, setSelectedTitle] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  // New state for profile picture
-  const [selectedProfilePicture, setSelectedProfilePicture] = useState(null);
-  const [profilePicturePreview, setProfilePicturePreview] = useState(null);
 
   const fetchProfiles = async () => {
     const response = await fetch('http://localhost:5000/api/profile');
@@ -76,9 +73,6 @@ export default function Settings() {
         setLoading(false);
         // Save both title and profile picture if needed
         await handleSave();
-        if (selectedProfilePicture) {
-          await handleSaveProfilePicture();
-        }
       }, 2000);
     }
   };
@@ -145,44 +139,13 @@ export default function Settings() {
   };
 
   // New handler for profile picture change
-  const handleProfilePictureChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setSelectedProfilePicture(file);
-      setProfilePicturePreview(URL.createObjectURL(file));
-    }
-  };
-
-  // New handler to upload the profile picture
-  const handleSaveProfilePicture = async () => {
-    if (!selectedProfilePicture || !profile) {
-      console.log('No profile picture selected or no profile found');
-      return;
-    }
-    const formData = new FormData();
-    formData.append("profileId", profile.id);
-    formData.append("profilePicture", selectedProfilePicture);
-
-    try {
-      const response = await fetch("http://localhost:5000/api/profile/upload-picture", {
-        method: "POST",
-        body: formData,
-      });
-      if (!response.ok) {
-        throw new Error("Failed to upload profile picture");
-      }
-      // Refresh profile data after successful upload
-      fetchProfiles();
-    } catch (error) {
-      console.error(error);
-    }
-  };
+ 
 
   return (
-    <React.Fragment >
-      <SettingsIcon cursor="pointer" variant="outlined" onClick={handleClickOpen}/>
+    <React.Fragment>
+      <SettingsIcon cursor="pointer" variant="outlined" onClick={handleClickOpen} />
       <BootstrapDialog onClose={handleClose} aria-labelledby="customized-dialog-title" open={open}>
-        <DialogTitle sx={{ m: 0, p: 2, color: "#f2b5d5"}} id="customized-dialog-title">
+        <DialogTitle sx={{ m: 0, p: 2, color: "#CFA63D" }} id="customized-dialog-title">
           Account Settings
         </DialogTitle>
         <IconButton
@@ -192,16 +155,14 @@ export default function Settings() {
             position: 'absolute',
             right: 8,
             top: 8,
-            color: theme.palette.grey[500],
+            color:' theme.palette.grey[500]',
           })}
         >
           <CloseIcon />
         </IconButton>
         <DialogContent dividers>
-          <Typography variant="subtitle1" color="inherit" marginBottom="10px" sx={{color: "#f2b5d5"}}>
-             
-              Change Title
-
+          <Typography variant="subtitle1" color="#CFA63D" marginBottom="10px" sx={{ color: "#CFA63D" }}>
+            Change Title
           </Typography>
           <Autocomplete
             options={titles.sort((a, b) => -b.firstLetter.localeCompare(a.firstLetter))}
@@ -215,10 +176,33 @@ export default function Settings() {
               <TextField {...params} label="Select a title" />
             )}
           />
-          {/* New section for changing profile picture */}
-          
+         
         </DialogContent>
-  
+        <DialogActions>
+          <Box sx={{ m: 1, position: 'relative' }}>
+            <Fab
+              aria-label="save"
+              color= "#CFA63D"
+              onClick={handleButtonClick}
+              sx={buttonSx}
+            >
+              {success ? <CheckIcon /> : <SaveIcon />}
+            </Fab>
+            {loading && (
+              <CircularProgress
+                size={68}
+                sx={{
+                  
+                  color: '#CFA63D',
+                  position: 'absolute',
+                  top: -6,
+                  left: -6,
+                  zIndex: 1,
+                }}
+              />
+            )}
+          </Box>
+        </DialogActions>
       </BootstrapDialog>
     </React.Fragment>
   );

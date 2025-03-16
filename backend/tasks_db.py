@@ -1,7 +1,7 @@
 import sqlite3
 import logging
 import os
-
+import random
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -20,12 +20,30 @@ def init_tasks_db():
         name TEXT,
         difficulty TEXT,                   
         description TEXT,
-        xp INTEGER,              
+        xp INTEGER,           
+        value INTEGER,   
         status TEXT
     )
     ''')
     conn.commit()
     conn.close()
+
+
+def get_status_bonus(difficulty):
+    if difficulty == 'E-Rank':
+        return random.randint(1, 3)
+    elif difficulty == 'D-Rank':
+        return random.randint(4, 6)
+    elif difficulty == 'C-Rank':
+        return random.randint(6, 9)
+    elif difficulty == 'B-Rank':
+        return random.randint(10, 14)
+    elif difficulty == 'A-Rank':
+        return random.randint(15, 20)
+    elif difficulty == 'S-Rank':
+        return random.randint(20, 30)
+    return 0
+
 
 def get_xp_for_difficulty(difficulty):
     """Return the XP associated with the given difficulty level."""
@@ -50,16 +68,17 @@ def add_task_to_db(task):
     
     # Get the XP based on the difficulty level
     xp = get_xp_for_difficulty(task['difficulty'])
-    
+    value = get_status_bonus(task['difficulty'])
     cursor.execute('''
-    INSERT INTO tasks (category, name, difficulty, description, xp, status)
-    VALUES (?, ?, ?, ?, ?, ?) 
+    INSERT INTO tasks (category, name, difficulty, description, xp, value, status)
+    VALUES (?, ?, ?, ?, ?, ?, ?) 
     ''', (
         task['category'],
         task['name'],
         task['difficulty'],
         task['description'],
         xp,  # Assign calculated XP
+        value, # Assign calculated value
         task.get('status', 'pending')  # Default status if not provided
     ))
     conn.commit()

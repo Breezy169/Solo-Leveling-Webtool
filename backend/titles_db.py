@@ -1,6 +1,9 @@
 import sqlite3
+import os
 
-TITLES_DB = 'titles.db'
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+TITLES_DB= os.path.join(BASE_DIR, 'titles.db')
 
 def init_titles_db():
     conn = sqlite3.connect(TITLES_DB)
