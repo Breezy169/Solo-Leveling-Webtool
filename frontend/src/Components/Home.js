@@ -66,22 +66,22 @@ function Home() {
       <Box
         sx={{
           display: 'flex',
-          backgroundColor: '#30324a',
+          backgroundColor: '#252420',
           minHeight: '100vh',
           flexDirection: 'column',
           justifyContent: 'center',
           alignItems: 'center',
         }}
       >
-        <Box
+        {/* <Box
                sx={{
                  display: 'flex',
-                 backgroundColor: '#30324a',
+                 backgroundColor: '#252420',
                  minHeight: '100vh',
                  flexDirection: 'column',
                  position: 'relative',
                }}
-             >
+             > */}
                {/* Settings button in top-right corner */}
               
        
@@ -89,7 +89,7 @@ function Home() {
                  1) Container with systeminfo as background
                  2) Profile data layered on top (foreground)
                */}
-               <Box
+               {/* <Box
                  sx={{
                    position: 'relative',
                    margin: '40px auto 0',
@@ -131,7 +131,7 @@ function Home() {
                  {/* -- First Line (e.g. Name / Age) -- */}
          
                  
-                  <Box
+                  {/* <Box
                    sx={{
                      position: 'absolute',
                      top: '69px',   // Adjust to align with top line in the image
@@ -219,7 +219,7 @@ function Home() {
         
               
                </Box>
-        </Box>
+        </Box> */} 
         <Box sx={{position: 'absolute', width: '622px', height: '500px', border: 'none', display: 'flex', justifyContent: 'center', alignItems: 'center', fontWeight: 'bold' }}>
           <Grid2 container spacing={2} sx={{ height: '100%' }}>
             <Grid2 xs={6}><Link to="/tasks" style={{ textDecoration: 'none' }}><Box sx={{ height: '250px', width: '300px', display: 'flex', justifyContent: 'center', alignItems: 'center', border: 1, color: '#CFA63D', transition: 'transform 0.3s, box-shadow 0.3s', '&:hover': { transform: 'scale(1.05)', boxShadow: '0 0 10px #CFA63D' }}}>Tasks</Box></Link></Grid2>

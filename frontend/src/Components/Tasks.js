@@ -1,18 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { Box, List, ListItem, ListItemText, Typography, IconButton, Collapse, LinearProgress, Button } from '@mui/material';
 import Grid2 from '@mui/material/Grid2';
-import gojo from '../Images/gojo.jpg';
 import { Link } from 'react-router-dom';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ResetIcon from '@mui/icons-material/Refresh';
-import AddIcon from '@mui/icons-material/Add'; // Plus Icon
-import StarIcon from '@mui/icons-material/Star';
-import StarBorderIcon from '@mui/icons-material/StarBorder';
+import AddIcon from '@mui/icons-material/Add';
 import { useTheme } from '@mui/material/styles';
 import Settings from './Settings';
 import '../Css/borders.css';
-import grandmarshal from '../Images/grand-marshal.png'
-import systeminfo from '../Images/systeminfo.png'
+import systeminfo from '../Images/systeminfo.png';
 
 // TaskModal-Komponente (wie bisher)
 const TaskModal = ({ show, onClose, onSubmit }) => {
@@ -65,7 +61,7 @@ const TaskModal = ({ show, onClose, onSubmit }) => {
         <Box sx={{ marginBottom: '30px', color: "#CFA63D"}}>
           <Typography>Category:</Typography>
           <select value={category} onChange={e => setCategory(e.target.value)}>
-            <option value="" >Select category</option>
+            <option value="">Select category</option>
             {categorys.map((cat, idx) => (
               <option key={idx} value={cat}>{cat}</option>
             ))}
@@ -84,27 +80,17 @@ const TaskModal = ({ show, onClose, onSubmit }) => {
             ))}
           </select>
         </Box>
-        <Box sx={{ marginBottom: '30px',color: "#CFA63D" }}>
+        <Box sx={{ marginBottom: '30px', color: "#CFA63D" }}>
           <Typography>Description:</Typography>
           <textarea value={description} onChange={e => setDescription(e.target.value)} style={{ width: '100%' }} />
         </Box>
         <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-          <Button onClick={handleSubmit} variant="contained" color="#30324a" sx={{color: "#CFA63D", '&:hover': {
-                      border: 0,
-                      transition: 'transform 0.3s, box-shadow 0.3s',
-                      '&:hover': {
-                        transform: 'scale(1.02)',
-                        boxShadow: '0 0 10px #CFA63D',
-                      },
-                    }}}>Add</Button>
-          <Button onClick={onClose} variant="contained" color="#30324a" sx={{ marginLeft: '10px', color: "#CFA63D", '&:hover': {
-                      border: 0,
-                      transition: 'transform 0.3s, box-shadow 0.3s',
-                      '&:hover': {
-                        transform: 'scale(1.02)',
-                        boxShadow: '0 0 10px #CFA63D',
-                      },
-                    }}}>Cancel</Button>
+          <Button onClick={handleSubmit} variant="contained" color="transparent" sx={{ color: "#CFA63D", '&:hover': { transform: 'scale(1.02)', boxShadow: '0 0 10px #CFA63D' } }}>
+            Add
+          </Button>
+          <Button onClick={onClose} variant="transpare" color="transparent" sx={{ marginLeft: '10px', color: "#CFA63D", '&:hover': { transform: 'scale(1.02)', boxShadow: '0 0 10px #CFA63D' } }}>
+            Cancel
+          </Button>
         </Box>
       </Box>
     </Box>
@@ -119,7 +105,7 @@ function Tasks() {
   const [profile, setProfile] = useState(null);
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
 
-  // API-Aufrufe bleiben unverändert
+  // API-Aufrufe
   const fetchProfiles = async () => {
     const response = await fetch('http://localhost:5000/api/profile');
     if (!response.ok) throw new Error('Network response was not ok');
@@ -186,21 +172,13 @@ function Tasks() {
           position: 'relative',
         }}
       >
-        {/* Settings button in top-right corner */}
-       
-
-        {/* 
-          1) Container with systeminfo as background
-          2) Profile data layered on top (foreground)
-        */}
+        {/* Systeminfo und Profilanzeige */}
         <Box
           sx={{
             position: 'relative',
             margin: '40px auto 0',
-            width: '512px', // Adjust to match your image's size
+            width: '512px',
             height: '512px',
-           
-            
           }}
         >
           <img
@@ -215,113 +193,93 @@ function Tasks() {
               zIndex: 0
             }}
           />
-           <Box
+          <Box
             sx={{
               position: 'absolute',
-              top: '13px',   // Adjust to align with top line in the image
-              right: '142%', // Adjust to position text horizontally
+              top: '13px',
+              right: '142%',
               zIndex: 1,
               color: '#CFA63D',
               width: '300px',
-              
-             
             }}
           >
-            <Typography sx={{ fontSize: '30px', fontWeight: 'bold',  lineHeight: 1.7}}>
-             STATUS
-            </Typography>
-          </Box>
-        
-          {/* -- First Line (e.g. Name / Age) -- */}
-  
-          
-           <Box
-            sx={{
-              position: 'absolute',
-              top: '69px',   // Adjust to align with top line in the image
-              right: '142%', // Adjust to position text horizontally
-              zIndex: 1,
-              color: '#CFA63D',
-              width: '300px',
-             
-            }}
-          >
-            <Typography sx={{ fontSize: '19px', fontWeight: 'bold',  lineHeight: 1.7}}>
-              NAME: {profile?.name}<br></br>
-              AGE: {profile?.age} <br></br> 
-              RANK: {profile?.rank}  <br></br>
-              TITLE: {profile?.title} 
-            </Typography>
-            <Box sx={{ position: 'absolute', right: '-60px', top: '-40px',zIndex: 999 }}>
-             <Settings />
-            </Box>
-           
-           <Typography sx={{position: 'absolute', top:'140px', fontSize: '19px', fontWeight: 'bold',  lineHeight: 1.7}}>
-              <br></br>
-              HP: {((profile?.level)*40)} <br></br>
-              FATIGUE: {((profile?.age)*1.013).toFixed(2)+"%"}
-             
-            </Typography>
-            <Typography sx={{position: 'absolute', fontSize: '19px', fontWeight: 'bold',  lineHeight: 1.7, top: '250px'}}>
-              <br></br>
-              STR:  {profile?.strength}  
-              <br></br>
-              PERCEPTION: {profile?.perception} 
-              <br></br>
-              DEX:  {profile?.agility} 
-
+            <Typography sx={{ fontSize: '30px', fontWeight: 'bold', lineHeight: 1.7 }}>
+              STATUS
             </Typography>
           </Box>
           <Box
             sx={{
               position: 'absolute',
-              top: '71px',   // Adjust to align with top line in the image
-              right: '105%', // Adjust to position text horizontally
+              top: '69px',
+              right: '142%',
               zIndex: 1,
               color: '#CFA63D',
               width: '300px',
-             
             }}
           >
-            <Typography sx={{ fontSize: '19px', fontWeight: 'bold'}}>
-             LV. {profile?.level}<br></br>
-             XP: {profile?.xp}/{Math.floor(profile?.level ** 1.15 * 1000)}
-             <LinearProgress
-              variant="determinate"
-              value={
-                profile?.xp
-                  ? (profile.xp / Math.floor(profile.level ** 1.15 * 1000)) * 100
-                  : 0
-              }
-              sx={{
-                width: '150px',
-                height: '10px',
-                marginTop: '5px',
-                backgroundColor: 'rgba(0, 0, 0, 0.1)', // Optional: change the track color
-                '& .MuiLinearProgress-bar': {
-                  backgroundColor: 'gold', // or use '#FFD700'
-                },
-              }}
-            />
+            <Typography sx={{ fontSize: '19px', fontWeight: 'bold', lineHeight: 1.7 }}>
+              NAME: {profile?.name}<br />
+              AGE: {profile?.age} <br />
+              RANK: {profile?.rank}  <br />
+              TITLE: {profile?.title}
             </Typography>
-            <Typography sx={{position: 'absolute', fontSize: '19px', fontWeight: 'bold',  lineHeight: 1.7, top: '139px'}}>
-              <br></br>
-              FOCUS:  {(((profile?.intelligence)+(profile?.perception))/20).toFixed(2)+"%"}  
+            <Box sx={{ position: 'absolute', right: '-60px', top: '-40px', zIndex: 999 }}>
+              <Settings />
+            </Box>
+            <Typography sx={{ position: 'absolute', top: '140px', fontSize: '19px', fontWeight: 'bold', lineHeight: 1.7 }}>
+              <br />
+              HP: {profile ? profile.level * 40 : 0} <br />
+              FATIGUE: {profile ? (profile.age * 1.013).toFixed(2) + "%" : ""}
             </Typography>
-            <Typography sx={{position: 'absolute', fontSize: '19px', fontWeight: 'bold',  lineHeight: 1.7, top: '247px'}}>
-              <br></br>
-              STAMINA:  {profile?.stamina}  
-              <br></br>
-              INT: {profile?.intelligence} 
-              <br></br>
-              AP:  {((profile?.ap)*30)} 
-
-
+            <Typography sx={{ position: 'absolute', fontSize: '19px', fontWeight: 'bold', lineHeight: 1.7, top: '250px' }}>
+              <br />
+              STR: {profile?.strength} <br />
+              PERCEPTION: {profile?.perception} <br />
+              DEX: {profile?.agility}
             </Typography>
           </Box>
-  
- 
-       
+          <Box
+            sx={{
+              position: 'absolute',
+              top: '71px',
+              right: '105%',
+              zIndex: 1,
+              color: '#CFA63D',
+              width: '300px',
+            }}
+          >
+            <Typography sx={{ fontSize: '19px', fontWeight: 'bold' }}>
+              LV. {profile?.level}<br />
+              XP: {profile?.xp}/{profile ? Math.floor(profile.level ** 1.15 * 1000) : 0}
+              <LinearProgress
+                variant="determinate"
+                value={
+                  profile?.xp
+                    ? (profile.xp / Math.floor(profile.level ** 1.15 * 1000)) * 100
+                    : 0
+                }
+                sx={{
+                  width: '150px',
+                  height: '10px',
+                  marginTop: '5px',
+                  backgroundColor: 'rgba(0, 0, 0, 0.1)',
+                  '& .MuiLinearProgress-bar': {
+                    backgroundColor: 'gold',
+                  },
+                }}
+              />
+            </Typography>
+            <Typography sx={{ position: 'absolute', fontSize: '19px', fontWeight: 'bold', lineHeight: 1.7, top: '139px' }}>
+              <br />
+              FOCUS: {profile ? ((profile.intelligence + profile.perception) / 20).toFixed(2) + "%" : ""}
+            </Typography>
+            <Typography sx={{ position: 'absolute', fontSize: '19px', fontWeight: 'bold', lineHeight: 1.7, top: '247px' }}>
+              <br />
+              STAMINA: {profile?.stamina} <br />
+              INT: {profile?.intelligence} <br />
+              AP: {profile ? profile.ap * 30 : 0}
+            </Typography>
+          </Box>
         </Box>
 
         {/* Aufgaben-Bereich */}
@@ -337,7 +295,7 @@ function Tasks() {
             right: '150px',
           }}
         >
-          {/* Linke Kategorie-Spalte mit Plus-Button oberhalb der Liste */}
+          {/* Linke Kategorie-Spalte */}
           <Box
             sx={{
               width: '20%',
@@ -413,124 +371,150 @@ function Tasks() {
               <Box
                 key={task.id}
                 sx={{
-                  border: 1,
+                  border: task.status === 'done' ? '3px solid black' : '1px solid #CFA63D',
                   padding: '5px',
                   marginBottom: '10px',
                   cursor: 'pointer',
-                  backgroundColor: task.status === 'done' ? '#5ced73' : null,
-                  color: task.status === 'done' ? 'black' : null,
-                  border: task.status === 'done' ? '3px solid black' : '1px solid #CFA63D',
+                  backgroundColor: task.status === 'done' ? 'transparent' : null,
+                  position: 'relative'
                 }}
               >
-                <Box
-                  sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
-                  onClick={() => setExpandedTask(expandedTask === index ? null : index)}
-                >
-                  <Typography>{task.name}</Typography>
-                  <IconButton>
-                    <ExpandMoreIcon sx={{ color: task.status === 'done' ? 'black' : '#CFA63D' }} />
-                  </IconButton>
-                </Box>
-                <Typography variant="caption" sx={{ color: task.status === 'done' ? 'black' : '#CFA63D', fontWeight: 'bold' }}>
-                  Difficulty: {task.difficulty} <br></br>
-                  Reward: {task.category+ ": "+ "+" + task.value} <br></br>
-                  Status: {task.status === 'done' ? 'completed' : 'not completed'}
-                </Typography>
-               
-
-                <Collapse in={expandedTask === index}>
-                  <Box sx={{ padding: '10px' }} theme={theme}>
-                    <Typography>{task.description}</Typography>
-                    <Typography sx={{ marginTop: '2px' }}>Exp: {task.xp}</Typography>
-                    <Button
-                      disabled={task.status === 'done'}
-                      variant="contained"
-                      color="success"
-                      sx={{
-                        marginTop: '18px',
-                        color: task.status != 'done' ? '#CFA63D' : null,
-                        backgroundColor: task.status === 'done' ? theme.palette.success.main : 'transparent',
-                        '&:hover': {
-                          boxShadow: task.status !== 'done' ? '0 0 10px #CFA63D' : 'none',
-                          transition: 'box-shadow 0.3s ease-in-out',
-                        },
-                      }}
-                      onClick={async () => {
-                        // Setze den Task auf "done"
-                        await fetch(`http://localhost:5000/api/tasks/${task.id}`, {
-                          method: 'PUT',
-                          headers: { 'Content-Type': 'application/json' },
-                          body: JSON.stringify({ status: 'done' }),
-                        });
-                        
-                        // Update XP und Level wie bisher
-                        const xpToAdd = task.xp;
-                        let updatedXP = profile?.xp + xpToAdd;
-                        let newLevel = profile?.level;
-                        let xpNeededForNextLevel = Math.floor(profile?.level ** 1.15 * 1000);
-                        while (updatedXP >= xpNeededForNextLevel) {
-                          newLevel++;
-                          updatedXP -= xpNeededForNextLevel;
-                          xpNeededForNextLevel = Math.floor(newLevel ** 1.15 * 1000);
-                        }
-                      
-                        // Hole den Reward (der beim Anlegen des Tasks als "value" gespeichert wurde)
-                        let reward = task.value; 
-                        let category = task.category; // z.B. "Intelligence", "Strength", etc.
-                      
-                        // Erstelle ein Objekt mit den aktuellen Statuswerten (Fallback auf 0, falls undefined)
-                        const updatedStatus = {
-                          strength: profile?.strength || 0,
-                          agility: profile?.agility || 0,
-                          stamina: profile?.stamina || 0,
-                          intelligence: profile?.intelligence || 0,
-                          perception: profile?.perception || 0,
-                          ap: profile?.ap || 0,
-                        };
-                      
-                        // Passe das jeweilige Statusattribut an, abhängig von der Task-Kategorie
-                        if (category === 'Intelligence') {
-                          updatedStatus.intelligence += reward;
-                        } else if (category === 'Strength') {
-                          updatedStatus.strength += reward;
-                        } else if (category === 'Agility') {
-                          updatedStatus.agility += reward;
-                        } else if (category === 'Durability') {
-                          updatedStatus.stamina += reward;
-                        } else if (category === 'Skills') {
-                          // Hier wird angenommen, dass "Skills" das Attribut "perception" updatet.
-                          updatedStatus.perception += reward;
-                        } else if (category === 'Projects') {
-                          updatedStatus.ap += reward;
-                        }
-                      
-                        // Sende alle sechs Werte an den Status-Update-Endpoint
-                        await fetch('http://localhost:5000/api/profile/update_status', {
-                          method: 'PUT',
-                          headers: { 'Content-Type': 'application/json' },
-                          body: JSON.stringify(updatedStatus),
-                        });
-                      
-                        // Update XP und Level im Profil
-                        await fetch('http://localhost:5000/api/profile/update', {
-                          method: 'PUT',
-                          headers: { 'Content-Type': 'application/json' },
-                          body: JSON.stringify({ level: newLevel, xp: updatedXP }),
-                        });
-                        
-                        fetchProfiles();
-                        fetchTasks();
-                      }}
-                    >
-                      Done
-                    </Button>
+                {/* Inhalt, der bei abgeschlossener Aufgabe geblurrt wird */}
+                <Box sx={{ filter: task.status === 'done' ? 'blur(3px)' : 'none' }}>
+                  <Box
+                    sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
+                    onClick={() => setExpandedTask(expandedTask === index ? null : index)}
+                  >
+                    <Typography>{task.name}</Typography>
+                    <IconButton>
+                      <ExpandMoreIcon sx={{ color: task.status === 'done' ? 'black' : '#CFA63D' }} />
+                    </IconButton>
                   </Box>
-                </Collapse>
+                  <Typography variant="caption" sx={{ color: task.status === 'done' ? 'black' : '#CFA63D', fontWeight: 'bold' }}>
+                    Difficulty: {task.difficulty} <br />
+                    Reward: {task.category + ": " + "+" + task.value} <br />
+                    Status: {task.status === 'done' ? 'completed' : 'not completed'}
+                  </Typography>
+                  <Collapse in={expandedTask === index}>
+                    <Box sx={{ padding: '10px' }} theme={theme}>
+                      <Typography>{task.description}</Typography>
+                      <Typography sx={{ marginTop: '2px' }}>Exp: {task.xp}</Typography>
+                      <Button
+                        disabled={task.status === 'done'}
+                        variant="contained"
+                        color="success"
+                        sx={{
+                          marginTop: '18px',
+                          color: task.status !== 'done' ? '#CFA63D' : null,
+                          backgroundColor: task.status === 'done' ? theme.palette.success.main : 'transparent',
+                          '&:hover': {
+                            boxShadow: task.status !== 'done' ? '0 0 10px #CFA63D' : 'none',
+                            transition: 'box-shadow 0.3s ease-in-out',
+                          },
+                        }}
+                        onClick={async () => {
+                          // Task als erledigt markieren
+                          await fetch(`http://localhost:5000/api/tasks/${task.id}`, {
+                            method: 'PUT',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ status: 'done' }),
+                          });
+                          
+                          // Update XP und Level wie bisher
+                          const xpToAdd = task.xp;
+                          let updatedXP = (profile?.xp || 0) + xpToAdd;
+                          let newLevel = profile?.level || 1;
+                          let xpNeededForNextLevel = Math.floor(profile?.level ** 1.15 * 1000);
+                          while (updatedXP >= xpNeededForNextLevel) {
+                            newLevel++;
+                            updatedXP -= xpNeededForNextLevel;
+                            xpNeededForNextLevel = Math.floor(newLevel ** 1.15 * 1000);
+                          }
+                        
+                          // Hole den Reward (Task.reward wird als value gespeichert)
+                          let reward = task.value; 
+                          let category = task.category;
+                        
+                          // Erstelle ein Objekt mit den aktuellen Statuswerten (Fallback auf 0, falls undefined)
+                          const updatedStatus = {
+                            strength: profile?.strength || 0,
+                            agility: profile?.agility || 0,
+                            stamina: profile?.stamina || 0,
+                            intelligence: profile?.intelligence || 0,
+                            perception: profile?.perception || 0,
+                            ap: profile?.ap || 0,
+                          };
+                        
+                          // Passe das jeweilige Statusattribut an, abhängig von der Task-Kategorie
+                          if (category === 'Intelligence') {
+                            updatedStatus.intelligence += reward;
+                          } else if (category === 'Strength') {
+                            updatedStatus.strength += reward;
+                          } else if (category === 'Agility') {
+                            updatedStatus.agility += reward;
+                          } else if (category === 'Durability') {
+                            updatedStatus.stamina += reward;
+                          } else if (category === 'Projects') {
+                            updatedStatus.perception += reward;
+                          } else if (category === 'Skills') {
+                            updatedStatus.ap += reward;
+                          }
+                        
+                          // Sende alle sechs Werte an den Status-Update-Endpoint
+                          await fetch('http://localhost:5000/api/profile/update_status', {
+                            method: 'PUT',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(updatedStatus),
+                          });
+                        
+                          // Update XP und Level im Profil
+                          await fetch('http://localhost:5000/api/profile/update', {
+                            method: 'PUT',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ level: newLevel, xp: updatedXP }),
+                          });
+                          
+                          fetchProfiles();
+                          fetchTasks();
+                        }}
+                      >
+                        Done
+                      </Button>
+                    </Box>
+                  </Collapse>
+                </Box>
+                {/* Overlay: Angepasste Darstellung bei abgeschlossener Aufgabe */}
+                {task.status === 'done' && (
+                  <Box
+                    sx={{
+                      position: 'absolute',
+                      top: '50%',
+                      left: '50%',
+                      transform: 'translate(-50%, -50%)',
+                      pointerEvents: 'none',
+                      padding: '10px',
+                      borderRadius: '5px',
+                      textAlign: 'center',
+                      color: '#fff'
+                    }}
+                  >
+                    <Typography sx={{ fontSize: '1.5rem', fontWeight: 'bold', mt: 1 }}>
+                      COMPLETED:
+                    </Typography>
+                    <Typography sx={{ fontSize: '1rem', fontWeight: 'bold' }}>
+                      {task.name}
+                    </Typography>
+                    <Typography sx={{ fontSize: '0.7rem', fontWeight: 'bold' }}>
+                      REWARD: {task.category + ": " + "+" + task.value}
+                    </Typography>
+                  </Box>
+                )}
               </Box>
             ))}
           </Box>
         </Box>
 
+        {/* Navigation */}
         <Box
           sx={{
             width: '722px',
@@ -563,23 +547,6 @@ function Tasks() {
               </Link>
             </Grid2>
             <Grid2 xs={6}>
-              <Link to="/career" style={{ textDecoration: 'none' }}>
-                <Box sx={{
-                  height: '50px',
-                  width: '150px',
-                  display: 'flex',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  border: 1,
-                  color: '#CFA63D',
-                  transition: 'transform 0.3s, box-shadow 0.3s',
-                  '&:hover': { transform: 'scale(1.05)', boxShadow: '0 0 10px #CFA63D' }
-                }}>
-                  Career
-                </Box>
-              </Link>
-            </Grid2>
-            <Grid2 xs={6}>
               <Link to="/achievements" style={{ textDecoration: 'none' }}>
                 <Box sx={{
                   height: '50px',
@@ -593,6 +560,23 @@ function Tasks() {
                   '&:hover': { transform: 'scale(1.05)', boxShadow: '0 0 10px #CFA63D' }
                 }}>
                   Achievements
+                </Box>
+              </Link>
+            </Grid2>
+            <Grid2 xs={6}>
+              <Link to="/career" style={{ textDecoration: 'none' }}>
+                <Box sx={{
+                  height: '50px',
+                  width: '150px',
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  border: 1,
+                  color: '#CFA63D',
+                  transition: 'transform 0.3s, box-shadow 0.3s',
+                  '&:hover': { transform: 'scale(1.05)', boxShadow: '0 0 10px #CFA63D' }
+                }}>
+                  Career
                 </Box>
               </Link>
             </Grid2>

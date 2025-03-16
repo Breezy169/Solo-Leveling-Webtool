@@ -12,6 +12,8 @@ from profiles_db import (
 from titles_db import (
     init_titles_db, get_titles
 )
+# --- Neu: Import von achievements_db ---
+from achievements_db import init_ACHIEVEMENTS_DB, add_achievement_to_db, get_achievements, update_achievements_in_db
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -19,9 +21,12 @@ logger = logging.getLogger(__name__)
 app = Flask(__name__)
 CORS(app, resources={r"/api/*": {"origins": "*"}})
 
+
 init_tasks_db()
 init_profiles_db()
 init_titles_db()
+init_ACHIEVEMENTS_DB() 
+
 ranks = ['E-Rank', 'D-Rank', 'C-Rank', 'B-Rank', 'A-Rank', 'S-Rank']
 rank_levels = [5, 20, 50, 75, 125, 200]
 
@@ -41,19 +46,65 @@ def get_status_bonus(difficulty):
         return random.randint(20, 30)
     return 0
 
+
+# --- Achievement-Endpunkte ---
 @app.route('/api/addtitle', methods=['PUT'])
 def addtitle():
     data = request.get_json()
     new_title = data.get('title')
-    if add_title_to_db()(new_title):
+    try:
+        add_title_to_db(new_title)
         logger.info(f'Title {new_title} has been added to the collection.')
-        return jsonify({'message': 'Task updated successfully'}), 200
-    else:
-        logger.error(f'Title {new_title} not found or failed to update.')
-        return jsonify({'message': 'Task not found'}), 404
-
+        return jsonify({'message': 'Title added successfully'}), 200
+    except Exception as e:
+        logger.error(f'Error adding title: {e}')
+        return jsonify({'message': 'Failed to add title'}), 500
     
+@app.route('/api/achievements', methods=['GET'])
+def get_all_achievements():
+    achievements_data = get_achievements()
+    # Die Spaltenreihenfolge: 0: id, 1: name, 2: reward_type, 3: reward_text, 4: reward_int, 5: description, 6: status
+    achievement_list = [{
+        'id': row[0],
+        'name': row[1],
+        'rewardType': row[2],
+        'reward': row[4] if row[2] == 'EXP' else row[3],
+        'description': row[5],
+        'status': row[6]
+    } for row in achievements_data]
+    return jsonify(achievement_list)
 
+@app.route('/api/addachievements', methods=['POST'])
+def add_achievement():
+    data = request.get_json()
+    if not data:
+        return jsonify({"message": "No input provided"}), 400
+
+    # Hier wird rewardType als Pflichtfeld abgefragt
+    required_fields = ['name', 'reward', 'description', 'rewardType']
+    if not all(field in data for field in required_fields):
+        return jsonify({"message": "Missing fields"}), 400
+
+    try:
+        add_achievement_to_db(data)
+        logger.info("Achievement added successfully.")
+        return jsonify({"message": "Achievement added successfully"}), 200
+    except Exception as e:
+        logger.error(f"Error adding achievement: {e}")
+        return jsonify({"message": "Error adding achievement"}), 500
+
+@app.route('/api/achievements/<int:achievement_id>', methods=['PUT'])
+def update_achievement(achievement_id):
+    data = request.get_json()
+    new_status = data.get('status')
+    if update_achievements_in_db(achievement_id, new_status):
+        logger.info(f'Achievement {achievement_id} updated successfully.')
+        return jsonify({'message': 'Achievement updated successfully'}), 200
+    else:
+        logger.error(f'Achievement {achievement_id} not found or failed to update.')
+        return jsonify({'message': 'Achievement not found'}), 404
+
+# --- Die übrigen Endpunkte (Tasks, Profile, Titles etc.) bleiben unverändert ---
 
 @app.route('/api/tasks', methods=['GET'])
 def get_all_tasks():
