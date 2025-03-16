@@ -9,15 +9,19 @@ import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
 import TextField from '@mui/material/TextField';
 import Autocomplete from '@mui/material/Autocomplete';
-import CircularProgress from '@mui/material/CircularProgress'; // Import CircularProgress
+import CircularProgress from '@mui/material/CircularProgress';
 import Box from '@mui/material/Box';
 import { green } from '@mui/material/colors';
 import Fab from '@mui/material/Fab';
 import CheckIcon from '@mui/icons-material/Check';
 import SaveIcon from '@mui/icons-material/Save';
 import SettingsIcon from '@mui/icons-material/Settings';
+import Typography from '@mui/material/Typography';
 
 const BootstrapDialog = styled(Dialog)(({ theme }) => ({
+  '& .MuiPaper-root': {
+    backgroundColor: '#30324a',
+  },
   '& .MuiDialogContent-root': {
     padding: theme.spacing(2),
   },
@@ -27,23 +31,22 @@ const BootstrapDialog = styled(Dialog)(({ theme }) => ({
 }));
 
 export default function Settings() {
-  const [success, setSuccess] = React.useState(false);
+  const [success, setSuccess] = useState(false);
   const timer = React.useRef(undefined);
   const [options, setOptions] = useState([]);
   const [open, setOpen] = useState(false);
   const [profile, setProfile] = useState(null);
-  const [selectedTitle, setSelectedTitle] = useState(null); // State to hold the selected title
-  const [loading, setLoading] = useState(false); // State to handle loading
+  const [selectedTitle, setSelectedTitle] = useState(null);
+  const [loading, setLoading] = useState(false);
+
 
   const fetchProfiles = async () => {
-    const response = await fetch('http://localhost:5000/api/profile'); // API endpoint
+    const response = await fetch('http://localhost:5000/api/profile');
     if (!response.ok) {
       throw new Error('Network response was not ok');
     }
-
     const data = await response.json();
-    console.log(data);
-    setProfile(data.length > 0 ? data[0] : null); // Set the first profile if available
+    setProfile(data.length > 0 ? data[0] : null);
   };
 
   const buttonSx = {
@@ -55,7 +58,7 @@ export default function Settings() {
     }),
   };
 
-  React.useEffect(() => {
+  useEffect(() => {
     return () => {
       clearTimeout(timer.current);
     };
@@ -68,8 +71,8 @@ export default function Settings() {
       timer.current = setTimeout(async () => {
         setSuccess(true);
         setLoading(false);
+        // Save both title and profile picture if needed
         await handleSave();
-        await fetchProfiles();
       }, 2000);
     }
   };
@@ -77,19 +80,15 @@ export default function Settings() {
   useEffect(() => {
     const fetchOptions = async () => {
       try {
-        const response = await fetch('http://localhost:5000/api/titles'); // Replace with your API endpoint
+        const response = await fetch('http://localhost:5000/api/titles');
         const data = await response.json();
         setOptions(data);
       } catch (error) {
         console.error('Error fetching options:', error);
       }
     };
-
     fetchOptions();
   }, []);
-
-
-
 
   const titles = options.map((option) => {
     const firstLetter = option.title[0].toUpperCase();
@@ -98,7 +97,6 @@ export default function Settings() {
       ...option,
     };
   });
-
 
   useEffect(() => {
     fetchProfiles();
@@ -114,48 +112,40 @@ export default function Settings() {
   };
 
   const handleSave = async () => {
-    if (!selectedTitle || !profile){
-        console.log('No profile found')
-        return;
-    } 
-         // Ensure there is a selected title and profile
-
+    if (!profile) {
+      console.log('No profile found');
+      return;
+    }
+    // Update the profile title and other info
     try {
-      // Update the profile title in the backend
       const response = await fetch('http://localhost:5000/api/profile/update', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          id: profile.id, // Include the profile id
-          title: selectedTitle.title, // Send the new title
-          level: profile.level, // Include level
-          xp: profile.xp,      // Include XP
+          id: profile.id,
+          title: selectedTitle ? selectedTitle.title : profile.title,
+          level: profile.level,
+          xp: profile.xp,
         }),
       });
-
       if (!response.ok) {
-        console.log("error")
         throw new Error('Failed to update profile title');
       }
-
       fetchProfiles();
-      window.location.reload();  // Add this line
+      window.location.reload();
     } catch (error) {
       console.error('Error updating title:', error);
-    } 
+    }
   };
 
+  // New handler for profile picture change
+ 
 
-  
   return (
     <React.Fragment>
       <SettingsIcon cursor="pointer" variant="outlined" onClick={handleClickOpen} />
-      <BootstrapDialog
-        onClose={handleClose}
-        aria-labelledby="customized-dialog-title"
-        open={open}
-      >
-        <DialogTitle sx={{ m: 0, p: 2 }} id="customized-dialog-title">
+      <BootstrapDialog onClose={handleClose} aria-labelledby="customized-dialog-title" open={open}>
+        <DialogTitle sx={{ m: 0, p: 2, color: "#CFA63D" }} id="customized-dialog-title">
           Account Settings
         </DialogTitle>
         <IconButton
@@ -165,61 +155,55 @@ export default function Settings() {
             position: 'absolute',
             right: 8,
             top: 8,
-            color: theme.palette.grey[500],
+            color:' theme.palette.grey[500]',
           })}
         >
           <CloseIcon />
         </IconButton>
         <DialogContent dividers>
+          <Typography variant="subtitle1" color="#CFA63D" marginBottom="10px" sx={{ color: "#CFA63D" }}>
+            Change Title
+          </Typography>
           <Autocomplete
             options={titles.sort((a, b) => -b.firstLetter.localeCompare(a.firstLetter))}
             groupBy={(option) => option.firstLetter}
             getOptionLabel={(option) => option.title}
             onChange={(event, newValue) => {
-              setSelectedTitle(newValue); // Set the selected title in state
+              setSelectedTitle(newValue);
             }}
-            sx={{ width: 520 }} // Set appropriate width for the Autocomplete
+            sx={{ width: 520 }}
             renderInput={(params) => (
-              <TextField
-                {...params}
-                label="Select a title"
-
-              />
+              <TextField {...params} label="Select a title" />
             )}
           />
+         
         </DialogContent>
         <DialogActions>
-            <Box sx={{ display: 'flex', alignItems: 'center' }}>
-              <Box sx={{ m: 1, position: 'relative' }}>
-                <Fab
-                  aria-label="save"
-                  color="primary"
-                  sx={buttonSx}
-                  onClick={handleButtonClick}
-                >
-                  {success ? <CheckIcon /> : <SaveIcon />}
-                </Fab>
-                {loading && (
-                  <CircularProgress
-                    size={68}
-                    sx={{
-                      color: green[500],
-                      position: 'absolute',
-                      top: -6,
-                      left: -6,
-                      zIndex: 1,
-                    }}
-                  />
-                )}
-                
-              
-              </Box>
-              
-            </Box>  
-
+          <Box sx={{ m: 1, position: 'relative' }}>
+            <Fab
+              aria-label="save"
+              color= "#CFA63D"
+              onClick={handleButtonClick}
+              sx={buttonSx}
+            >
+              {success ? <CheckIcon /> : <SaveIcon />}
+            </Fab>
+            {loading && (
+              <CircularProgress
+                size={68}
+                sx={{
+                  
+                  color: '#CFA63D',
+                  position: 'absolute',
+                  top: -6,
+                  left: -6,
+                  zIndex: 1,
+                }}
+              />
+            )}
+          </Box>
         </DialogActions>
       </BootstrapDialog>
     </React.Fragment>
   );
 }
-

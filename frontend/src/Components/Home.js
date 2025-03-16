@@ -4,6 +4,7 @@ import Grid2 from '@mui/material/Grid2'; // Import Grid2
 import gojo from '../Images/gojo.jpg';
 import { Link } from 'react-router-dom'; // Import Link
 import Settings from './Settings';
+import systeminfo from '../Images/systeminfo.png'
 function Home() {
   const [profile, setProfile] = useState(null); // Initialize profile as null
   // const [isLoggedIn, setIsLoggedIn] = useState(false); // State for login status
@@ -73,79 +74,158 @@ function Home() {
         }}
       >
         <Box
-          sx={{
-            padding: '10px',
-            height: '250px',
-            width: '450px',
-            display: 'flex',
-            position: 'absolute',
-            justifyContent: 'center',
-            alignItems: 'center',
-            border: 1.3,
-            color: '#f2b5d5',
-            left: '3%',
-            top: '5%',
-            borderRadius: '16px',
-            flexDirection: 'column', // Ensures content is stacked
-          }}
-        >
-          <img
-            alt=""
-            style={{
-              position: 'absolute', // Position the image absolutely
-              top: '30px', // Adjust vertical position
-              left: '25px', // Adjust horizontal position
-              width: '200px', // Set a fixed width for the image
-              height: 'auto', // Maintain aspect ratio
-              border: 1,
-              borderRadius: '150px',
-            }}
-            src={gojo}
-          />
-          <Box sx={{ marginLeft: '410px'}}>
-            <Settings />
-          </Box>
-          <List sx={{bottom: '10px', color: '#f2b5d5', padding: 0, left: '15%' }}>
-            <ListItem sx={{ padding: '2px 0' }}>
-              <ListItemText
-                primary={<Typography sx={{ fontSize: '16px', fontWeight: 'bold' }}>Name: {profile?.name}</Typography>}
-              />
-            </ListItem>
-            <ListItem sx={{ padding: '2px 0' }}>
-              <ListItemText
-                primary={<Typography sx={{ fontSize: '16px', fontWeight: 'bold' }}>Age: {profile?.age}</Typography>}
-              />
-            </ListItem>
-            <ListItem sx={{ padding: '2px 0' }}>
-              <ListItemText
-                primary={<Typography sx={{ fontSize: '16px', fontWeight: 'bold' }}>Level: {profile?.level}</Typography>}
-              />
-            </ListItem>
-            <ListItem sx={{ padding: '2px 0' }}>
-              <ListItemText
-                primary={<Typography sx={{ fontSize: '16px', fontWeight: 'bold' }}>Rank: {profile?.rank}</Typography>}
-              />
-            </ListItem>
-            <ListItem sx={{ padding: '2px 0' }}>
-              <ListItemText
-                primary={<Typography sx={{ fontSize: '16px', fontWeight: 'bold' }}>Title: {profile?.title}</Typography>}
-              />
-            </ListItem>
-          </List>
-          
-          {/* Progress Bar */}
-          <Typography sx={{ fontSize: '16px', fontWeight: 'bold', marginTop: '5px',  marginBottom: '5px' }}>
-            XP: {profile?.xp}
-            </Typography>
-          <LinearProgress color='secondary' variant="determinate" value={(profile?.xp / Math.floor(profile?.level ** 1.15 * 1000)) * 100} sx={{ width: '100%', height: '10px' }} />
+               sx={{
+                 display: 'flex',
+                 backgroundColor: '#30324a',
+                 minHeight: '100vh',
+                 flexDirection: 'column',
+                 position: 'relative',
+               }}
+             >
+               {/* Settings button in top-right corner */}
+              
+       
+               {/* 
+                 1) Container with systeminfo as background
+                 2) Profile data layered on top (foreground)
+               */}
+               <Box
+                 sx={{
+                   position: 'relative',
+                   margin: '40px auto 0',
+                   width: '512px', // Adjust to match your image's size
+                   height: '512px',
+                  
+                   
+                 }}
+               >
+                 <img
+                   alt="System Info"
+                   src={systeminfo}
+                   style={{
+                     position: 'absolute',
+                     top: 0,
+                     right: '125%',
+                     width: 'auto',
+                     height: '600px',
+                     zIndex: 0
+                   }}
+                 />
+                  <Box
+                   sx={{
+                     position: 'absolute',
+                     top: '13px',   // Adjust to align with top line in the image
+                     right: '142%', // Adjust to position text horizontally
+                     zIndex: 1,
+                     color: '#CFA63D',
+                     width: '300px',
+                     
+                    
+                   }}
+                 >
+                   <Typography sx={{ fontSize: '30px', fontWeight: 'bold',  lineHeight: 1.7}}>
+                    STATUS
+                   </Typography>
+                 </Box>
+               
+                 {/* -- First Line (e.g. Name / Age) -- */}
          
+                 
+                  <Box
+                   sx={{
+                     position: 'absolute',
+                     top: '69px',   // Adjust to align with top line in the image
+                     right: '142%', // Adjust to position text horizontally
+                     zIndex: 1,
+                     color: '#CFA63D',
+                     width: '300px',
+                    
+                   }}
+                 >
+                   <Typography sx={{ fontSize: '19px', fontWeight: 'bold',  lineHeight: 1.7}}>
+                     NAME: {profile?.name}<br></br>
+                     AGE: {profile?.age} <br></br> 
+                     RANK: {profile?.rank}  <br></br>
+                     TITLE: {profile?.title} 
+                   </Typography>
+                   <Box sx={{ position: 'absolute', right: '-60px', top: '-40px',zIndex: 999 }}>
+                    <Settings />
+                   </Box>
+                  
+                  <Typography sx={{position: 'absolute', top:'140px', fontSize: '19px', fontWeight: 'bold',  lineHeight: 1.7}}>
+                     <br></br>
+                     HP: {((profile?.level)*40)} <br></br>
+                     FATIGUE: {((profile?.age)*1.013).toFixed(2)}
+                    
+                   </Typography>
+                   <Typography sx={{position: 'absolute', fontSize: '19px', fontWeight: 'bold',  lineHeight: 1.7, top: '250px'}}>
+                     <br></br>
+                     STR:  {profile?.strength}  
+                     <br></br>
+                     PERCEPTION: {profile?.perception} 
+                     <br></br>
+                     DEX:  {profile?.agility} 
+       
+                   </Typography>
+                 </Box>
+                 <Box
+                   sx={{
+                     position: 'absolute',
+                     top: '71px',   // Adjust to align with top line in the image
+                     right: '105%', // Adjust to position text horizontally
+                     zIndex: 1,
+                     color: '#CFA63D',
+                     width: '300px',
+                    
+                   }}
+                 >
+                   <Typography sx={{ fontSize: '19px', fontWeight: 'bold'}}>
+                    LV. {profile?.level}<br></br>
+                    XP: {profile?.xp}/{Math.floor(profile?.level ** 1.15 * 1000)}
+                    <LinearProgress
+                     variant="determinate"
+                     value={
+                       profile?.xp
+                         ? (profile.xp / Math.floor(profile.level ** 1.15 * 1000)) * 100
+                         : 0
+                     }
+                     sx={{
+                       width: '150px',
+                       height: '10px',
+                       marginTop: '5px',
+                       backgroundColor: 'rgba(0, 0, 0, 0.1)', // Optional: change the track color
+                       '& .MuiLinearProgress-bar': {
+                         backgroundColor: 'gold', // or use '#FFD700'
+                       },
+                     }}
+                   />
+                   </Typography>
+                   <Typography sx={{position: 'absolute', fontSize: '19px', fontWeight: 'bold',  lineHeight: 1.7, top: '139px'}}>
+                     <br></br>
+                     FOCUS:  {((profile?.intelligence)*120)}  
+                   </Typography>
+                   <Typography sx={{position: 'absolute', fontSize: '19px', fontWeight: 'bold',  lineHeight: 1.7, top: '247px'}}>
+                     <br></br>
+                     STAMINA:  {profile?.stamina}  
+                     <br></br>
+                     INT: {profile?.intelligence} 
+                     <br></br>
+                     AP:  {((profile?.ap)*30)} 
+       
+       
+                   </Typography>
+                 </Box>
+         
+        
+              
+               </Box>
         </Box>
-        <Box sx={{ width: '622px', height: '500px', border: 'none', display: 'flex', justifyContent: 'center', alignItems: 'center', fontWeight: 'bold' }}>
+        <Box sx={{position: 'absolute', width: '622px', height: '500px', border: 'none', display: 'flex', justifyContent: 'center', alignItems: 'center', fontWeight: 'bold' }}>
           <Grid2 container spacing={2} sx={{ height: '100%' }}>
-            <Grid2 xs={6}><Link to="/tasks" style={{ textDecoration: 'none' }}><Box sx={{ height: '250px', width: '300px', display: 'flex', justifyContent: 'center', alignItems: 'center', border: 1, color: '#f2b5d5', transition: 'transform 0.3s, box-shadow 0.3s', '&:hover': { transform: 'scale(1.05)', boxShadow: '0 0 10px #f2b5d5' }}}>Tasks</Box></Link></Grid2>
-            <Grid2 xs={6}><Link to="/career" style={{ textDecoration: 'none' }}><Box sx={{ height: '250px', width: '300px', display: 'flex', justifyContent: 'center', alignItems: 'center', border: 1, color: '#f2b5d5', transition: 'transform 0.3s, box-shadow 0.3s', '&:hover': { transform: 'scale(1.05)', boxShadow: '0 0 10px #f2b5d5' }}}>Career</Box></Link></Grid2>
-            <Grid2 xs={6}><Link to="/achievements" style={{ textDecoration: 'none' }}><Box sx={{ height: '250px', width: '300px', display: 'flex', justifyContent: 'center', alignItems: 'center', border: 1, color: '#f2b5d5', transition: 'transform 0.3s, box-shadow 0.3s', '&:hover': { transform: 'scale(1.05)', boxShadow: '0 0 10px #f2b5d5' }}}>Achievements</Box></Link></Grid2>
-            <Grid2 xs={6}><Link to="/about" style={{ textDecoration: 'none' }}><Box sx={{ height: '250px', width: '300px', display: 'flex', justifyContent: 'center', alignItems: 'center', border: 1, color: '#f2b5d5', transition: 'transform 0.3s, box-shadow 0.3s', '&:hover': { transform: 'scale(1.05)', boxShadow: '0 0 10px #f2b5d5' }}}>About me</Box></Link></Grid2>
+            <Grid2 xs={6}><Link to="/tasks" style={{ textDecoration: 'none' }}><Box sx={{ height: '250px', width: '300px', display: 'flex', justifyContent: 'center', alignItems: 'center', border: 1, color: '#CFA63D', transition: 'transform 0.3s, box-shadow 0.3s', '&:hover': { transform: 'scale(1.05)', boxShadow: '0 0 10px #CFA63D' }}}>Tasks</Box></Link></Grid2>
+            <Grid2 xs={6}><Link to="/career" style={{ textDecoration: 'none' }}><Box sx={{ height: '250px', width: '300px', display: 'flex', justifyContent: 'center', alignItems: 'center', border: 1, color: '#CFA63D', transition: 'transform 0.3s, box-shadow 0.3s', '&:hover': { transform: 'scale(1.05)', boxShadow: '0 0 10px #CFA63D' }}}>Career</Box></Link></Grid2>
+            <Grid2 xs={6}><Link to="/achievements" style={{ textDecoration: 'none' }}><Box sx={{ height: '250px', width: '300px', display: 'flex', justifyContent: 'center', alignItems: 'center', border: 1, color: '#CFA63D', transition: 'transform 0.3s, box-shadow 0.3s', '&:hover': { transform: 'scale(1.05)', boxShadow: '0 0 10px #CFA63D' }}}>Achievements</Box></Link></Grid2>
+            <Grid2 xs={6}><Link to="/about" style={{ textDecoration: 'none' }}><Box sx={{ height: '250px', width: '300px', display: 'flex', justifyContent: 'center', alignItems: 'center', border: 1, color: '#CFA63D', transition: 'transform 0.3s, box-shadow 0.3s', '&:hover': { transform: 'scale(1.05)', boxShadow: '0 0 10px #CFA63D' }}}>About me</Box></Link></Grid2>
           </Grid2>
         </Box>
       </Box>

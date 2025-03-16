@@ -1,10 +1,14 @@
 import sqlite3
 import logging
-
+import os
+import random
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-TASKS_DB = 'tasks.db'
+
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+TASKS_DB = os.path.join(BASE_DIR, 'tasks.db')
 
 def init_tasks_db():
     conn = sqlite3.connect(TASKS_DB)
@@ -16,23 +20,46 @@ def init_tasks_db():
         name TEXT,
         difficulty TEXT,                   
         description TEXT,
-        xp INTEGER,              
+        xp INTEGER,           
+        value INTEGER,   
         status TEXT
     )
     ''')
     conn.commit()
     conn.close()
 
+
+def get_status_bonus(difficulty):
+    if difficulty == 'E-Rank':
+        return random.randint(1, 3)
+    elif difficulty == 'D-Rank':
+        return random.randint(4, 6)
+    elif difficulty == 'C-Rank':
+        return random.randint(6, 9)
+    elif difficulty == 'B-Rank':
+        return random.randint(10, 14)
+    elif difficulty == 'A-Rank':
+        return random.randint(15, 20)
+    elif difficulty == 'S-Rank':
+        return random.randint(20, 30)
+    return 0
+
+
 def get_xp_for_difficulty(difficulty):
     """Return the XP associated with the given difficulty level."""
-    if difficulty.lower() == 'easy':
+  # Umwandlung in Kleinbuchstaben
+    if difficulty == 'E-Rank':
         return 200
-    elif difficulty.lower() == 'medium':
+    elif difficulty == 'D-Rank':
         return 450
-    elif difficulty.lower() == 'hard':
+    elif difficulty == 'C-Rank':
         return 925
-    elif difficulty.lower() == 'extreme':
-        return 1900
+    elif difficulty == 'B-Rank':
+        return 2500
+    elif difficulty == 'A-Rank':
+        return 10000
+    elif difficulty == 'S-Rank':
+        return 25000
     return 0  # Default if difficulty level is not recognized
 
 def add_task_to_db(task):
@@ -41,16 +68,17 @@ def add_task_to_db(task):
     
     # Get the XP based on the difficulty level
     xp = get_xp_for_difficulty(task['difficulty'])
-    
+    value = get_status_bonus(task['difficulty'])
     cursor.execute('''
-    INSERT INTO tasks (category, name, difficulty, description, xp, status)
-    VALUES (?, ?, ?, ?, ?, ?) 
+    INSERT INTO tasks (category, name, difficulty, description, xp, value, status)
+    VALUES (?, ?, ?, ?, ?, ?, ?) 
     ''', (
         task['category'],
         task['name'],
         task['difficulty'],
         task['description'],
         xp,  # Assign calculated XP
+        value, # Assign calculated value
         task.get('status', 'pending')  # Default status if not provided
     ))
     conn.commit()

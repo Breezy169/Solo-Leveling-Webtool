@@ -1,11 +1,13 @@
 import logging
+import random
 from flask import Flask, request, jsonify
 from flask_cors import CORS
+from titles_db import add_title_to_db, init_titles_db
 from tasks_db import (
-    init_tasks_db, get_tasks, update_task_in_db
+    init_tasks_db, get_tasks, update_task_in_db, add_task_to_db, get_xp_for_difficulty, get_status_bonus
 )
 from profiles_db import (
-    init_profiles_db, get_all_profiles, update_profile_level_and_xp, get_profile_by_id
+    init_profiles_db, get_all_profiles, update_profile_level_and_xp, get_profile_by_id, update_profile_status_values
 )
 from titles_db import (
     init_titles_db, get_titles
@@ -20,6 +22,38 @@ CORS(app, resources={r"/api/*": {"origins": "*"}})
 init_tasks_db()
 init_profiles_db()
 init_titles_db()
+ranks = ['E-Rank', 'D-Rank', 'C-Rank', 'B-Rank', 'A-Rank', 'S-Rank']
+rank_levels = [5, 20, 50, 75, 125, 200]
+
+
+def get_status_bonus(difficulty):
+    if difficulty == 'E-Rank':
+        return random.randint(0, 3)
+    elif difficulty == 'D-Rank':
+        return random.randint(4, 6)
+    elif difficulty == 'C-Rank':
+        return random.randint(6, 9)
+    elif difficulty == 'B-Rank':
+        return random.randint(10, 14)
+    elif difficulty == 'A-Rank':
+        return random.randint(15, 20)
+    elif difficulty == 'S-Rank':
+        return random.randint(20, 30)
+    return 0
+
+@app.route('/api/addtitle', methods=['PUT'])
+def addtitle():
+    data = request.get_json()
+    new_title = data.get('title')
+    if add_title_to_db()(new_title):
+        logger.info(f'Title {new_title} has been added to the collection.')
+        return jsonify({'message': 'Task updated successfully'}), 200
+    else:
+        logger.error(f'Title {new_title} not found or failed to update.')
+        return jsonify({'message': 'Task not found'}), 404
+
+    
+
 
 @app.route('/api/tasks', methods=['GET'])
 def get_all_tasks():
@@ -31,9 +65,12 @@ def get_all_tasks():
         'difficulty': task[3],
         'description': task[4],
         'xp': task[5],
-        'status': task[6]
+        'value': task[6],
+        'status': task[7]
     } for task in tasks]
     return jsonify(task_list)
+
+    
 
 @app.route('/api/titles', methods=['GET'])
 def get_all_titles():
@@ -54,32 +91,103 @@ def get_profiles():
         'level': profile[3],
         'xp': profile[4],
         'rank': profile[5],
-        'title': profile[6]
+        'title': profile[6],
+        # Assuming additional status fields follow (default to 0 if not set)
+        'strength': profile[7] if len(profile) > 7 else 0,
+        'agility': profile[8] if len(profile) > 8 else 0,
+        'stamina': profile[9] if len(profile) > 9 else 0,
+        'intelligence': profile[10] if len(profile) > 10 else 0,
+        'perception': profile[11] if len(profile) > 11 else 0,
+        'ap': profile[12] if len(profile) > 12 else 0,
     } for profile in profiles]
     return jsonify(profile_list)
 
 @app.route('/api/profile/update', methods=['PUT'])
-def update_profile():
+def update_profile_xp():
     data = request.get_json()
-    profile_id = 1  # Assuming there's only one profile
-    new_level = data.get('level')
-    new_xp = data.get('xp')
-    new_title = data.get('title')
+    logger.info(f"Update profile data: {data}")  # Zum Debuggen
+    profile_id = 1  # Annahme: Es gibt nur ein Profil
 
-    if new_level is None or new_xp is None:
-        return jsonify({"message": "Level and XP must be provided"}), 400
+    try:
+        new_level = int(data.get('level'))
+        new_xp = int(data.get('xp'))
+    except (ValueError, TypeError):
+        return jsonify({"message": "Level and XP must be integers"}), 400
 
-    # Update the profile in the database
-    if update_profile_level_and_xp(profile_id, new_level, new_xp, new_title):
+    new_title = data.get('title') or ""
+
+    # Determine new rank based on level:
+    new_rank = ranks[0] if new_level < rank_levels[0] else None
+    for i in range(0, len(rank_levels) - 1):
+        if new_level >= rank_levels[i] and new_level < rank_levels[i+1]:
+            new_rank = ranks[i]
+    if new_level >= rank_levels[-1]:
+        new_rank = ranks[-1]
+
+    # Retrieve the current profile to get the existing status values:
+    profile = get_profile_by_id(profile_id)
+    if not profile:
+        return jsonify({"message": "Profile not found"}), 404
+
+    current_status = {
+        'strength': profile[7] if len(profile) > 7 else 0,
+        'agility': profile[8] if len(profile) > 8 else 0,
+        'stamina': profile[9] if len(profile) > 9 else 0,
+        'intelligence': profile[10] if len(profile) > 10 else 0,
+        'perception': profile[11] if len(profile) > 11 else 0,
+        'ap': profile[12] if len(profile) > 12 else 0,
+    }
+
+    # Now call the update function with all required arguments.
+    levelUpdated = update_profile_level_and_xp(
+        profile_id,
+        new_level,
+        new_xp,
+        new_title,
+        new_rank
+    )
+    statusUpdated = update_profile_status_values(
+        profile_id,
+        current_status['strength'],
+        current_status['agility'],
+        current_status['stamina'],
+        current_status['intelligence'],
+        current_status['perception'],
+        current_status['ap']
+    )
+    
+    if levelUpdated and statusUpdated:
         logger.info(f'Profile {profile_id} updated successfully.')
-
-        # Fetch the updated profile details from the database
-        updated_profile = get_profile_by_id(profile_id)  # Function to fetch the updated profile
-        return jsonify(updated_profile), 200  # Return the updated profile details
+        updated_profile = get_profile_by_id(profile_id)
+        return jsonify(updated_profile), 200
     else:
         logger.error(f'Failed to update profile {profile_id}.')
         return jsonify({"message": "Failed to update profile"}), 500
+    
 
+@app.route('/api/profile/update_status', methods=['PUT'])
+def update_profile_status():
+    data = request.get_json()
+    logger.info(f"Update profile status data: {data}")  # Zum Debuggen
+    profile_id = 1  # Annahme: Es gibt nur ein Profil
+
+    try:
+        new_str = int(data.get('strength'))
+        new_dex = int(data.get('agility'))
+        new_sta = int(data.get('stamina'))
+        new_int = int(data.get('intelligence'))
+        new_perc = int(data.get('perception'))
+        new_ap = int(data.get('ap'))
+    except (ValueError, TypeError):
+        return jsonify({"message": "Status values must be integers"}), 400
+
+    if update_profile_status_values(profile_id, new_str, new_dex, new_sta, new_int, new_perc, new_ap):
+        logger.info(f'Profile {profile_id} status updated successfully.')
+        updated_profile = get_profile_by_id(profile_id)
+        return jsonify(updated_profile), 200
+    else:
+        logger.error(f'Failed to update profile status for {profile_id}.')
+        return jsonify({"message": "Failed to update profile status"}), 500
 
 @app.route('/api/tasks/<int:task_id>', methods=['PUT'])
 def update_task(task_id):
@@ -95,19 +203,28 @@ def update_task(task_id):
         return jsonify({'message': 'Task not found'}), 404
 
 
+@app.route('/api/addTask', methods=['POST'])
+def add_task():
+    data = request.get_json()
+    if not data:
+        return jsonify({"message": "No input provided"}), 400
 
-# # Login API route
-# @app.route('/api/login', methods=['POST'])
-# def login():
-#     data = request.json
-#     username = data.get('username')
-#     password = data.get('password')
-    
-#     # Verify the user from the database
-#     if verify_user(username, password):
-#         return jsonify({'message': 'Login successful', 'status': 'success'}), 200
-#     else:
-#         return jsonify({'message': 'Invalid credentials', 'status': 'fail'}), 401
+    required_fields = ['category', 'name', 'difficulty', 'description']
+    if not all(field in data for field in required_fields):
+        return jsonify({"message": "Missing fields"}), 400
+
+    difficulty = data.get('difficulty', '')
+    if difficulty not in ['E-Rank', 'D-Rank', 'C-Rank', 'B-Rank', 'A-Rank', 'S-Rank']:
+        return jsonify({"message": "Invalid difficulty value"}), 400
+
+    try:
+        add_task_to_db(data)
+        xp = get_xp_for_difficulty(data['difficulty'])
+        logger.info("Task added successfully.")
+        return jsonify({"message": "Task added successfully", "xp": xp}), 200
+    except Exception as e:
+        logger.error(f"Error adding task: {e}")
+        return jsonify({"message": "Error adding task"}), 500
     
 
 if __name__ == '__main__':
