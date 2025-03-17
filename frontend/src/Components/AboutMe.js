@@ -3,8 +3,7 @@ import { Box, List, ListItem, ListItemText, Typography } from '@mui/material';
 import Grid2 from '@mui/material/Grid2'; // Import Grid2
 import gojo from '../Images/gojo.jpg';
 import { Link } from 'react-router-dom'; // Import Link
-import yuji from '../Images/yuji.jpg'; 
-import ayanokoji from '../Images/ayanokoji.jpg';
+
 
 /**
  * Home component displays the main page with a grid layout containing four sections.

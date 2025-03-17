@@ -3,7 +3,7 @@ import Home from './Components/Home';
 import AboutMe from './Components/AboutMe';
 import Tasks from './Components/Tasks';
 import Achievements from './Components/Achievements';
-import Career from './Components/Career';
+import Skills from './Components/Skills';
 
 function App() {
   return (
@@ -11,7 +11,7 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/home" element={<Home />} />
         <Route path="/tasks" element={<Tasks />} />
-        <Route path="/career" element={<Career />} />
+        <Route path="/skills" element={<Skills />} />
         <Route path="/achievements" element={<Achievements />} />
         <Route path="/about" element={<AboutMe />} />
       </Routes>

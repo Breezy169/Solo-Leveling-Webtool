@@ -1,5 +1,8 @@
 import sqlite3
 import os
+import logging 
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 PROFILES_DB = os.path.join(BASE_DIR, 'profiles.db')
@@ -90,7 +93,9 @@ def update_profile_level_and_xp(profile_id, new_level, new_xp, new_title, new_ra
         ''', (new_level, new_xp, new_title, new_rank, profile_id))
         
         conn.commit()
+        logger.info(f"Rows updated: {cursor.rowcount}")
         return True
+        
     except Exception as e:
         print(f"Error updating profile: {e}")
         return False
