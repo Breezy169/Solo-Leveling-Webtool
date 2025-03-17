@@ -10,18 +10,19 @@ import Settings from './Settings';
 import '../Css/borders.css';
 import systeminfo from '../Images/systeminfo.png';
 
-// TaskModal-Komponente (wie bisher)
+// TaskModal-Komponente mit zusätzlichem Feld für max_progress
 const TaskModal = ({ show, onClose, onSubmit }) => {
   const [category, setCategory] = useState('');
   const [name, setName] = useState('');
   const [difficulty, setDifficulty] = useState('');
   const [description, setDescription] = useState('');
+  const [maxProgress, setMaxProgress] = useState(''); // Neues Feld
 
   const categorys = ['Intelligence', 'Strength', 'Agility', 'Durability', 'Skills', 'Projects'];
   const difficulties = ['E-Rank', 'D-Rank', 'C-Rank', 'B-Rank', 'A-Rank', 'S-Rank'];
 
   const handleSubmit = () => {
-    if (!category || !name || !difficulty || !description) {
+    if (!category || !name || !difficulty || !description || !maxProgress) {
       alert("Bitte alle Felder ausfüllen.");
       return;
     }
@@ -30,12 +31,15 @@ const TaskModal = ({ show, onClose, onSubmit }) => {
       name,
       difficulty,
       description: 'Description: ' + description,
+      max_progress: parseInt(maxProgress, 10), // max_progress als Zahl
+      progress: 0 // Initialer Fortschritt 0
     };
     onSubmit(task);
     setCategory('');
     setName('');
     setDifficulty('');
     setDescription('');
+    setMaxProgress('');
     onClose();
   };
 
@@ -84,6 +88,16 @@ const TaskModal = ({ show, onClose, onSubmit }) => {
           <Typography>Description:</Typography>
           <textarea value={description} onChange={e => setDescription(e.target.value)} style={{ width: '100%' }} />
         </Box>
+        {/* Neues Eingabefeld für den maximalen Fortschritt */}
+        <Box sx={{ marginBottom: '30px', color: "#CFA63D" }}>
+          <Typography>Max Progress (z.B. 20 Bücher):</Typography>
+          <input
+            type="number"
+            value={maxProgress}
+            onChange={e => setMaxProgress(e.target.value)}
+            style={{ width: '100%' }}
+          />
+        </Box>
         <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
           <Button onClick={handleSubmit} variant="contained" color="transparent" sx={{ color: "#CFA63D", '&:hover': { transform: 'scale(1.02)', boxShadow: '0 0 10px #CFA63D' } }}>
             Add
@@ -99,7 +113,7 @@ const TaskModal = ({ show, onClose, onSubmit }) => {
 
 function Tasks() {
   const theme = useTheme();
-  const [selectedCategory, setSelectedCategory] = useState();
+  const [selectedCategory, setSelectedCategory] = useState('Intelligence');
   const [tasks, setTasks] = useState([]);
   const [expandedTask, setExpandedTask] = useState(null);
   const [profile, setProfile] = useState(null);
@@ -107,10 +121,14 @@ function Tasks() {
 
   // API-Aufrufe
   const fetchProfiles = async () => {
-    const response = await fetch('http://localhost:5000/api/profile');
-    if (!response.ok) throw new Error('Network response was not ok');
-    const data = await response.json();
-    setProfile(data.length > 0 ? data[0] : null);
+    try {
+      const response = await fetch('http://localhost:5000/api/profile');
+      if (!response.ok) throw new Error('Network response was not ok');
+      const data = await response.json();
+      setProfile(data.length > 0 ? data[0] : null);
+    } catch (error) {
+      console.error("Error fetching profile:", error);
+    }
   };
 
   const fetchTasks = async () => {
@@ -118,7 +136,10 @@ function Tasks() {
       const response = await fetch('http://localhost:5000/api/tasks');
       if (!response.ok) throw new Error('Network response was not ok');
       const data = await response.json();
-      const filteredTasks = data.filter(task => task.category === selectedCategory);
+      const filteredTasks =
+        selectedCategory === 'Completed Tasks'
+          ? data.filter(task => task.status === 'done')
+          : data.filter(task => task.category === selectedCategory && task.status !== 'done');
       setTasks(filteredTasks);
     } catch (error) {
       console.error('Error fetching tasks:', error);
@@ -158,6 +179,30 @@ function Tasks() {
     } catch (error) {
       console.error('Fehler:', error);
       alert('Ein Fehler ist aufgetreten.');
+    }
+  };
+
+  // Handler, um den Fortschritt um 1 zu erhöhen und ggf. den Task als "done" zu markieren,
+  // wenn progress den max_progress erreicht (z. B. 20/20)
+  const handleIncrementProgress = async (task) => {
+    try {
+      const response = await fetch('http://localhost:5000/api/update_task_progress', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ task_id: task.id, progress: task.progress, increment: 1 })
+      });
+      const result = await response.json();
+      if (response.ok) {
+        // Optional: Bei abgeschlossenen Tasks eine Rückmeldung geben
+        if (result.message && result.message.toLowerCase().includes("completed")) {
+          alert("Task completed!");
+        }
+        fetchTasks();
+      } else {
+        alert("Fehler beim Aktualisieren des Fortschritts: " + result.error);
+      }
+    } catch (error) {
+      console.error("Error updating task progress:", error);
     }
   };
 
@@ -316,7 +361,7 @@ function Tasks() {
               <AddIcon />
             </IconButton>
             <List sx={{ color: '#CFA63D', padding: 0 }}>
-              {['Intelligence', 'Strength', 'Agility', 'Durability', 'Skills', 'Projects'].map((category) => (
+              {['Intelligence', 'Strength', 'Agility', 'Durability', 'Skills', 'Projects', 'Completed Tasks'].map((category) => (
                 <ListItem
                   key={category}
                   onClick={() => setSelectedCategory(category)}
@@ -352,7 +397,7 @@ function Tasks() {
             }}
           >
             <IconButton
-              onClick={handleReset}
+              onClick={() => { fetchTasks(); setExpandedTask(null); }}
               sx={{
                 border: 1,
                 position: 'absolute',
@@ -374,116 +419,41 @@ function Tasks() {
                   border: task.status === 'done' ? '3px solid black' : '1px solid #CFA63D',
                   padding: '5px',
                   marginBottom: '10px',
-                  cursor: 'pointer',
-                  backgroundColor: task.status === 'done' ? 'transparent' : null,
-                  position: 'relative'
+                  position: 'relative',
+                  backgroundColor: task.status === 'done' ? 'transparent' : null
                 }}
               >
-                {/* Inhalt, der bei abgeschlossener Aufgabe geblurrt wird */}
+                {/* Blurred inner content, aber nicht der Rahmen */}
                 <Box sx={{ filter: task.status === 'done' ? 'blur(3px)' : 'none' }}>
-                  <Box
-                    sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
-                    onClick={() => setExpandedTask(expandedTask === index ? null : index)}
-                  >
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <Typography>{task.name}</Typography>
-                    <IconButton>
-                      <ExpandMoreIcon sx={{ color: task.status === 'done' ? 'black' : '#CFA63D' }} />
-                    </IconButton>
+                    <Box>
+                      <IconButton
+                        onClick={() => handleIncrementProgress(task)}
+                        disabled={task.progress >= task.max_progress}
+                        sx={{ color: task.status === 'done' ? 'black' : '#CFA63D' }}
+                      >
+                        <AddIcon />
+                      </IconButton>
+                      <IconButton onClick={() => setExpandedTask(expandedTask === index ? null : index)}>
+                        <ExpandMoreIcon sx={{ color: task.status === 'done' ? 'black' : '#CFA63D' }} />
+                      </IconButton>
+                    </Box>
                   </Box>
-                  <Typography variant="caption" sx={{ color: task.status === 'done' ? 'black' : '#CFA63D', fontWeight: 'bold' }}>
+                  <Typography variant="caption" sx={{ display: 'block', marginTop: '5px' }}>
                     Difficulty: {task.difficulty} <br />
                     Reward: {task.category + ": " + "+" + task.value} <br />
-                    Status: {task.status === 'done' ? 'completed' : 'not completed'}
+                    Status: {task.status === 'done' ? 'completed' : 'not completed'} <br />
+                    Progress: {task.progress}/{task.max_progress}
                   </Typography>
                   <Collapse in={expandedTask === index}>
                     <Box sx={{ padding: '10px' }} theme={theme}>
                       <Typography>{task.description}</Typography>
                       <Typography sx={{ marginTop: '2px' }}>Exp: {task.xp}</Typography>
-                      <Button
-                        disabled={task.status === 'done'}
-                        variant="contained"
-                        color="success"
-                        sx={{
-                          marginTop: '18px',
-                          color: task.status !== 'done' ? '#CFA63D' : null,
-                          backgroundColor: task.status === 'done' ? theme.palette.success.main : 'transparent',
-                          '&:hover': {
-                            boxShadow: task.status !== 'done' ? '0 0 10px #CFA63D' : 'none',
-                            transition: 'box-shadow 0.3s ease-in-out',
-                          },
-                        }}
-                        onClick={async () => {
-                          // Task als erledigt markieren
-                          await fetch(`http://localhost:5000/api/tasks/${task.id}`, {
-                            method: 'PUT',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ status: 'done' }),
-                          });
-                          
-                          // Update XP und Level wie bisher
-                          const xpToAdd = task.xp;
-                          let updatedXP = (profile?.xp || 0) + xpToAdd;
-                          let newLevel = profile?.level || 1;
-                          let xpNeededForNextLevel = Math.floor(profile?.level ** 1.15 * 1000);
-                          while (updatedXP >= xpNeededForNextLevel) {
-                            newLevel++;
-                            updatedXP -= xpNeededForNextLevel;
-                            xpNeededForNextLevel = Math.floor(newLevel ** 1.15 * 1000);
-                          }
-                        
-                          // Hole den Reward (Task.reward wird als value gespeichert)
-                          let reward = task.value; 
-                          let category = task.category;
-                        
-                          // Erstelle ein Objekt mit den aktuellen Statuswerten (Fallback auf 0, falls undefined)
-                          const updatedStatus = {
-                            strength: profile?.strength || 0,
-                            agility: profile?.agility || 0,
-                            stamina: profile?.stamina || 0,
-                            intelligence: profile?.intelligence || 0,
-                            perception: profile?.perception || 0,
-                            ap: profile?.ap || 0,
-                          };
-                        
-                          // Passe das jeweilige Statusattribut an, abhängig von der Task-Kategorie
-                          if (category === 'Intelligence') {
-                            updatedStatus.intelligence += reward;
-                          } else if (category === 'Strength') {
-                            updatedStatus.strength += reward;
-                          } else if (category === 'Agility') {
-                            updatedStatus.agility += reward;
-                          } else if (category === 'Durability') {
-                            updatedStatus.stamina += reward;
-                          } else if (category === 'Projects') {
-                            updatedStatus.perception += reward;
-                          } else if (category === 'Skills') {
-                            updatedStatus.ap += reward;
-                          }
-                        
-                          // Sende alle sechs Werte an den Status-Update-Endpoint
-                          await fetch('http://localhost:5000/api/profile/update_status', {
-                            method: 'PUT',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify(updatedStatus),
-                          });
-                        
-                          // Update XP und Level im Profil
-                          await fetch('http://localhost:5000/api/profile/update', {
-                            method: 'PUT',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ level: newLevel, xp: updatedXP }),
-                          });
-                          
-                          fetchProfiles();
-                          fetchTasks();
-                        }}
-                      >
-                        Done
-                      </Button>
                     </Box>
                   </Collapse>
                 </Box>
-                {/* Overlay: Angepasste Darstellung bei abgeschlossener Aufgabe */}
+                {/* Overlay (kann auch außerhalb des geblurrten Bereichs liegen) */}
                 {task.status === 'done' && (
                   <Box
                     sx={{
@@ -504,6 +474,9 @@ function Tasks() {
                     <Typography sx={{ fontSize: '1rem', fontWeight: 'bold' }}>
                       {task.name}
                     </Typography>
+                    <Typography sx={{ fontSize: '0.8rem', fontWeight: 'bold' }}>
+                      {task.difficulty}
+                    </Typography>
                     <Typography sx={{ fontSize: '0.7rem', fontWeight: 'bold' }}>
                       REWARD: {task.category + ": " + "+" + task.value}
                     </Typography>
@@ -511,6 +484,7 @@ function Tasks() {
                 )}
               </Box>
             ))}
+
           </Box>
         </Box>
 

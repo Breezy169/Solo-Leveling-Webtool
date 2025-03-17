@@ -19,7 +19,18 @@ function Achievements() {
   const [isAchievementModalOpen, setIsAchievementModalOpen] = useState(false);
   // Zustand für den Filter: "all" = aktive (nicht abgeschlossene) Achievements, "completed" = abgeschlossene
   const [selectedAchievementFilter, setSelectedAchievementFilter] = useState('all');
+  const [skills, setSkills] = useState([]);
 
+  const fetchSkills = async () => {
+    try {
+      const response = await fetch('http://localhost:5000/api/skills');
+      if (!response.ok) throw new Error('Network response was not ok');
+      const data = await response.json();
+      setSkills(data);
+    } catch (error) {
+      console.error('Error fetching skills:', error);
+    }
+  };
   // API-Aufrufe
   const fetchProfiles = async () => {
     try {
@@ -46,6 +57,7 @@ function Achievements() {
   useEffect(() => {
     fetchProfiles();
     fetchAchievements();
+    fetchSkills();
   }, []);
 
   const handleReset = () => {
@@ -268,6 +280,8 @@ function Achievements() {
               <Typography
                 onClick={() => setSelectedAchievementFilter('all')}
                 sx={{
+                  fontWeight: 'bold',
+                  fontSize: '22px',
                   cursor: 'pointer',
                   border: selectedAchievementFilter === 'all' ? 1 : 'none',
                   boxShadow: selectedAchievementFilter === 'all' ? '0 0 10px #CFA63D' : 'none',
@@ -289,6 +303,8 @@ function Achievements() {
               <Typography
                 onClick={() => setSelectedAchievementFilter('completed')}
                 sx={{
+                  fontWeight: 'bold',
+                  fontSize: '22px',
                   cursor: 'pointer',
                   border: selectedAchievementFilter === 'completed' ? 1 : 'none',
                   boxShadow: selectedAchievementFilter === 'completed' ? '0 0 10px #CFA63D' : 'none',
@@ -428,6 +444,10 @@ function Achievements() {
                             window.alert("Fehlende Skill-Daten (id oder level).");
                             return;
                           }
+                          if (skills?.level >= 5){
+                            window.alert("Dieser Skill hat bereits die maximale Stufe erreicht.");
+                            return;
+                          }
                           await fetch('http://localhost:5000/api/update_skill_level', {
                             method: 'PUT',
                             headers: { 'Content-Type': 'application/json' },
@@ -483,7 +503,7 @@ function Achievements() {
                       {achievement.name}
                     </Typography>
                     <Typography sx={{ fontSize: '0.7rem', fontWeight: 'bold'}}>
-                      REWARD: {getRewardDisplay(achievement).replace(/^(EXP: |Title: |Skill: )/, '')}
+                      {getRewardDisplay(achievement).replace(/^(EXP: |Title: |Skill: )/, '')}
                     </Typography>
                   </Box>
                 )}

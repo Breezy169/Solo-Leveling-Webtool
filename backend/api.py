@@ -5,7 +5,7 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 from titles_db import add_title_to_db, init_titles_db, get_titles
 from tasks_db import (
-    init_tasks_db, get_tasks, update_task_in_db, add_task_to_db, get_xp_for_difficulty, get_status_bonus
+    init_tasks_db, get_tasks, update_task_in_db, add_task_to_db, get_xp_for_difficulty, increase_task_progress, get_task_by_id
 )
 from profiles_db import (
     init_profiles_db, get_all_profiles, update_profile_level_and_xp, get_profile_by_id, update_profile_status_values
@@ -118,7 +118,9 @@ def get_all_tasks():
         'description': task[4],
         'xp': task[5],
         'value': task[6],
-        'status': task[7]
+        'status': task[7],
+        'progress': task[8],
+        'max_progress': task[9]
     } for task in tasks]
     return jsonify(task_list)
 
@@ -238,17 +240,6 @@ def update_profile_status():
         logger.error(f'Failed to update profile status for {profile_id}.')
         return jsonify({"message": "Failed to update profile status"}), 500
 
-@app.route('/api/tasks/<int:task_id>', methods=['PUT'])
-def update_task(task_id):
-    data = request.get_json()
-    new_status = data.get('status')
-    if update_task_in_db(task_id, new_status):
-        logger.info(f'Task {task_id} updated successfully.')
-        return jsonify({'message': 'Task updated successfully'}), 200
-    else:
-        logger.error(f'Task {task_id} not found or failed to update.')
-        return jsonify({'message': 'Task not found'}), 404
-
 @app.route('/api/addTask', methods=['POST'])
 def add_task():
     data = request.get_json()
@@ -271,6 +262,50 @@ def add_task():
     except Exception as e:
         logger.error(f"Error adding task: {e}")
         return jsonify({"message": "Error adding task"}), 500
+
+@app.route('/api/tasks/<int:task_id>', methods=['PUT'])
+def update_task(task_id):
+    data = request.get_json()
+    new_status = data.get('status')
+    if update_task_in_db(task_id, new_status):
+        logger.info(f'Task {task_id} updated successfully.')
+        return jsonify({'message': 'Task updated successfully'}), 200
+    else:
+        logger.error(f'Task {task_id} not found or failed to update.')
+        return jsonify({'message': 'Task not found'}), 404
+
+
+@app.route('/api/update_task_progress', methods=['PUT'])
+def update_task_progress():
+    data = request.get_json()
+    task_id = data["task_id"]
+    # Aktuellen Fortschritt und den Inkrementwert aus den Daten lesen
+    current_progress = int(data.get('progress', 0))
+    increment = int(data.get('increment', 1))
+    new_progress = current_progress + increment
+
+    # Task aus der DB abrufen, um den max_progress zu ermitteln
+    task = get_task_by_id(task_id)
+    if not task:
+        return jsonify({"error": "Task not found"}), 404
+
+    # Annahme: Im tasks-Table ist max_progress an Position 9 (Index 9)
+    max_progress = task[9]
+
+    # Wenn der neue Fortschritt den Maximalwert erreicht oder überschreitet,
+    # wird er auf max_progress gesetzt und der Task als "done" markiert.
+    if new_progress >= max_progress:
+        new_progress = max_progress
+        if increase_task_progress(task_id, new_progress) and update_task_in_db(task_id, "done"):
+            return jsonify({"message": "Task completed", "progress": new_progress}), 200
+        else:
+            return jsonify({"error": "Failed to update task progress"}), 400
+    else:
+        if increase_task_progress(task_id, new_progress):
+            return jsonify({"message": "Task progress updated successfully", "progress": new_progress}), 200
+        else:
+            return jsonify({"error": "Failed to update task progress"}), 400
+
 
 @app.route('/api/skills', methods=['POST'])
 def create_skill():

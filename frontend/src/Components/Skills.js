@@ -35,6 +35,25 @@ function Skills() {
     fetchSkills();
   }, []);
 
+  let imgClasses = [];
+  if (skills) {
+    switch (skills.level) {
+      case "2":
+        imgClasses.push("burning-border");
+        break;
+      case "3":
+        imgClasses.push("super-border");
+        break;
+      // weitere Fälle können hier hinzugefügt werden
+      default:
+        break;
+    }
+  
+    // Zusätzliche Bedingung, z.B. basierend auf Level
+    if (skills.level > 5) {
+      imgClasses.push("high-level-border");
+    }
+  }
   return (
     <div>
       <Box
@@ -224,7 +243,7 @@ function Skills() {
               <Typography variant="h6" sx={{ marginBottom: '10px' }}>
                 Skill: {skill?.name}
               </Typography>
-              <Typography>Lv. {skill?.level}</Typography>
+              <Typography>Lv. {skill?.level < 5 ? skill?.level : "Max."}</Typography>
               <Typography>Cost: Focus -{(skill?.cost/1000).toFixed(2)+"%"}</Typography>
               <Typography>Description: {skill?.description}</Typography>
             </Box>
