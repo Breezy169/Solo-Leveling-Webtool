@@ -196,7 +196,64 @@ function Tasks() {
         // Optional: Bei abgeschlossenen Tasks eine Rückmeldung geben
         if (result.message && result.message.toLowerCase().includes("completed")) {
           alert("Task completed!");
+          const xpToAdd = task.xp;
+          let updatedXP = (profile?.xp || 0) + xpToAdd;
+          let newLevel = profile?.level || 1;
+          let xpNeededForNextLevel = Math.floor(profile?.level ** 1.15 * 1000);
+          while (updatedXP >= xpNeededForNextLevel) {
+            newLevel++;
+            updatedXP -= xpNeededForNextLevel;
+            xpNeededForNextLevel = Math.floor(newLevel ** 1.15 * 1000);
+          }
+        
+          // Hole den Reward (Task.reward wird als value gespeichert)
+          let reward = task.value; 
+          let category = task.category;
+        
+          // Erstelle ein Objekt mit den aktuellen Statuswerten (Fallback auf 0, falls undefined)
+          const updatedStatus = {
+            strength: profile?.strength || 0,
+            agility: profile?.agility || 0,
+            stamina: profile?.stamina || 0,
+            intelligence: profile?.intelligence || 0,
+            perception: profile?.perception || 0,
+            ap: profile?.ap || 0,
+          };
+        
+          // Passe das jeweilige Statusattribut an, abhängig von der Task-Kategorie
+          if (category === 'Intelligence') {
+            updatedStatus.intelligence += reward;
+          } else if (category === 'Strength') {
+            updatedStatus.strength += reward;
+          } else if (category === 'Agility') {
+            updatedStatus.agility += reward;
+          } else if (category === 'Durability') {
+            updatedStatus.stamina += reward;
+          } else if (category === 'Projects') {
+            updatedStatus.perception += reward;
+          } else if (category === 'Skills') {
+            updatedStatus.ap += reward;
+          }
+        
+          // Sende alle sechs Werte an den Status-Update-Endpoint
+          await fetch('http://localhost:5000/api/profile/update_status', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(updatedStatus),
+          });
+        
+          // Update XP und Level im Profil
+          await fetch('http://localhost:5000/api/profile/update', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ level: newLevel, xp: updatedXP }),
+          });
+          
+          fetchProfiles();   
         }
+        
+        // Update XP und Level wie bisher
+        
         fetchTasks();
       } else {
         alert("Fehler beim Aktualisieren des Fortschritts: " + result.error);
