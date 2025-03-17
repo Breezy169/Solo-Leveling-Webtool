@@ -7,21 +7,25 @@ const AchievementModal = ({ show, onClose, onSubmit }) => {
   const [rewardType, setRewardType] = useState('EXP'); // Standard: EXP
   const [rewardValue, setRewardValue] = useState('');
   
-  // Felder für den Reward-Typ "Skill" (manuelle Eingabe)
+  // Fields for Reward-Type "Skill"
   const [skillName, setSkillName] = useState('');
-  const [skillLevel, setSkillLevel] = useState('1'); // Standardmäßig 1
+  const [skillLevel, setSkillLevel] = useState('1'); // Default level 1
   const [skillCost, setSkillCost] = useState('');
   const [skillDescription, setSkillDescription] = useState('');
   
-  // Neues Feld: Increase Skill Level (ja/nein)
+  // New field: Increase Skill Level (ja/nein)
   const [increaseLevel, setIncreaseLevel] = useState("nein");
 
-  // State für die Liste der Skills aus der skills.db (wird für Dropdown genutzt)
+  // State for skills list from skills.db (for dropdown)
   const [skillsList, setSkillsList] = useState([]);
-  // Neuer State für die ausgewählte Skill-ID (Dropdown)
+  // New state for the selected skill ID (dropdown)
   const [selectedSkillId, setSelectedSkillId] = useState('');
 
-  // Wenn Reward-Typ "Skill" gewählt ist, lade die Skills aus der API
+  // NEW: State for achievement progress fields
+  const [progress, setProgress] = useState('0');      // Initial progress (default 0)
+  const [maxProgress, setMaxProgress] = useState('100'); // Maximum progress (default 100)
+
+  // When Reward-Type "Skill" is chosen, load the skills from the API
   useEffect(() => {
     if (rewardType === 'Skill') {
       fetch('http://localhost:5000/api/skills')
@@ -34,7 +38,7 @@ const AchievementModal = ({ show, onClose, onSubmit }) => {
     }
   }, [rewardType]);
 
-  // Setze automatisch den ersten Skill als Standard, wenn Increase Level auf "ja" steht
+  // Automatically set the first skill as default if Increase Level is "ja"
   useEffect(() => {
     if (increaseLevel === 'ja' && skillsList.length > 0 && !selectedSkillId) {
       setSelectedSkillId(String(skillsList[0].id));
@@ -65,7 +69,7 @@ const AchievementModal = ({ show, onClose, onSubmit }) => {
           alert("Bitte einen Skill auswählen.");
           return;
         }
-        // Finde den Skill anhand der ausgewählten ID (als Zahl vergleichen)
+        // Find the skill by selected ID (comparing as number)
         const selectedSkill = skillsList.find(skill => skill.id === Number(selectedSkillId));
         if (!selectedSkill) {
           alert("Ausgewählter Skill nicht gefunden.");
@@ -74,7 +78,7 @@ const AchievementModal = ({ show, onClose, onSubmit }) => {
         reward = {
           id: selectedSkill.id,
           name: selectedSkill.name,
-          level: selectedSkill.level,  // aktueller Level aus der DB
+          level: selectedSkill.level,  // current level from DB
         };
       } else {
         if (!skillName || !skillLevel || !skillCost || !skillDescription) {
@@ -94,11 +98,13 @@ const AchievementModal = ({ show, onClose, onSubmit }) => {
       description,
       rewardType,
       reward,
-      // Wichtig: Verwende CamelCase, da das Backend so erwartet wird.
+      // Include progress fields in CamelCase as expected by the backend
+      progress: Number(progress),
+      max_progress: Number(maxProgress),
       increaseLevel: rewardType === 'Skill' ? increaseLevel : 'nein'
     };
     onSubmit(achievement);
-    // Felder zurücksetzen
+    // Reset fields
     setName('');
     setDescription('');
     setRewardValue('');
@@ -109,6 +115,8 @@ const AchievementModal = ({ show, onClose, onSubmit }) => {
     setSkillDescription('');
     setIncreaseLevel("nein");
     setSelectedSkillId('');
+    setProgress('0');
+    setMaxProgress('100');
     onClose();
   };
 
@@ -151,7 +159,7 @@ const AchievementModal = ({ show, onClose, onSubmit }) => {
             size="small"
           />
         </Box>
-        {/* Reward Type Auswahl */}
+        {/* Reward Type Selection */}
         <FormControl component="fieldset" sx={{ marginBottom: '20px', color: "#CFA63D" }}>
           <FormLabel component="legend" sx={{ color: "#CFA63D" }}>Reward Type</FormLabel>
           <RadioGroup
@@ -164,7 +172,7 @@ const AchievementModal = ({ show, onClose, onSubmit }) => {
             <FormControlLabel value="Skill" control={<Radio sx={{ color: "#CFA63D" }} />} label="Skill" />
           </RadioGroup>
         </FormControl>
-        {/* Reward Value Eingabe */}
+        {/* Reward Value Input */}
         {rewardType === 'EXP' && (
           <Box sx={{ marginBottom: '30px', color: "#CFA63D" }}>
             <Typography>EXP Amount:</Typography>
@@ -206,7 +214,6 @@ const AchievementModal = ({ show, onClose, onSubmit }) => {
               </RadioGroup>
             </FormControl>
             {increaseLevel === 'ja' ? (
-              // Dropdown aus skills.db anzeigen – hier verwenden wir selectedSkillId
               <FormControl fullWidth sx={{ marginBottom: '10px' }}>
                 <InputLabel id="skill-select-label" sx={{ color: "#CFA63D" }}>Select Skill</InputLabel>
                 <Select
@@ -234,7 +241,6 @@ const AchievementModal = ({ show, onClose, onSubmit }) => {
                 </Select>
               </FormControl>
             ) : (
-              // Manuelle Eingabefelder für Skill-Daten
               <>
                 <TextField
                   label="Skill Name"
@@ -278,6 +284,18 @@ const AchievementModal = ({ show, onClose, onSubmit }) => {
             )}
           </Box>
         )}
+        {/* New Achievement Progress Fields */}
+        <Box sx={{ marginBottom: '30px', color: "#CFA63D" }}>
+          <Typography>Max Progress (default 100):</Typography>
+          <TextField
+            type="number"
+            value={maxProgress}
+            onChange={e => setMaxProgress(e.target.value)}
+            fullWidth
+            variant="outlined"
+            size="small"
+          />
+        </Box>
         <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
           <Button
             onClick={handleSubmit}

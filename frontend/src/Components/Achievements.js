@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Box, Typography, IconButton, Collapse, LinearProgress, Button } from '@mui/material';
 import Grid2 from '@mui/material/Grid2';
 import { Link } from 'react-router-dom';
@@ -17,7 +17,7 @@ function Achievements() {
   const [expandedAchievement, setExpandedAchievement] = useState(null);
   const [profile, setProfile] = useState(null);
   const [isAchievementModalOpen, setIsAchievementModalOpen] = useState(false);
-  // Zustand für den Filter: "all" = aktive (nicht abgeschlossene) Achievements, "completed" = abgeschlossene
+  // Filter: "all" = active (not completed), "completed" = done
   const [selectedAchievementFilter, setSelectedAchievementFilter] = useState('all');
   const [skills, setSkills] = useState([]);
 
@@ -31,7 +31,7 @@ function Achievements() {
       console.error('Error fetching skills:', error);
     }
   };
-  // API-Aufrufe
+
   const fetchProfiles = async () => {
     try {
       const response = await fetch('http://localhost:5000/api/profile');
@@ -85,8 +85,7 @@ function Achievements() {
     }
   };
 
-  
-  // Helper-Funktion, um den Reward passend anzuzeigen
+  // Helper function to display reward information
   const getRewardDisplay = (achievement) => {
     if (achievement.rewardType === 'EXP') {
       return `EXP: ${achievement.reward}`;
@@ -103,7 +102,6 @@ function Achievements() {
           return `Skill: ${achievement.reward}`;
         }
       }
-      // Hier prüfen wir jetzt das richtige Feld:
       if (achievement.increaseLevel && achievement.increaseLevel.toLowerCase() === 'ja') {
         return `Reward: ${skillObj.name} Lv. ${parseInt(skillObj.level, 10) + 1}`;
       } else {
@@ -114,8 +112,7 @@ function Achievements() {
     }
   };
 
-
-  // Filtere Achievements anhand des ausgewählten Filters
+  // Filter achievements based on the selected filter
   const filteredAchievements = achievements.filter(achievement => {
     if (selectedAchievementFilter === 'all') {
       return achievement.status !== 'done';
@@ -124,6 +121,86 @@ function Achievements() {
     }
     return true;
   });
+
+  // New handler to increment achievement progress.
+  // When progress reaches max_progress, the achievement is marked as done
+  // and the reward logic (EXP, Title, Skill) is processed similar to tasks.
+  const handleIncrementAchievement = async (achievement) => {
+    try {
+      const response = await fetch('http://localhost:5000/api/update_achievement_progress', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ achievement_id: achievement.id, progress: achievement.progress, increment: 1 })
+      });
+      const result = await response.json();
+      if (response.ok) {
+        // If the response message indicates the achievement is completed, process reward logic
+        if (result.message && result.message.toLowerCase().includes("completed")) {
+          alert("Achievement completed!");
+          // Process reward logic
+          if (achievement.rewardType === 'EXP' || (!achievement.rewardType && !isNaN(Number(achievement.reward)))) {
+            const xpToAdd = Number(achievement.reward);
+            let updatedXP = (profile?.xp || 0) + xpToAdd;
+            let newLevel = profile?.level || 1;
+            let xpNeededForNextLevel = Math.floor(newLevel ** 1.15 * 1000);
+            while (updatedXP >= xpNeededForNextLevel) {
+              newLevel++;
+              updatedXP -= xpNeededForNextLevel;
+              xpNeededForNextLevel = Math.floor(newLevel ** 1.15 * 1000);
+            }
+            await fetch('http://localhost:5000/api/profile/update', {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ level: newLevel, xp: updatedXP }),
+            });
+          } else if (achievement.rewardType === 'Title') {
+            await fetch('http://localhost:5000/api/addtitle', {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ title: achievement.reward }),
+            });
+            window.alert(`Congratulations, you have unlocked\n${achievement.reward}`);
+          } else if (achievement.rewardType === 'Skill') {
+            if (achievement.increaseLevel && achievement.increaseLevel.toLowerCase() === 'ja') {
+              let rewardObj = achievement.reward;
+              if (typeof rewardObj === "string") {
+                try {
+                  rewardObj = JSON.parse(rewardObj);
+                } catch (error) {
+                  console.error("Fehler beim Parsen des Skill-Rewards:", error);
+                  rewardObj = {};
+                }
+              }
+              if (!rewardObj.id || !rewardObj.level) {
+                window.alert("Fehlende Skill-Daten (id oder level).");
+                return;
+              }
+              // Here you may want to verify that the skill is not already at max level
+              await fetch('http://localhost:5000/api/update_skill_level', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ skill_id: rewardObj.id, level: rewardObj.level }),
+              });
+              window.alert('Skill-Level erfolgreich erhöht!');
+            } else {
+              await fetch('http://localhost:5000/api/skills', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(achievement.reward),
+              });
+              window.alert('Skill erfolgreich hinzugefügt!');
+            }
+          }
+          fetchProfiles();
+        }
+        fetchAchievements();
+      } else {
+        alert("Fehler beim Aktualisieren des Fortschritts: " + result.error);
+      }
+    } catch (error) {
+      console.error("Error updating achievement progress:", error);
+    }
+  };
 
   return (
     <div>
@@ -136,7 +213,7 @@ function Achievements() {
           position: 'relative',
         }}
       >
-        {/* Profil- und Systeminfo-Anzeige */}
+        {/* Profile and System Info Display */}
         <Box
           sx={{
             position: 'relative',
@@ -246,7 +323,7 @@ function Achievements() {
           </Box>
         </Box>
 
-        {/* Achievements-Bereich */}
+        {/* Achievements Section */}
         <Box
           sx={{
             position: 'absolute',
@@ -259,7 +336,7 @@ function Achievements() {
             right: '150px',
           }}
         >
-          {/* Linke Spalte: Filter-Optionen und Add-Button */}
+          {/* Left Column: Filter Options & Add Button */}
           <Box
             sx={{
               width: '20%',
@@ -272,7 +349,7 @@ function Achievements() {
           >
             <IconButton
               onClick={() => setIsAchievementModalOpen(true)}
-              sx={{ color: '#CFA63D', marginBottom: '10px', left: '60px'}}
+              sx={{ color: '#CFA63D', marginBottom: '10px', left: '60px' }}
             >
               <AddIcon />
             </IconButton>
@@ -327,7 +404,7 @@ function Achievements() {
             </Box>
           </Box>
 
-          {/* Rechte Spalte: Liste der Achievements */}
+          {/* Right Column: Achievements List */}
           <Box
             sx={{
               width: '100%',
@@ -362,126 +439,36 @@ function Achievements() {
                   padding: '5px'
                 }}
               >
-                {/* Innerer Inhalt, der bei "done" geblurrt wird */}
+                {/* Inner content which is blurred if done */}
                 <Box sx={{ filter: achievement.status === 'done' ? 'blur(3px)' : 'none' }}>
                   <Box
                     sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
                     onClick={() => setExpandedAchievement(expandedAchievement === index ? null : index)}
                   >
                     <Typography>{achievement.name}</Typography>
-                    <IconButton>
-                      <ExpandMoreIcon sx={{ color: achievement.status === 'done' ? 'black' : '#CFA63D' }} />
-                    </IconButton>
+                    <Box>
+                      {/* Plus-Button to increment achievement progress */}
+                      <IconButton
+                        onClick={() => handleIncrementAchievement(achievement)}
+                        disabled={achievement.progress >= achievement.max_progress}
+                        sx={{ color: achievement.status === 'done' ? 'black' : '#CFA63D' }}
+                      >
+                        <AddIcon />
+                      </IconButton>
+                      <IconButton onClick={() => setExpandedAchievement(expandedAchievement === index ? null : index)}>
+                        <ExpandMoreIcon sx={{ color: achievement.status === 'done' ? 'black' : '#CFA63D' }} />
+                      </IconButton>
+                    </Box>
                   </Box>
                   <Typography variant="caption" sx={{ color: achievement.status === 'done' ? 'black' : '#CFA63D', fontWeight: 'bold' }}>
                     {achievement.description} <br/>
                     {getRewardDisplay(achievement)} <br/>
-                    Status: {achievement.status === 'done' ? 'completed' : 'not completed'}
+                    Status: {achievement.status === 'done' ? 'completed' : 'not completed'} <br/>
+                    Progress: {achievement.progress}/{achievement.max_progress}
                   </Typography>
-                  <Collapse in={expandedAchievement === index}>
-                    <Box sx={{ padding: '10px' }} theme={theme}>
-                    <Button
-                    disabled={achievement.status === 'done'}
-                    variant="contained"
-                    color="success"
-                    sx={{
-                      marginTop: '18px',
-                      color: achievement.status !== 'done' ? '#CFA63D' : null,
-                      backgroundColor: achievement.status === 'done' ? theme.palette.success.main : 'transparent',
-                      '&:hover': {
-                        boxShadow: achievement.status !== 'done' ? '0 0 10px #CFA63D' : 'none',
-                        transition: 'box-shadow 0.3s ease-in-out',
-                      },
-                    }}
-                    onClick={async () => {
-                      // Markiere Achievement als erledigt
-                      await fetch(`http://localhost:5000/api/achievements/${achievement.id}`, {
-                        method: 'PUT',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ status: 'done' }),
-                      });                 
-
-                      // Verarbeite den Reward entsprechend des Typs
-                      if (achievement.rewardType === 'EXP' || (!achievement.rewardType && !isNaN(Number(achievement.reward)))) {
-                        // EXP-Belohnung verarbeiten
-                        const xpToAdd = Number(achievement.reward);
-                        let updatedXP = (profile?.xp || 0) + xpToAdd;
-                        let newLevel = profile?.level || 1;
-                        let xpNeededForNextLevel = Math.floor(newLevel ** 1.15 * 1000);
-                        while (updatedXP >= xpNeededForNextLevel) {
-                          newLevel++;
-                          updatedXP -= xpNeededForNextLevel;
-                          xpNeededForNextLevel = Math.floor(newLevel ** 1.15 * 1000);
-                        }
-                        await fetch('http://localhost:5000/api/profile/update', {
-                          method: 'PUT',
-                          headers: { 'Content-Type': 'application/json' },
-                          body: JSON.stringify({ level: newLevel, xp: updatedXP }),
-                        });
-                      } else if (achievement.rewardType === 'Title') {
-                        // Titel-Belohnung verarbeiten
-                        await fetch('http://localhost:5000/api/addtitle', {
-                          method: 'PUT',
-                          headers: { 'Content-Type': 'application/json' },
-                          body: JSON.stringify({ title: achievement.reward }),
-                        });
-                        window.alert(`Congratulations, you have unlocked\n${achievement.reward}`);
-                      }else if (achievement.rewardType === 'Skill') {
-                        // Skill-Belohnung verarbeiten:
-                        if (achievement.increaseLevel && achievement.increaseLevel.toLowerCase() === 'ja') {
-                          // Zuerst sicherstellen, dass wir ein Objekt haben:
-                          let rewardObj = achievement.reward;
-                          if (typeof rewardObj === "string") {
-                            try {
-                              rewardObj = JSON.parse(rewardObj);
-                            } catch (error) {
-                              console.error("Fehler beim Parsen des Skill-Rewards:", error);
-                              rewardObj = {};
-                            }
-                          }
-                          // Prüfen, ob die nötigen Felder vorhanden sind:
-                          if (!rewardObj.id || !rewardObj.level) {
-                            window.alert("Fehlende Skill-Daten (id oder level).");
-                            return;
-                          }
-                          if (skills?.level >= 5){
-                            window.alert("Dieser Skill hat bereits die maximale Stufe erreicht.");
-                            return;
-                          }
-                          await fetch('http://localhost:5000/api/update_skill_level', {
-                            method: 'PUT',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ 
-                              skill_id: rewardObj.id, 
-                              level: rewardObj.level 
-                            }),
-                          });
-                          window.alert('Skill-Level erfolgreich erhöht!');
-                        } else {
-                          // Andernfalls neuen Skill hinzufügen.
-                          await fetch('http://localhost:5000/api/skills', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify(achievement.reward),
-                          });
-                          window.alert('Skill erfolgreich hinzugefügt!');
-                        }
-                      }
-                      
-
-                      // Aktualisiere Profile und Achievements
-                      fetchProfiles();
-                      fetchAchievements();
-                    }}
-                  >
-                    Done
-                  </Button>
-
-
-                    </Box>
-                  </Collapse>
+            
                 </Box>
-                {/* Overlay: Wenn Achievement abgeschlossen, zeige Name, Reward (angepasst) und "COMPLETED" in kleinerer Schrift */}
+                {/* Overlay for completed achievements */}
                 {achievement.status === 'done' && (
                   <Box
                     sx={{
@@ -528,23 +515,6 @@ function Achievements() {
         >
           <Grid2 container spacing={2} sx={{ height: '100%' }}>
             <Grid2 xs={6}>
-              <Link to="/home" style={{ textDecoration: 'none' }}>
-                <Box sx={{
-                  height: '50px',
-                  width: '150px',
-                  display: 'flex',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  border: 1,
-                  color: '#CFA63D',
-                  transition: 'transform 0.3s, box-shadow 0.3s',
-                  '&:hover': { transform: 'scale(1.05)', boxShadow: '0 0 10px #CFA63D' }
-                }}>
-                  Home
-                </Box>
-              </Link>
-            </Grid2>
-            <Grid2 xs={6}>
               <Link to="/Tasks" style={{ textDecoration: 'none' }}>
                 <Box sx={{
                   height: '50px',
@@ -558,6 +528,24 @@ function Achievements() {
                   '&:hover': { transform: 'scale(1.05)', boxShadow: '0 0 10px #CFA63D' }
                 }}>
                   Tasks
+                </Box>
+              </Link>
+            </Grid2>
+            <Grid2 xs={6}>
+              <Link to="/achievements" style={{ textDecoration: 'none' }}>
+                <Box sx={{
+                  height: '50px',
+                  width: '150px',
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  border: 1,
+                  boxShadow: '0 0 10px #CFA63D',
+                  color: '#CFA63D',
+                  transition: 'transform 0.3s, box-shadow 0.3s',
+                  '&:hover': { transform: 'scale(1.05)', boxShadow: '0 0 10px #CFA63D' }
+                }}>
+                  Achievements
                 </Box>
               </Link>
             </Grid2>

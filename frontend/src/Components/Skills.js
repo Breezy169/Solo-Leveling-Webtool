@@ -266,25 +266,6 @@ function Skills() {
         >
           <Grid2 container spacing={2} sx={{ height: '100%' }}>
             <Grid2 xs={6}>
-              <Link to="/home" style={{ textDecoration: 'none' }}>
-                <Box
-                  sx={{
-                    height: '50px',
-                    width: '150px',
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    border: 1,
-                    color: '#CFA63D',
-                    transition: 'transform 0.3s, box-shadow 0.3s',
-                    '&:hover': { transform: 'scale(1.05)', boxShadow: '0 0 10px #CFA63D' },
-                  }}
-                >
-                  Home
-                </Box>
-              </Link>
-            </Grid2>
-            <Grid2 xs={6}>
               <Link to="/tasks" style={{ textDecoration: 'none' }}>
                 <Box
                   sx={{
@@ -319,6 +300,26 @@ function Skills() {
                   }}
                 >
                   Achievements
+                </Box>
+              </Link>
+            </Grid2>
+            <Grid2 xs={6}>
+              <Link to="/skills" style={{ textDecoration: 'none' }}>
+                <Box
+                  sx={{
+                    height: '50px',
+                    width: '150px',
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    border: 1,
+                    boxShadow: '0 0 10px #CFA63D',
+                    color: '#CFA63D',
+                    transition: 'transform 0.3s, box-shadow 0.3s',
+                    '&:hover': { transform: 'scale(1.05)', boxShadow: '0 0 10px #CFA63D' },
+                  }}
+                >
+                  Skills
                 </Box>
               </Link>
             </Grid2>
