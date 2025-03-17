@@ -9,6 +9,7 @@ import { useTheme } from '@mui/material/styles';
 import Settings from './Settings';
 import '../Css/borders.css';
 import systeminfo from '../Images/systeminfo.png';
+import { fontSize } from '@mui/system';
 
 // TaskModal-Komponente mit zusätzlichem Feld für max_progress
 const TaskModal = ({ show, onClose, onSubmit }) => {
@@ -61,9 +62,9 @@ const TaskModal = ({ show, onClose, onSubmit }) => {
       }}
     >
       <Box sx={{ backgroundColor: '#252420', padding: '20px', border: "2px solid #CFA63D", width: '400px' }}>
-        <Typography variant="h6" sx={{ marginBottom: '30px', color: "#CFA63D" }}>Add new task</Typography>
+        <Typography variant="h6" sx={{ marginBottom: '30px', color: "#CFA63D" }}>Add new quest</Typography>
         <Box sx={{ marginBottom: '30px', color: "#CFA63D"}}>
-          <Typography>Category:</Typography>
+          <Typography sx={{fontSize: '12px'}}>QUEST CATEGORY:</Typography>
           <select value={category} onChange={e => setCategory(e.target.value)}>
             <option value="">Select category</option>
             {categorys.map((cat, idx) => (
@@ -72,25 +73,25 @@ const TaskModal = ({ show, onClose, onSubmit }) => {
           </select>
         </Box>
         <Box sx={{ marginBottom: '30px', color: "#CFA63D" }}>
-          <Typography>Task Name:</Typography>
+          <Typography sx={{fontSize: '12px'}}>QUEST NAME:</Typography>
           <input type="text" value={name} onChange={e => setName(e.target.value)} style={{ width: '100%' }} />
         </Box>
         <Box sx={{ marginBottom: '30px', color: "#CFA63D" }}>
-          <Typography>Difficulty:</Typography>
+          <Typography sx={{fontSize: '12px'}}>QUEST GRADE:</Typography>
           <select value={difficulty} onChange={e => setDifficulty(e.target.value)}>
-            <option value="">Select difficulty</option>
+            <option value="">Select rank</option>
             {difficulties.map((diff, idx) => (
               <option key={idx} value={diff}>{diff}</option>
             ))}
           </select>
         </Box>
         <Box sx={{ marginBottom: '30px', color: "#CFA63D" }}>
-          <Typography>Description:</Typography>
+          <Typography sx={{fontSize: '12px'}}>DESCRIPTION:</Typography>
           <textarea value={description} onChange={e => setDescription(e.target.value)} style={{ width: '100%' }} />
         </Box>
         {/* Neues Eingabefeld für den maximalen Fortschritt */}
         <Box sx={{ marginBottom: '30px', color: "#CFA63D" }}>
-          <Typography>Max Progress (z.B. 20 Bücher):</Typography>
+          <Typography sx={{fontSize: '12px'}}>QUANTITY:</Typography>
           <input
             type="number"
             value={maxProgress}
@@ -145,7 +146,7 @@ function Tasks() {
       console.error('Error fetching tasks:', error);
     }
   };
-
+  
   useEffect(() => {
     fetchProfiles();
   }, []);
@@ -248,7 +249,7 @@ function Tasks() {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ level: newLevel, xp: updatedXP }),
           });
-          
+
           fetchProfiles();   
         }
         
@@ -498,7 +499,7 @@ function Tasks() {
                     </Box>
                   </Box>
                   <Typography variant="caption" sx={{ display: 'block', marginTop: '5px' }}>
-                    Difficulty: {task.difficulty} <br />
+                    Grade: {task.difficulty} <br />
                     Reward: {task.category + ": " + "+" + task.value} <br />
                     Status: {task.status === 'done' ? 'completed' : 'not completed'} <br />
                     Progress: {task.progress}/{task.max_progress}
@@ -525,11 +526,14 @@ function Tasks() {
                       color: '#fff'
                     }}
                   >
-                    <Typography sx={{ fontSize: '1.5rem', fontWeight: 'bold', mt: 1 }}>
-                      COMPLETED:
+                    <Typography sx={{ fontSize: '1.4rem', fontWeight: 'bold' }}>
+                      COMPLETED:  
                     </Typography>
-                    <Typography sx={{ fontSize: '1rem', fontWeight: 'bold' }}>
-                      {task.name}
+                    <Typography sx={{ fontSize: '1rem', fontWeight: 'bold'}}>
+                      {task.category}-Quest
+                    </Typography>
+                    <Typography sx={{ fontSize: '0.8rem', fontWeight: 'bold' }}>
+                     {task.name}
                     </Typography>
                     <Typography sx={{ fontSize: '0.8rem', fontWeight: 'bold' }}>
                       {task.difficulty}
@@ -561,7 +565,7 @@ function Tasks() {
         >
           <Grid2 container spacing={2} sx={{ height: '100%' }}>
             <Grid2 xs={6}>
-              <Link to="/home" style={{ textDecoration: 'none' }}>
+              <Link to="/tasks" style={{ textDecoration: 'none' }}>
                 <Box sx={{
                   height: '50px',
                   width: '150px',
@@ -571,9 +575,11 @@ function Tasks() {
                   border: 1,
                   color: '#CFA63D',
                   transition: 'transform 0.3s, box-shadow 0.3s',
+                  border: 1,
+                  boxShadow: '0 0 10px #CFA63D',
                   '&:hover': { transform: 'scale(1.05)', boxShadow: '0 0 10px #CFA63D' }
                 }}>
-                  Home
+                  Tasks
                 </Box>
               </Link>
             </Grid2>

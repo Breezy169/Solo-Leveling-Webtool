@@ -11,7 +11,7 @@ from profiles_db import (
     init_profiles_db, get_all_profiles, update_profile_level_and_xp, get_profile_by_id, update_profile_status_values
 )
 # --- Neu: Import von achievements_db ---
-from achievements_db import init_ACHIEVEMENTS_DB, add_achievement_to_db, get_achievements, update_achievements_in_db
+from achievements_db import init_ACHIEVEMENTS_DB, add_achievement_to_db, get_achievements, update_achievements_in_db, update_achievement_progress, update_achievement_progress_and_status, get_achievement_by_id
 from skills_db import init_SKILLS_DB, add_skill_to_db, get_skills, update_skill_level
 
 logging.basicConfig(level=logging.INFO)
@@ -69,7 +69,9 @@ def get_all_achievements():
         'reward': row[4] if row[2] == 'EXP' else row[3],
         'description': row[5],
         'status': row[6],
-        'increaseLevel': row[7]
+        'increaseLevel': row[7],
+        'progress': row[8],
+        'max_progress': row[9]
     } for row in achievements_data]
     return jsonify(achievement_list)
 
@@ -105,6 +107,36 @@ def update_achievement(achievement_id):
         logger.error(f'Achievement {achievement_id} not found or failed to update.')
         return jsonify({'message': 'Achievement not found'}), 404
 
+@app.route('/api/update_achievement_progress', methods=['PUT'])
+def update_achievement_progress_endpoint():
+    data = request.get_json()
+    achievement_id = data["achievement_id"]
+    # Lese den aktuellen Fortschritt und das Inkrement
+    current_progress = int(data.get('progress', 0))
+    increment = int(data.get('increment', 1))
+    new_progress = current_progress + increment
+
+    # Hole das Achievement aus der DB, um max_progress zu ermitteln
+    achievement = get_achievement_by_id(achievement_id)
+    if not achievement:
+        return jsonify({"error": "Achievement not found"}), 404
+
+    # Annahme: Im achievements-Table ist max_progress an Index 9
+    max_progress = achievement[9]
+
+    if new_progress >= max_progress:
+        new_progress = max_progress
+        # Aktualisiere Fortschritt und setze Status auf "done"
+        if update_achievement_progress_and_status(achievement_id, new_progress, "done"):
+            return jsonify({"message": "Achievement completed", "progress": new_progress}), 200
+        else:
+            return jsonify({"error": "Failed to update achievement progress"}), 400
+    else:
+        if update_achievement_progress(achievement_id, new_progress):
+            return jsonify({"message": "Achievement progress updated successfully", "progress": new_progress}), 200
+        else:
+            return jsonify({"error": "Failed to update achievement progress"}), 400
+        
 # --- Die übrigen Endpunkte (Tasks, Profile, Titles etc.) bleiben unverändert ---
 
 @app.route('/api/tasks', methods=['GET'])
@@ -157,7 +189,7 @@ def get_profiles():
 @app.route('/api/profile/update', methods=['PUT'])
 def update_profile_xp():
     data = request.get_json()
-    logger.info(f"Update profile data: {data}")  # Zum Debuggen
+    logger.info(f"Update profile data: {data}")
     profile_id = 1  # Annahme: Es gibt nur ein Profil
 
     try:
@@ -166,9 +198,16 @@ def update_profile_xp():
     except (ValueError, TypeError):
         return jsonify({"message": "Level and XP must be integers"}), 400
 
-    new_title = data.get('title') or ""
+    # Hole das bestehende Profil, um den aktuellen Titel zu erhalten
+    profile = get_profile_by_id(profile_id)
+    if not profile:
+        return jsonify({"message": "Profile not found"}), 404
 
-    # Determine new rank based on level:
+    # Behalte den bestehenden Titel, wenn im Request kein neuer Wert gesendet wird.
+    current_title = profile[6]  # Annahme: Titel steht an Index 6
+    new_title = data.get('title', current_title)
+
+    # Bestimme den neuen Rank anhand des neuen Levels:
     new_rank = ranks[0] if new_level < rank_levels[0] else None
     for i in range(0, len(rank_levels) - 1):
         if new_level >= rank_levels[i] and new_level < rank_levels[i+1]:
@@ -176,11 +215,7 @@ def update_profile_xp():
     if new_level >= rank_levels[-1]:
         new_rank = ranks[-1]
 
-    # Retrieve the current profile to get the existing status values:
-    profile = get_profile_by_id(profile_id)
-    if not profile:
-        return jsonify({"message": "Profile not found"}), 404
-
+    # Bestehende Statuswerte beibehalten:
     current_status = {
         'strength': profile[7] if len(profile) > 7 else 0,
         'agility': profile[8] if len(profile) > 8 else 0,
@@ -190,12 +225,11 @@ def update_profile_xp():
         'ap': profile[12] if len(profile) > 12 else 0,
     }
 
-    # Now call the update function with all required arguments.
     levelUpdated = update_profile_level_and_xp(
         profile_id,
         new_level,
         new_xp,
-        new_title,
+        new_title,  # Hier wird der alte Titel beibehalten, wenn kein neuer Wert übergeben wurde.
         new_rank
     )
     statusUpdated = update_profile_status_values(
@@ -215,6 +249,7 @@ def update_profile_xp():
     else:
         logger.error(f'Failed to update profile {profile_id}.')
         return jsonify({"message": "Failed to update profile"}), 500
+
 
 @app.route('/api/profile/update_status', methods=['PUT'])
 def update_profile_status():
