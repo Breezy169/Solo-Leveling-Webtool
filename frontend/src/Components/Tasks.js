@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import { Box, List, ListItem, ListItemText, Typography, IconButton, Collapse, LinearProgress, Button } from '@mui/material';
 import Grid2 from '@mui/material/Grid2';
 import { Link } from 'react-router-dom';
@@ -9,9 +9,8 @@ import { useTheme } from '@mui/material/styles';
 import Settings from './Settings';
 import '../Css/borders.css';
 import systeminfo from '../Images/systeminfo.png';
-import { fontSize } from '@mui/system';
+import { AuthContext } from '../AuthContext';
 
-// TaskModal-Komponente mit zusätzlichem Feld für max_progress
 const TaskModal = ({ show, onClose, onSubmit }) => {
   const [category, setCategory] = useState('');
   const [name, setName] = useState('');
@@ -32,8 +31,8 @@ const TaskModal = ({ show, onClose, onSubmit }) => {
       name,
       difficulty,
       description: 'Description: ' + description,
-      max_progress: parseInt(maxProgress, 10), // max_progress als Zahl
-      progress: 0 // Initialer Fortschritt 0
+      max_progress: parseInt(maxProgress, 10),
+      progress: 0
     };
     onSubmit(task);
     setCategory('');
@@ -50,21 +49,16 @@ const TaskModal = ({ show, onClose, onSubmit }) => {
     <Box
       sx={{
         position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
+        top: 0, left: 0, right: 0, bottom: 0,
         backgroundColor: 'rgba(0,0,0,0.5)',
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
+        display: 'flex', justifyContent: 'center', alignItems: 'center',
         zIndex: 2000,
       }}
     >
-      <Box sx={{ backgroundColor: '#252420', padding: '20px', border: "2px solid #CFA63D", width: '400px' }}>
+      <Box sx={{ backgroundColor: '#252420', padding: '20px', border: '2px solid #CFA63D', width: '400px' }}>
         <Typography variant="h6" sx={{ marginBottom: '30px', color: "#CFA63D" }}>Add new quest</Typography>
         <Box sx={{ marginBottom: '30px', color: "#CFA63D"}}>
-          <Typography sx={{fontSize: '12px'}}>QUEST CATEGORY:</Typography>
+          <Typography sx={{ fontSize: '12px' }}>QUEST CATEGORY:</Typography>
           <select value={category} onChange={e => setCategory(e.target.value)}>
             <option value="">Select category</option>
             {categorys.map((cat, idx) => (
@@ -73,11 +67,11 @@ const TaskModal = ({ show, onClose, onSubmit }) => {
           </select>
         </Box>
         <Box sx={{ marginBottom: '30px', color: "#CFA63D" }}>
-          <Typography sx={{fontSize: '12px'}}>QUEST NAME:</Typography>
+          <Typography sx={{ fontSize: '12px' }}>QUEST NAME:</Typography>
           <input type="text" value={name} onChange={e => setName(e.target.value)} style={{ width: '100%' }} />
         </Box>
         <Box sx={{ marginBottom: '30px', color: "#CFA63D" }}>
-          <Typography sx={{fontSize: '12px'}}>QUEST GRADE:</Typography>
+          <Typography sx={{ fontSize: '12px' }}>QUEST GRADE:</Typography>
           <select value={difficulty} onChange={e => setDifficulty(e.target.value)}>
             <option value="">Select rank</option>
             {difficulties.map((diff, idx) => (
@@ -86,12 +80,12 @@ const TaskModal = ({ show, onClose, onSubmit }) => {
           </select>
         </Box>
         <Box sx={{ marginBottom: '30px', color: "#CFA63D" }}>
-          <Typography sx={{fontSize: '12px'}}>DESCRIPTION:</Typography>
+          <Typography sx={{ fontSize: '12px' }}>DESCRIPTION:</Typography>
           <textarea value={description} onChange={e => setDescription(e.target.value)} style={{ width: '100%' }} />
         </Box>
         {/* Neues Eingabefeld für den maximalen Fortschritt */}
         <Box sx={{ marginBottom: '30px', color: "#CFA63D" }}>
-          <Typography sx={{fontSize: '12px'}}>QUANTITY:</Typography>
+          <Typography sx={{ fontSize: '12px' }}>QUANTITY:</Typography>
           <input
             type="number"
             value={maxProgress}
@@ -120,6 +114,7 @@ function Tasks() {
   const [profile, setProfile] = useState(null);
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
 
+  const { loggedIn } = useContext(AuthContext);
   // API-Aufrufe
   const fetchProfiles = async () => {
     try {
@@ -146,7 +141,7 @@ function Tasks() {
       console.error('Error fetching tasks:', error);
     }
   };
-  
+
   useEffect(() => {
     fetchProfiles();
   }, []);
@@ -183,8 +178,7 @@ function Tasks() {
     }
   };
 
-  // Handler, um den Fortschritt um 1 zu erhöhen und ggf. den Task als "done" zu markieren,
-  // wenn progress den max_progress erreicht (z. B. 20/20)
+  // Handler zum Fortschritt erhöhen, identisch wie bisher.
   const handleIncrementProgress = async (task) => {
     try {
       const response = await fetch('http://localhost:5000/api/update_task_progress', {
@@ -194,7 +188,6 @@ function Tasks() {
       });
       const result = await response.json();
       if (response.ok) {
-        // Optional: Bei abgeschlossenen Tasks eine Rückmeldung geben
         if (result.message && result.message.toLowerCase().includes("completed")) {
           alert("Task completed!");
           const xpToAdd = task.xp;
@@ -207,11 +200,9 @@ function Tasks() {
             xpNeededForNextLevel = Math.floor(newLevel ** 1.15 * 1000);
           }
         
-          // Hole den Reward (Task.reward wird als value gespeichert)
           let reward = task.value; 
           let category = task.category;
         
-          // Erstelle ein Objekt mit den aktuellen Statuswerten (Fallback auf 0, falls undefined)
           const updatedStatus = {
             strength: profile?.strength || 0,
             agility: profile?.agility || 0,
@@ -221,7 +212,6 @@ function Tasks() {
             ap: profile?.ap || 0,
           };
         
-          // Passe das jeweilige Statusattribut an, abhängig von der Task-Kategorie
           if (category === 'Intelligence') {
             updatedStatus.intelligence += reward;
           } else if (category === 'Strength') {
@@ -236,25 +226,19 @@ function Tasks() {
             updatedStatus.ap += reward;
           }
         
-          // Sende alle sechs Werte an den Status-Update-Endpoint
           await fetch('http://localhost:5000/api/profile/update_status', {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(updatedStatus),
           });
         
-          // Update XP und Level im Profil
           await fetch('http://localhost:5000/api/profile/update', {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ level: newLevel, xp: updatedXP }),
           });
-
-          fetchProfiles();   
+          fetchProfiles();
         }
-        
-        // Update XP und Level wie bisher
-        
         fetchTasks();
       } else {
         alert("Fehler beim Aktualisieren des Fortschritts: " + result.error);
@@ -326,9 +310,12 @@ function Tasks() {
               RANK: {profile?.rank}  <br />
               TITLE: {profile?.title}
             </Typography>
-            <Box sx={{ position: 'absolute', right: '-60px', top: '-40px', zIndex: 999 }}>
-              <Settings />
-            </Box>
+            {/* Settings werden nur angezeigt, wenn nicht als Guest */}
+            {loggedIn && (
+              <Box sx={{ position: 'absolute', right: '-60px', top: '-40px', zIndex: 999 }}>
+                <Settings />
+              </Box>
+            )}
             <Typography sx={{ position: 'absolute', top: '140px', fontSize: '19px', fontWeight: 'bold', lineHeight: 1.7 }}>
               <br />
               HP: {profile ? profile.level * 40 : 0} <br />
@@ -408,16 +395,19 @@ function Tasks() {
               flexDirection: 'column',
             }}
           >
-            <IconButton
-              onClick={() => setIsTaskModalOpen(true)}
-              sx={{
-                color: '#CFA63D',
-                alignSelf: 'flex-start',
-                marginBottom: '10px'
-              }}
-            >
-              <AddIcon />
-            </IconButton>
+            {/* Add Button wird nur angezeigt, wenn nicht als Guest */}
+            {loggedIn && (
+              <IconButton
+                onClick={() => setIsTaskModalOpen(true)}
+                sx={{
+                  color: '#CFA63D',
+                  alignSelf: 'flex-start',
+                  marginBottom: '10px'
+                }}
+              >
+                <AddIcon />
+              </IconButton>
+            )}
             <List sx={{ color: '#CFA63D', padding: 0 }}>
               {['Intelligence', 'Strength', 'Agility', 'Durability', 'Skills', 'Projects', 'Completed Tasks'].map((category) => (
                 <ListItem
@@ -486,13 +476,14 @@ function Tasks() {
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <Typography>{task.name}</Typography>
                     <Box>
-                      <IconButton
+                      {loggedIn && (<IconButton
                         onClick={() => handleIncrementProgress(task)}
                         disabled={task.progress >= task.max_progress}
                         sx={{ color: task.status === 'done' ? 'black' : '#CFA63D' }}
                       >
                         <AddIcon />
                       </IconButton>
+                      )}
                       <IconButton onClick={() => setExpandedTask(expandedTask === index ? null : index)}>
                         <ExpandMoreIcon sx={{ color: task.status === 'done' ? 'black' : '#CFA63D' }} />
                       </IconButton>
@@ -511,29 +502,26 @@ function Tasks() {
                     </Box>
                   </Collapse>
                 </Box>
-                {/* Overlay (kann auch außerhalb des geblurrten Bereichs liegen) */}
                 {task.status === 'done' && (
-                  <Box
-                    sx={{
-                      position: 'absolute',
-                      top: '50%',
-                      left: '50%',
-                      transform: 'translate(-50%, -50%)',
-                      pointerEvents: 'none',
-                      padding: '10px',
-                      borderRadius: '5px',
-                      textAlign: 'center',
-                      color: '#fff'
-                    }}
-                  >
+                  <Box sx={{
+                    position: 'absolute',
+                    top: '50%',
+                    left: '50%',
+                    transform: 'translate(-50%, -50%)',
+                    pointerEvents: 'none',
+                    padding: '10px',
+                    borderRadius: '5px',
+                    textAlign: 'center',
+                    color: '#fff'
+                  }}>
                     <Typography sx={{ fontSize: '1.4rem', fontWeight: 'bold' }}>
-                      COMPLETED:  
+                      COMPLETED:
                     </Typography>
-                    <Typography sx={{ fontSize: '1rem', fontWeight: 'bold'}}>
+                    <Typography sx={{ fontSize: '1rem', fontWeight: 'bold' }}>
                       {task.category}-Quest
                     </Typography>
                     <Typography sx={{ fontSize: '0.8rem', fontWeight: 'bold' }}>
-                     {task.name}
+                      {task.name}
                     </Typography>
                     <Typography sx={{ fontSize: '0.8rem', fontWeight: 'bold' }}>
                       {task.difficulty}
@@ -545,24 +533,21 @@ function Tasks() {
                 )}
               </Box>
             ))}
-
           </Box>
         </Box>
 
         {/* Navigation */}
-        <Box
-          sx={{
-            width: '722px',
-            height: '500px',
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            position: 'fixed',
-            top: '800px',
-            left: '20px',
-            zIndex: 1000,
-          }}
-        >
+        <Box sx={{
+          width: '722px',
+          height: '500px',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          position: 'fixed',
+          top: '800px',
+          left: '20px',
+          zIndex: 1000,
+        }}>
           <Grid2 container spacing={2} sx={{ height: '100%' }}>
             <Grid2 xs={6}>
               <Link to="/tasks" style={{ textDecoration: 'none' }}>
@@ -575,8 +560,6 @@ function Tasks() {
                   border: 1,
                   color: '#CFA63D',
                   transition: 'transform 0.3s, box-shadow 0.3s',
-                  border: 1,
-                  boxShadow: '0 0 10px #CFA63D',
                   '&:hover': { transform: 'scale(1.05)', boxShadow: '0 0 10px #CFA63D' }
                 }}>
                   Tasks

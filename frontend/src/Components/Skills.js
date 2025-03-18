@@ -1,13 +1,14 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import { Box, Typography, LinearProgress } from '@mui/material';
 import Grid2 from '@mui/material/Grid2';
 import { Link } from 'react-router-dom';
 import Settings from './Settings';
 import systeminfo from '../Images/systeminfo.png';
-
+import { AuthContext } from '../AuthContext';
 function Skills() {
   const [profile, setProfile] = useState(null);
   const [skills, setSkills] = useState([]);
+  const { loggedIn } = useContext(AuthContext); 
 
   const fetchProfiles = async () => {
     try {
@@ -119,9 +120,11 @@ function Skills() {
               <br />
               TITLE: {profile?.title}
             </Typography>
-            <Box sx={{ position: 'absolute', right: '-60px', top: '-40px', zIndex: 999 }}>
-              <Settings />
-            </Box>
+             {loggedIn && (
+                <Box sx={{ position: 'absolute', right: '-60px', top: '-40px', zIndex: 999 }}>
+                  <Settings />
+                </Box>
+              )}
             <Typography
               sx={{
                 position: 'absolute',
