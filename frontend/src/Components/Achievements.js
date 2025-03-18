@@ -105,12 +105,12 @@ function Achievements() {
         }
       }
       if (achievement.increaseLevel && achievement.increaseLevel.toLowerCase() === 'ja') {
-        return `Reward: ${skillObj.name} Lv. ${parseInt(skillObj.level, 10) + 1}`;
+        return `Skill: ${skillObj.name} Lv. ${parseInt(skillObj.level, 10) + 1}`;
       } else {
         return `Skill: ${skillObj.name}`;
       }
     } else {
-      return `Reward: ${achievement.reward}`;
+      return `${achievement.reward}`;
     }
   };
 
@@ -497,7 +497,7 @@ function Achievements() {
                       {achievement.name}
                     </Typography>
                     <Typography sx={{ fontSize: '0.7rem', fontWeight: 'bold'}}>
-                      {getRewardDisplay(achievement).replace(/^(EXP: |Title: |Skill: )/, '')}
+                      Reward: {getRewardDisplay(achievement)}
                     </Typography>
                   </Box>
                 )}
