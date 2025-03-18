@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { Box, Typography, IconButton, Collapse, LinearProgress, Button } from '@mui/material';
 import Grid2 from '@mui/material/Grid2';
 import { Link } from 'react-router-dom';
@@ -10,6 +10,7 @@ import '../Css/borders.css';
 import systeminfo from '../Images/systeminfo.png';
 import { useTheme } from '@mui/material/styles';
 import AchievementModal from './AchievementModal.js';
+import { AuthContext } from '../AuthContext.js';
 
 function Achievements() {
   const theme = useTheme();
@@ -20,7 +21,8 @@ function Achievements() {
   // Filter: "all" = active (not completed), "completed" = done
   const [selectedAchievementFilter, setSelectedAchievementFilter] = useState('all');
   const [skills, setSkills] = useState([]);
-
+  const { loggedIn } = useContext(AuthContext); 
+  
   const fetchSkills = async () => {
     try {
       const response = await fetch('http://localhost:5000/api/skills');
@@ -264,9 +266,11 @@ function Achievements() {
               RANK: {profile?.rank}  <br/>
               TITLE: {profile?.title}
             </Typography>
-            <Box sx={{ position: 'absolute', right: '-60px', top: '-40px', zIndex: 999 }}>
-              <Settings />
-            </Box>
+            {loggedIn && (
+              <Box sx={{ position: 'absolute', right: '-60px', top: '-40px', zIndex: 999 }}>
+                <Settings />
+              </Box>
+            )}
             <Typography sx={{ position: 'absolute', top: '140px', fontSize: '19px', fontWeight: 'bold', lineHeight: 1.7 }}>
               <br/>
               HP: {profile ? profile.level * 40 : 0} <br/>
@@ -347,12 +351,14 @@ function Achievements() {
               alignItems: 'center'
             }}
           >
-            <IconButton
-              onClick={() => setIsAchievementModalOpen(true)}
-              sx={{ color: '#CFA63D', marginBottom: '10px', left: '60px' }}
-            >
-              <AddIcon />
-            </IconButton>
+            {loggedIn && (
+              <IconButton
+                onClick={() => setIsAchievementModalOpen(true)}
+                sx={{ color: '#CFA63D', marginBottom: '10px', left: '60px' }}
+              >
+                <AddIcon />
+              </IconButton>
+            )}
             <Box sx={{ width: '100%', marginTop: '20px' }}>
               <Typography
                 onClick={() => setSelectedAchievementFilter('all')}
@@ -448,13 +454,14 @@ function Achievements() {
                     <Typography>{achievement.name}</Typography>
                     <Box>
                       {/* Plus-Button to increment achievement progress */}
-                      <IconButton
+                      {loggedIn &&(<IconButton
                         onClick={() => handleIncrementAchievement(achievement)}
                         disabled={achievement.progress >= achievement.max_progress}
                         sx={{ color: achievement.status === 'done' ? 'black' : '#CFA63D' }}
                       >
                         <AddIcon />
                       </IconButton>
+                      )}
                       <IconButton onClick={() => setExpandedAchievement(expandedAchievement === index ? null : index)}>
                         <ExpandMoreIcon sx={{ color: achievement.status === 'done' ? 'black' : '#CFA63D' }} />
                       </IconButton>

@@ -20,7 +20,7 @@ import Typography from '@mui/material/Typography';
 
 const BootstrapDialog = styled(Dialog)(({ theme }) => ({
   '& .MuiPaper-root': {
-    backgroundColor: '#30324a',
+    backgroundColor: '#252420',
   },
   '& .MuiDialogContent-root': {
     padding: theme.spacing(2),

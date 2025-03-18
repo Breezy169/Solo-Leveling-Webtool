@@ -136,6 +136,14 @@ def get_profile_by_id(profile_id):
     conn.close()
     return profile  # Return the profile data or None if not found
 
+def get_profile_by_name_and_password(name, password):
+    conn = sqlite3.connect(PROFILES_DB)
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM profiles WHERE name = ? AND password = ?", (name, password))
+    profile = cursor.fetchone()
+    conn.close()
+    return profile
+
 # def verify_user(username, password):
 #     conn = sqlite3.connect(PROFILES_DB)  # Assume a database named users.db
 #     cursor = conn.cursor()
