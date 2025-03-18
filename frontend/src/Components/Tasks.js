@@ -30,7 +30,7 @@ const TaskModal = ({ show, onClose, onSubmit }) => {
       category,
       name,
       difficulty,
-      description: 'Description: ' + description,
+      description: description,
       max_progress: parseInt(maxProgress, 10),
       progress: 0
     };
@@ -456,7 +456,7 @@ function Tasks() {
             >
               <ResetIcon />
             </IconButton>
-
+            
             <Typography variant="h6" sx={{ fontWeight: 'bold', marginBottom: '10px' }}>
               {selectedCategory}
             </Typography>
@@ -465,7 +465,7 @@ function Tasks() {
                 key={task.id}
                 sx={{
                   border: task.status === 'done' ? '3px solid black' : '1px solid #CFA63D',
-                  padding: '5px',
+                  padding: '15px',
                   marginBottom: '10px',
                   position: 'relative',
                   backgroundColor: task.status === 'done' ? 'transparent' : null
@@ -484,9 +484,10 @@ function Tasks() {
                         <AddIcon />
                       </IconButton>
                       )}
-                      <IconButton onClick={() => setExpandedTask(expandedTask === index ? null : index)}>
+                      {tasks.status === 'done' && (<IconButton onClick={() => setExpandedTask(expandedTask === index ? null : index)}>
                         <ExpandMoreIcon sx={{ color: task.status === 'done' ? 'black' : '#CFA63D' }} />
                       </IconButton>
+                      )}
                     </Box>
                   </Box>
                   <Typography variant="caption" sx={{ display: 'block', marginTop: '5px' }}>
@@ -508,6 +509,7 @@ function Tasks() {
                     top: '50%',
                     left: '50%',
                     transform: 'translate(-50%, -50%)',
+                    padding: '5px',
                     pointerEvents: 'none',
                     padding: '10px',
                     borderRadius: '5px',
@@ -517,9 +519,6 @@ function Tasks() {
                     <Typography sx={{ fontSize: '1.4rem', fontWeight: 'bold' }}>
                       COMPLETED:
                     </Typography>
-                    <Typography sx={{ fontSize: '1rem', fontWeight: 'bold' }}>
-                      {task.category}-Quest
-                    </Typography>
                     <Typography sx={{ fontSize: '0.8rem', fontWeight: 'bold' }}>
                       {task.name}
                     </Typography>
@@ -528,6 +527,9 @@ function Tasks() {
                     </Typography>
                     <Typography sx={{ fontSize: '0.7rem', fontWeight: 'bold' }}>
                       REWARD: {task.category + ": " + "+" + task.value}
+                    </Typography>
+                    <Typography sx={{ fontSize: '0.8rem', fontWeight: 'bold' }}>
+                      {task.description}
                     </Typography>
                   </Box>
                 )}
