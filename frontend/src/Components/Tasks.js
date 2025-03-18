@@ -558,6 +558,7 @@ function Tasks() {
                   justifyContent: 'center',
                   alignItems: 'center',
                   border: 1,
+                  boxShadow: '0 0 10px #CFA63D',
                   color: '#CFA63D',
                   transition: 'transform 0.3s, box-shadow 0.3s',
                   '&:hover': { transform: 'scale(1.05)', boxShadow: '0 0 10px #CFA63D' }
