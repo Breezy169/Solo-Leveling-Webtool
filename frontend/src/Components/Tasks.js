@@ -494,7 +494,8 @@ function Tasks() {
                     Grade: {task.difficulty} <br />
                     Reward: {task.category + ": " + "+" + task.value} <br />
                     Status: {task.status === 'done' ? 'completed' : 'not completed'} <br />
-                    Progress: {task.progress}/{task.max_progress}
+                    Progress: {task.progress}/{task.max_progress} <br />
+                    EXP: {task.xp}
                   </Typography>
                   <Collapse in={expandedTask === index}>
                     <Box sx={{ padding: '10px' }} theme={theme}>
@@ -531,6 +532,7 @@ function Tasks() {
                     <Typography sx={{ fontSize: '0.8rem', fontWeight: 'bold' }}>
                       {task.description}
                     </Typography>
+
                   </Box>
                 )}
               </Box>
