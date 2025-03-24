@@ -266,7 +266,7 @@ function Achievements() {
               RANK: {profile?.rank}  <br/>
               TITLE: {profile?.title}
             </Typography>
-            { (
+            {profile?.loggedIn === 'yes' && (
               <Box sx={{ position: 'absolute', right: '-60px', top: '-40px', zIndex: 999 }}>
                 <Settings />
               </Box>
@@ -351,7 +351,7 @@ function Achievements() {
               alignItems: 'center'
             }}
           >
-            {(
+            {profile?.loggedIn === 'yes' &&(
               <IconButton
                 onClick={() => setIsAchievementModalOpen(true)}
                 sx={{ color: '#CFA63D', marginBottom: '10px', left: '60px' }}
@@ -454,7 +454,7 @@ function Achievements() {
                     <Typography>{achievement.name}</Typography>
                     <Box>
                       {/* Plus-Button to increment achievement progress */}
-                      {(<IconButton
+                      {profile?.loggedIn === 'yes' &&(<IconButton
                         onClick={() => handleIncrementAchievement(achievement)}
                         disabled={achievement.progress >= achievement.max_progress}
                         sx={{ color: achievement.status === 'done' ? 'black' : '#CFA63D' }}
@@ -462,9 +462,7 @@ function Achievements() {
                         <AddIcon />
                       </IconButton>
                       )}
-                      <IconButton onClick={() => setExpandedAchievement(expandedAchievement === index ? null : index)}>
-                        <ExpandMoreIcon sx={{ color: achievement.status === 'done' ? 'black' : '#CFA63D' }} />
-                      </IconButton>
+                     
                     </Box>
                   </Box>
                   <Typography variant="caption" sx={{ color: achievement.status === 'done' ? 'black' : '#CFA63D', fontWeight: 'bold' }}>

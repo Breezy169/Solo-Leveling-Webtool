@@ -120,7 +120,7 @@ function Skills() {
               <br />
               TITLE: {profile?.title}
             </Typography>
-             {(
+             {profile?.loggedIn === 'yes' && (
                 <Box sx={{ position: 'absolute', right: '-60px', top: '-40px', zIndex: 999 }}>
                   <Settings />
                 </Box>
