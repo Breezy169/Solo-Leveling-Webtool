@@ -4,6 +4,19 @@ import { Box, Button, Typography, TextField } from '@mui/material';
 const LoginModal = ({ show, onLogin }) => {
   const [name, setName] = useState('');
   const [password, setPassword] = useState('');
+  const [profile, setProfile] = useState(null);
+  
+  // API-Aufrufe
+  const fetchProfiles = async () => {
+    try {
+      const response = await fetch('http://localhost:5000/api/profile');
+      if (!response.ok) throw new Error('Network response was not ok');
+      const data = await response.json();
+      setProfile(data.length > 0 ? data[0] : null);
+    } catch (error) {
+      console.error("Error fetching profile:", error);
+    }
+  };
 
   const handleLogin = async () => {
     if (!name || !password) {
@@ -36,28 +49,27 @@ const LoginModal = ({ show, onLogin }) => {
     }
   };
 
-  // Guest-Funktion: Ruft den /api/guest-Endpoint auf, der loggedIn auf "no" setzt
+  // Guest-Funktion: Ruft den /api/profile/update_login-Endpoint auf, der loggedIn auf "no" setzt
   const handleGuest = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/guest', {
-        method: 'GET',
+      const response = await fetch('http://localhost:5000/api/profile/update_login', {
+        method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({}) // Falls später Payload benötigt wird, anpassen
       });
       if (response.ok) {
-        const guestData = await response.json();
-        if (guestData.length > 0) {
-          onLogin(guestData[0]); // Profilobjekt mit loggedIn: "no"
-        } else {
-          alert("Guest-Login fehlgeschlagen.");
-        }
+        await response.json();
+        // Statt nur fetchProfiles() aufzurufen, informiere die Parent-Komponente:
+        onLogin({ loggedIn: "no", name: "Guest" });
       } else {
-        alert("Guest-Login fehlgeschlagen.");
+        alert('Fehler beim Aktualisieren des Login-Status.');
       }
     } catch (error) {
-      console.error("Fehler beim Guest-Login:", error);
-      alert("Fehler beim Guest-Login. Bitte versuche es erneut.");
+      console.error('Fehler:', error);
+      alert('Ein Fehler ist aufgetreten.');
     }
   };
+  
 
   if (!show) return null;
 

@@ -305,6 +305,20 @@ def update_profile_status():
         logger.error(f'Failed to update profile status for {profile_id}.')
         return jsonify({"message": "Failed to update profile status"}), 500
 
+
+@app.route('/api/profile/update_login', methods=['PUT'])
+def update_login_data():
+    data = request.get_json()
+    logger.info(f"Update profile login status data: {data}")  # Zum Debuggen
+    profile_id = 1  # Annahme: Es gibt nur ein Profil
+    success = update_profile_loggedIn(profile_id, "no")
+    if success:
+        return jsonify({"message": "loggedIn updated to no"}), 200
+    else:
+        return jsonify({"message": "Update failed"}), 500
+
+    
+
 @app.route('/api/addTask', methods=['POST'])
 def add_task():
     data = request.get_json()
