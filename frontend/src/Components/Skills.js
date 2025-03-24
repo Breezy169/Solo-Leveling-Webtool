@@ -4,6 +4,7 @@ import Grid2 from '@mui/material/Grid2';
 import { Link } from 'react-router-dom';
 import Settings from './Settings';
 import systeminfo from '../Images/systeminfo.png';
+import systeminfopurple2 from '../Images/systeminfopurple2.png';
 
 function Skills() {
   const [profile, setProfile] = useState(null);
@@ -77,7 +78,7 @@ function Skills() {
         >
           <img
             alt="System Info"
-            src={systeminfo}
+            src={profile?.level >= 25 ? systeminfopurple2 : systeminfo}
             style={{
               position: 'absolute',
               top: 0,
@@ -93,7 +94,7 @@ function Skills() {
               top: '13px',
               right: '142%',
               zIndex: 1,
-              color: '#CFA63D',
+              color: profile?.level >= 25 ? '#CF9FFF'  : '#CFA63D',
               width: '300px',
             }}
           >
@@ -107,7 +108,7 @@ function Skills() {
               top: '69px',
               right: '142%',
               zIndex: 1,
-              color: '#CFA63D',
+              color: profile?.level >= 25 ? '#CF9FFF'  : '#CFA63D',
               width: '300px',
             }}
           >
@@ -162,7 +163,7 @@ function Skills() {
               top: '71px',
               right: '105%',
               zIndex: 1,
-              color: '#CFA63D',
+              color: profile?.level >= 25 ? '#CF9FFF'  : '#CFA63D',
               width: '300px',
             }}
           >
@@ -183,7 +184,7 @@ function Skills() {
                   marginTop: '5px',
                   backgroundColor: 'rgba(0, 0, 0, 0.1)',
                   '& .MuiLinearProgress-bar': {
-                    backgroundColor: 'gold',
+                    backgroundColor: profile?.level >= 25 ? ' #CF9FFF'  : ' #CFA63D',
                   },
                 }}
               />
@@ -227,7 +228,7 @@ function Skills() {
             height: '625px',
             padding: '20px',
             overflowY: 'scroll',
-            color: '#CFA63D',
+            color: profile?.level >= 25 ? '#CF9FFF'  : '#CFA63D',
             top: '50px',
             right: '150px',
           }}
@@ -239,11 +240,11 @@ function Skills() {
               sx={{
                 marginTop: '40px',
                 marginBottom: '10px',
-                border: '1px solid #CFA63D',
+                border: profile?.level >= 25 ? '1px solid #CF9FFF'  : '1px solid #CFA63D',
                 padding: '5px',
               }}
             >
-              <Typography variant="h6" sx={{ marginBottom: '10px' }}>
+              <Typography variant="h6" sx={{ marginBottom: '10px',  color: 'CF9FFF' }}>
                 Skill: {skill?.name}
               </Typography>
               <Typography>Lv. {skill?.level < 5 ? skill?.level : "Max."}</Typography>
@@ -278,9 +279,9 @@ function Skills() {
                     justifyContent: 'center',
                     alignItems: 'center',
                     border: 1,
-                    color: '#CFA63D',
+                    color: profile?.level >= 25 ? '#CF9FFF'  : '#CFA63D',
                     transition: 'transform 0.3s, box-shadow 0.3s',
-                    '&:hover': { transform: 'scale(1.05)', boxShadow: '0 0 10px #CFA63D' },
+                    '&:hover': { transform: 'scale(1.05)',  boxShadow: profile?.level >= 25 ? '0 0 10px #CF9FFF'  : '0 0 10px #CFA63D' },
                   }}
                 >
                   Tasks
@@ -297,9 +298,9 @@ function Skills() {
                     justifyContent: 'center',
                     alignItems: 'center',
                     border: 1,
-                    color: '#CFA63D',
+                    color: profile?.level >= 25 ? '#CF9FFF'  : '#CFA63D',
                     transition: 'transform 0.3s, box-shadow 0.3s',
-                    '&:hover': { transform: 'scale(1.05)', boxShadow: '0 0 10px #CFA63D' },
+                    '&:hover': { transform: 'scale(1.05)',  boxShadow: profile?.level >= 25 ? '0 0 10px #CF9FFF'  : '0 0 10px #CFA63D' },
                   }}
                 >
                   Achievements
@@ -316,10 +317,10 @@ function Skills() {
                     justifyContent: 'center',
                     alignItems: 'center',
                     border: 1,
-                    boxShadow: '0 0 10px #CFA63D',
-                    color: '#CFA63D',
+                     boxShadow: profile?.level >= 25 ? '0 0 10px #CF9FFF'  : '0 0 10px #CFA63D',
+                    color: profile?.level >= 25 ? '#CF9FFF'  : '#CFA63D',
                     transition: 'transform 0.3s, box-shadow 0.3s',
-                    '&:hover': { transform: 'scale(1.05)', boxShadow: '0 0 10px #CFA63D' },
+                    '&:hover': { transform: 'scale(1.05)',  boxShadow: profile?.level >= 25 ? '0 0 10px #CF9FFF'  : '0 0 10px #CFA63D' },
                   }}
                 >
                   Skills
@@ -336,9 +337,9 @@ function Skills() {
                     justifyContent: 'center',
                     alignItems: 'center',
                     border: 1,
-                    color: '#CFA63D',
+                    color: profile?.level >= 25 ? '#CF9FFF'  : '#CFA63D',
                     transition: 'transform 0.3s, box-shadow 0.3s',
-                    '&:hover': { transform: 'scale(1.05)', boxShadow: '0 0 10px #CFA63D' },
+                    '&:hover': { transform: 'scale(1.05)',  boxShadow: profile?.level >= 25 ? '0 0 10px #CF9FFF'  : '0 0 10px #CFA63D' },
                   }}
                 >
                   About me
