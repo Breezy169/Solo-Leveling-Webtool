@@ -8,7 +8,7 @@ from tasks_db import (
     init_tasks_db, get_tasks, update_task_in_db, add_task_to_db, get_xp_for_difficulty, increase_task_progress, get_task_by_id
 )
 from profiles_db import (
-    init_profiles_db, get_all_profiles, update_profile_level_and_xp, get_profile_by_id, update_profile_status_values, get_profile_by_name_and_password
+    init_profiles_db, get_all_profiles, update_profile_level_and_xp, get_profile_by_id, update_profile_status_values, get_profile_by_name_and_password, update_profile_loggedIn
 )
 # --- Neu: Import von achievements_db ---
 from achievements_db import init_ACHIEVEMENTS_DB, add_achievement_to_db, get_achievements, update_achievements_in_db, update_achievement_progress, update_achievement_progress_and_status, get_achievement_by_id
@@ -172,6 +172,8 @@ def get_profiles():
     if name and password:
         profile = get_profile_by_name_and_password(name, password)
         if profile:
+            # Aktualisiere das Profil: loggedIn auf "yes"
+            update_profile_loggedIn(profile[0], "yes")
             profile_data = {
                 'id': profile[0],
                 'name': profile[1],
@@ -186,28 +188,29 @@ def get_profiles():
                 'intelligence': profile[10] if len(profile) > 10 else 0,
                 'perception': profile[11] if len(profile) > 11 else 0,
                 'ap': profile[12] if len(profile) > 12 else 0,
+                'loggedIn': "yes"
             }
             return jsonify([profile_data]), 200
         else:
             return jsonify([]), 401
     else:
-        # Falls keine Login-Parameter vorhanden, gib alle Profile zurück.
         profiles = get_all_profiles()
         profile_list = [{
-            'id': profile[0],
-            'name': profile[1],
-            'age': profile[2],
-            'level': profile[3],
-            'xp': profile[4],
-            'rank': profile[5],
-            'title': profile[6],
-            'strength': profile[7] if len(profile) > 7 else 0,
-            'agility': profile[8] if len(profile) > 8 else 0,
-            'stamina': profile[9] if len(profile) > 9 else 0,
-            'intelligence': profile[10] if len(profile) > 10 else 0,
-            'perception': profile[11] if len(profile) > 11 else 0,
-            'ap': profile[12] if len(profile) > 12 else 0,
-        } for profile in profiles]
+            'id': p[0],
+            'name': p[1],
+            'age': p[2],
+            'level': p[3],
+            'xp': p[4],
+            'rank': p[5],
+            'title': p[6],
+            'strength': p[7] if len(p) > 7 else 0,
+            'agility': p[8] if len(p) > 8 else 0,
+            'stamina': p[9] if len(p) > 9 else 0,
+            'intelligence': p[10] if len(p) > 10 else 0,
+            'perception': p[11] if len(p) > 11 else 0,
+            'ap': p[12] if len(p) > 12 else 0,
+            'loggedIn': p[14]
+        } for p in profiles]
         return jsonify(profile_list), 200
 
 
@@ -227,6 +230,8 @@ def update_profile_xp():
     profile = get_profile_by_id(profile_id)
     if not profile:
         return jsonify({"message": "Profile not found"}), 404
+    
+   
 
     # Behalte den bestehenden Titel, wenn im Request kein neuer Wert gesendet wird.
     current_title = profile[6]  # Annahme: Titel steht an Index 6

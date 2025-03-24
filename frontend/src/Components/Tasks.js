@@ -9,9 +9,10 @@ import { useTheme } from '@mui/material/styles';
 import Settings from './Settings';
 import '../Css/borders.css';
 import systeminfo from '../Images/systeminfo.png';
-import { AuthContext } from '../AuthContext';
+
 
 const TaskModal = ({ show, onClose, onSubmit }) => {
+ 
   const [category, setCategory] = useState('');
   const [name, setName] = useState('');
   const [difficulty, setDifficulty] = useState('');
@@ -113,8 +114,7 @@ function Tasks() {
   const [expandedTask, setExpandedTask] = useState(null);
   const [profile, setProfile] = useState(null);
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
-
-  const { loggedIn } = useContext(AuthContext);
+  
   // API-Aufrufe
   const fetchProfiles = async () => {
     try {
@@ -247,8 +247,10 @@ function Tasks() {
       console.error("Error updating task progress:", error);
     }
   };
+  console.log(profile?.loggedIn)
 
   return (
+    
     <div>
       <Box
         sx={{
@@ -311,7 +313,7 @@ function Tasks() {
               TITLE: {profile?.title}
             </Typography>
             {/* Settings werden nur angezeigt, wenn nicht als Guest */}
-            {loggedIn && (
+            {profile?.loggedIn === 'yes' && (
               <Box sx={{ position: 'absolute', right: '-60px', top: '-40px', zIndex: 999 }}>
                 <Settings />
               </Box>
@@ -396,7 +398,7 @@ function Tasks() {
             }}
           >
             {/* Add Button wird nur angezeigt, wenn nicht als Guest */}
-            {loggedIn && (
+            {profile?.loggedIn === 'yes' && (
               <IconButton
                 onClick={() => setIsTaskModalOpen(true)}
                 sx={{
@@ -476,7 +478,7 @@ function Tasks() {
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <Typography>{task.name}</Typography>
                     <Box>
-                      {loggedIn && (<IconButton
+                      {profile?.loggedIn === 'yes' && (<IconButton
                         onClick={() => handleIncrementProgress(task)}
                         disabled={task.progress >= task.max_progress}
                         sx={{ color: task.status === 'done' ? 'black' : '#CFA63D' }}

@@ -10,7 +10,7 @@ import '../Css/borders.css';
 import systeminfo from '../Images/systeminfo.png';
 import { useTheme } from '@mui/material/styles';
 import AchievementModal from './AchievementModal.js';
-import { AuthContext } from '../AuthContext.js';
+
 
 function Achievements() {
   const theme = useTheme();
@@ -21,7 +21,7 @@ function Achievements() {
   // Filter: "all" = active (not completed), "completed" = done
   const [selectedAchievementFilter, setSelectedAchievementFilter] = useState('all');
   const [skills, setSkills] = useState([]);
-  const { loggedIn } = useContext(AuthContext); 
+ 
   
   const fetchSkills = async () => {
     try {
@@ -266,7 +266,7 @@ function Achievements() {
               RANK: {profile?.rank}  <br/>
               TITLE: {profile?.title}
             </Typography>
-            {loggedIn && (
+            { (
               <Box sx={{ position: 'absolute', right: '-60px', top: '-40px', zIndex: 999 }}>
                 <Settings />
               </Box>
@@ -351,7 +351,7 @@ function Achievements() {
               alignItems: 'center'
             }}
           >
-            {loggedIn && (
+            {(
               <IconButton
                 onClick={() => setIsAchievementModalOpen(true)}
                 sx={{ color: '#CFA63D', marginBottom: '10px', left: '60px' }}
@@ -454,7 +454,7 @@ function Achievements() {
                     <Typography>{achievement.name}</Typography>
                     <Box>
                       {/* Plus-Button to increment achievement progress */}
-                      {loggedIn &&(<IconButton
+                      {(<IconButton
                         onClick={() => handleIncrementAchievement(achievement)}
                         disabled={achievement.progress >= achievement.max_progress}
                         sx={{ color: achievement.status === 'done' ? 'black' : '#CFA63D' }}
