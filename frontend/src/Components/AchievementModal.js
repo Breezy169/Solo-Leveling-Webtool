@@ -24,7 +24,19 @@ const AchievementModal = ({ show, onClose, onSubmit }) => {
   // NEW: State for achievement progress fields
   const [progress, setProgress] = useState('0');      // Initial progress (default 0)
   const [maxProgress, setMaxProgress] = useState('100'); // Maximum progress (default 100)
+  
+  const [profile, setProfile] = useState(null);
 
+  const fetchProfiles = async () => {
+    try {
+      const response = await fetch('http://localhost:5000/api/profile');
+      if (!response.ok) throw new Error('Network response was not ok');
+      const data = await response.json();
+      setProfile(data.length > 0 ? data[0] : null);
+    } catch (error) {
+      console.error('Error fetching profile:', error);
+    }
+  };
   // When Reward-Type "Skill" is chosen, load the skills from the API
   useEffect(() => {
     if (rewardType === 'Skill') {
@@ -36,6 +48,8 @@ const AchievementModal = ({ show, onClose, onSubmit }) => {
         })
         .catch(error => console.error('Error fetching skills:', error));
     }
+    fetchProfiles();
+
   }, [rewardType]);
 
   // Automatically set the first skill as default if Increase Level is "ja"
@@ -137,9 +151,9 @@ const AchievementModal = ({ show, onClose, onSubmit }) => {
         zIndex: 2000,
       }}
     >
-      <Box sx={{ backgroundColor: '#252420', padding: '20px', border: "2px solid #CFA63D", width: '400px' }}>
-        <Typography variant="h6" sx={{ marginBottom: '30px', color: "#CFA63D" }}>Add new achievement</Typography>
-        <Box sx={{ marginBottom: '20px', color: "#CFA63D" }}>
+      <Box sx={{ backgroundColor: '#252420', padding: '20px', border: profile?.level >= 15 ? '2px solid #CF9FFF'  : '2px solid #CFA63D', width: '400px' }}>
+        <Typography variant="h6" sx={{ marginBottom: '30px', color: profile?.level >= 15 ? '#CF9FFF'  : '#CFA63D' }}>Add new achievement</Typography>
+        <Box sx={{ marginBottom: '20px', color: profile?.level >= 15 ? '#CF9FFF'  : '#CFA63D' }}>
           <Typography>Name:</Typography>
           <TextField
             value={name}
@@ -149,7 +163,7 @@ const AchievementModal = ({ show, onClose, onSubmit }) => {
             size="small"
           />
         </Box>
-        <Box sx={{ marginBottom: '20px', color: "#CFA63D" }}>
+        <Box sx={{ marginBottom: '20px', color: profile?.level >= 15 ? '#CF9FFF'  : '#CFA63D' }}>
           <Typography>Description:</Typography>
           <TextField
             value={description}
@@ -160,21 +174,21 @@ const AchievementModal = ({ show, onClose, onSubmit }) => {
           />
         </Box>
         {/* Reward Type Selection */}
-        <FormControl component="fieldset" sx={{ marginBottom: '20px', color: "#CFA63D" }}>
-          <FormLabel component="legend" sx={{ color: "#CFA63D" }}>Reward Type</FormLabel>
+        <FormControl component="fieldset" sx={{ marginBottom: '20px', color: profile?.level >= 15 ? '#CF9FFF'  : '#CFA63D' }}>
+          <FormLabel component="legend" sx={{ color: profile?.level >= 15 ? '#CF9FFF'  : '#CFA63D' }}>Reward Type</FormLabel>
           <RadioGroup
             row
             value={rewardType}
             onChange={e => setRewardType(e.target.value)}
           >
-            <FormControlLabel value="EXP" control={<Radio sx={{ color: "#CFA63D" }} />} label="EXP" />
-            <FormControlLabel value="Title" control={<Radio sx={{ color: "#CFA63D" }} />} label="Title" />
-            <FormControlLabel value="Skill" control={<Radio sx={{ color: "#CFA63D" }} />} label="Skill" />
+            <FormControlLabel value="EXP" control={<Radio sx={{ color: profile?.level >= 15 ? '#CF9FFF'  : '#CFA63D' }} />} label="EXP" />
+            <FormControlLabel value="Title" control={<Radio sx={{ color: profile?.level >= 15 ? '#CF9FFF'  : '#CFA63D' }} />} label="Title" />
+            <FormControlLabel value="Skill" control={<Radio sx={{ color: profile?.level >= 15 ? '#CF9FFF'  : '#CFA63D' }} />} label="Skill" />
           </RadioGroup>
         </FormControl>
         {/* Reward Value Input */}
         {rewardType === 'EXP' && (
-          <Box sx={{ marginBottom: '30px', color: "#CFA63D" }}>
+          <Box sx={{ marginBottom: '30px', color: profile?.level >= 15 ? '#CF9FFF'  : '#CFA63D' }}>
             <Typography>EXP Amount:</Typography>
             <TextField
               type="number"
@@ -187,7 +201,7 @@ const AchievementModal = ({ show, onClose, onSubmit }) => {
           </Box>
         )}
         {rewardType === 'Title' && (
-          <Box sx={{ marginBottom: '30px', color: "#CFA63D" }}>
+          <Box sx={{ marginBottom: '30px', color: profile?.level >= 15 ? '#CF9FFF'  : '#CFA63D' }}>
             <Typography>Title:</Typography>
             <TextField
               type="text"
@@ -200,22 +214,22 @@ const AchievementModal = ({ show, onClose, onSubmit }) => {
           </Box>
         )}
         {rewardType === 'Skill' && (
-          <Box sx={{ marginBottom: '30px', color: "#CFA63D" }}>
+          <Box sx={{ marginBottom: '30px', color: profile?.level >= 15 ? '#CF9FFF'  : '#CFA63D' }}>
             <Typography>Skill Details:</Typography>
-            <FormControl component="fieldset" sx={{ marginBottom: '20px', color: "#CFA63D" }}>
-              <FormLabel component="legend" sx={{ color: "#CFA63D" }}>Increase Skill Level?</FormLabel>
+            <FormControl component="fieldset" sx={{ marginBottom: '20px', color: profile?.level >= 15 ? '#CF9FFF'  : '#CFA63D' }}>
+              <FormLabel component="legend" sx={{ color: profile?.level >= 15 ? '#CF9FFF'  : '#CFA63D' }}>Increase Skill Level?</FormLabel>
               <RadioGroup
                 row
                 value={increaseLevel}
                 onChange={e => setIncreaseLevel(e.target.value)}
               >
-                <FormControlLabel value="ja" control={<Radio sx={{ color: "#CFA63D" }} />} label="Ja" />
-                <FormControlLabel value="nein" control={<Radio sx={{ color: "#CFA63D" }} />} label="Nein" />
+                <FormControlLabel value="ja" control={<Radio sx={{ color: profile?.level >= 15 ? '#CF9FFF'  : '#CFA63D' }} />} label="Ja" />
+                <FormControlLabel value="nein" control={<Radio sx={{ color: profile?.level >= 15 ? '#CF9FFF'  : '#CFA63D' }} />} label="Nein" />
               </RadioGroup>
             </FormControl>
             {increaseLevel === 'ja' ? (
               <FormControl fullWidth sx={{ marginBottom: '10px' }}>
-                <InputLabel id="skill-select-label" sx={{ color: "#CFA63D" }}>Select Skill</InputLabel>
+                <InputLabel id="skill-select-label" sx={{ color: profile?.level >= 15 ? '#CF9FFF'  : '#CFA63D' }}>Select Skill</InputLabel>
                 <Select
                   labelId="skill-select-label"
                   id="skill-select"
@@ -225,7 +239,7 @@ const AchievementModal = ({ show, onClose, onSubmit }) => {
                     console.log("Selected skill id:", e.target.value);
                     setSelectedSkillId(e.target.value);
                   }}
-                  sx={{ color: "#CFA63D", borderColor: "#CFA63D" }}
+                  sx={{ color: profile?.level >= 15 ? '#CF9FFF'  : '#CFA63D', bordercolor: profile?.level >= 15 ? '#CF9FFF'  : '#CFA63D' }}
                   MenuProps={{
                     disablePortal: true,
                     PaperProps: {
@@ -285,7 +299,7 @@ const AchievementModal = ({ show, onClose, onSubmit }) => {
           </Box>
         )}
         {/* New Achievement Progress Fields */}
-        <Box sx={{ marginBottom: '30px', color: "#CFA63D" }}>
+        <Box sx={{ marginBottom: '30px', color: profile?.level >= 15 ? '#CF9FFF'  : '#CFA63D' }}>
           <Typography>Max Progress (default 100):</Typography>
           <TextField
             type="number"
@@ -302,10 +316,10 @@ const AchievementModal = ({ show, onClose, onSubmit }) => {
             variant="contained"
             color="transparent"
             sx={{
-              color: "#CFA63D",
+              color: profile?.level >= 15 ? '#CF9FFF'  : '#CFA63D',
               '&:hover': {
                 transform: 'scale(1.02)',
-                boxShadow: '0 0 10px #CFA63D'
+                boxShadow: profile?.level >= 15 ? '0 0 10px #CF9FFF'  : '0 0 10px #CFA63D'
               }
             }}
           >
@@ -317,10 +331,10 @@ const AchievementModal = ({ show, onClose, onSubmit }) => {
             color="transparent"
             sx={{
               marginLeft: '10px',
-              color: "#CFA63D",
+              color: profile?.level >= 15 ? '#CF9FFF'  : '#CFA63D',
               '&:hover': {
                 transform: 'scale(1.02)',
-                boxShadow: '0 0 10px #CFA63D'
+                boxShadow: profile?.level >= 15 ? '0 0 10px #CF9FFF'  : '0 0 10px #CFA63D'
               }
             }}
           >

@@ -1,11 +1,22 @@
-import React, { useState, useContext } from 'react';
+import React, { useState } from 'react';
 import { Box, Button, Typography, TextField } from '@mui/material';
-import { AuthContext } from '../AuthContext';
 
 const LoginModal = ({ show, onLogin }) => {
-  const { login } = useContext(AuthContext);
   const [name, setName] = useState('');
   const [password, setPassword] = useState('');
+  const [profile, setProfile] = useState(null);
+  
+  // API-Aufrufe
+  const fetchProfiles = async () => {
+    try {
+      const response = await fetch('http://localhost:5000/api/profile');
+      if (!response.ok) throw new Error('Network response was not ok');
+      const data = await response.json();
+      setProfile(data.length > 0 ? data[0] : null);
+    } catch (error) {
+      console.error("Error fetching profile:", error);
+    }
+  };
 
   const handleLogin = async () => {
     if (!name || !password) {
@@ -13,15 +24,19 @@ const LoginModal = ({ show, onLogin }) => {
       return;
     }
     try {
-      const response = await fetch(`http://localhost:5000/api/profile?name=${encodeURIComponent(name)}&password=${encodeURIComponent(password)}`, {
-        method: 'GET',
-        headers: { 'Content-Type': 'application/json' },
-      });
+      const response = await fetch(
+        `http://localhost:5000/api/profile?name=${encodeURIComponent(name)}&password=${encodeURIComponent(password)}`,
+        {
+          method: 'GET',
+          headers: { 'Content-Type': 'application/json' },
+        }
+      );
       if (response.ok) {
         const profileData = await response.json();
         if (profileData.length > 0) {
-          login(); // Setzt loggedIn auf true
-          onLogin(profileData[0]); // Falls du trotzdem die Profildaten lokal benötigst
+          // Erfolgreicher Login: loggedIn wird auf "yes" gesetzt
+          const userProfile = { ...profileData[0], loggedIn: "yes" };
+          onLogin(userProfile);
         } else {
           alert("Login fehlgeschlagen. Überprüfe deinen Namen und Passwort.");
         }
@@ -34,10 +49,27 @@ const LoginModal = ({ show, onLogin }) => {
     }
   };
 
-  // Guest-Funktion: Hier wird loggedIn NICHT verändert (bleibt false)
-  const handleGuest = () => {
-    onLogin({ guest: true, name: "Guest" });
+  // Guest-Funktion: Ruft den /api/profile/update_login-Endpoint auf, der loggedIn auf "no" setzt
+  const handleGuest = async () => {
+    try {
+      const response = await fetch('http://localhost:5000/api/profile/update_login', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({}) // Falls später Payload benötigt wird, anpassen
+      });
+      if (response.ok) {
+        await response.json();
+        // Statt nur fetchProfiles() aufzurufen, informiere die Parent-Komponente:
+        onLogin({ loggedIn: "no", name: "Guest" });
+      } else {
+        alert('Fehler beim Aktualisieren des Login-Status.');
+      }
+    } catch (error) {
+      console.error('Fehler:', error);
+      alert('Ein Fehler ist aufgetreten.');
+    }
   };
+  
 
   if (!show) return null;
 
@@ -47,9 +79,7 @@ const LoginModal = ({ show, onLogin }) => {
         position: 'fixed',
         top: 0, left: 0, right: 0, bottom: 0,
         backgroundColor: 'rgba(0,0,0,0.5)',
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
+        display: 'flex', justifyContent: 'center', alignItems: 'center',
         zIndex: 2000,
       }}
     >
@@ -73,10 +103,10 @@ const LoginModal = ({ show, onLogin }) => {
           sx={{ mb: 2 }}
         />
         <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-          <Button onClick={handleGuest} variant="contained" color='transparent' sx={{ color: "#CFA63D", mr: 1 }}>
+          <Button onClick={handleGuest} variant="contained" sx={{ color: "#CFA63D", mr: 1 }}>
             Continue as Guest
           </Button>
-          <Button onClick={handleLogin} variant="contained" color='transparent' sx={{ color: "#CFA63D" }}>
+          <Button onClick={handleLogin} variant="contained" sx={{ color: "#CFA63D" }}>
             Login
           </Button>
         </Box>

@@ -145,7 +145,7 @@ export default function Settings() {
     <React.Fragment>
       <SettingsIcon cursor="pointer" variant="outlined" onClick={handleClickOpen} />
       <BootstrapDialog onClose={handleClose} aria-labelledby="customized-dialog-title" open={open}>
-        <DialogTitle sx={{ m: 0, p: 2, color: "#CFA63D" }} id="customized-dialog-title">
+        <DialogTitle sx={{ m: 0, p: 2, color:profile?.level >= 15 ? '#CF9FFF'  : '#CFA63D' }} id="customized-dialog-title">
           Account Settings
         </DialogTitle>
         <IconButton
@@ -155,13 +155,13 @@ export default function Settings() {
             position: 'absolute',
             right: 8,
             top: 8,
-            color:' theme.palette.grey[500]',
+            color:profile?.level >= 15 ? '#CF9FFF'  : '#CFA63D',
           })}
         >
           <CloseIcon />
         </IconButton>
         <DialogContent dividers>
-          <Typography variant="subtitle1" color="#CFA63D" marginBottom="10px" sx={{ color: "#CFA63D" }}>
+          <Typography variant="subtitle1" color= {profile?.level >= 15 ? '#CF9FFF'  : '#CFA63D'} marginBottom="10px" sx={{ color: profile?.level >= 15 ? '#CF9FFF'  : '#CFA63D'}}>
             Change Title
           </Typography>
           <Autocomplete
@@ -182,7 +182,7 @@ export default function Settings() {
           <Box sx={{ m: 1, position: 'relative' }}>
             <Fab
               aria-label="save"
-              color= "#CFA63D"
+              color= {profile?.level >= 15 ? '#CF9FFF'  : '#CFA63D'}
               onClick={handleButtonClick}
               sx={buttonSx}
             >
@@ -193,7 +193,7 @@ export default function Settings() {
                 size={68}
                 sx={{
                   
-                  color: '#CFA63D',
+                  color: profile?.level >= 15 ? '#CF9FFF'  : '#CFA63D',
                   position: 'absolute',
                   top: -6,
                   left: -6,

@@ -26,10 +26,12 @@ def init_profiles_db():
         intelligence INTEGER DEFAULT 10,
         perception INTEGER DEFAULT 10,
         ap INTEGER DEFAULT 0,           
-        password TEXT
+        password TEXT,
+        loggedIn TEXT
 
     )
     ''')
+    cursor.execute("UPDATE profiles SET loggedIn = 'no'")
     conn.commit()
     conn.close()
 
@@ -48,8 +50,8 @@ def add_profile_to_db(profile):
     
     # Proceed to insert the new profile if the name is unique
     cursor.execute('''
-    INSERT INTO profiles (name, age, level, xp, rank, title, strength, agility, stamina, intelligence, perception, ap, password)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) 
+    INSERT INTO profiles (name, age, level, xp, rank, title, strength, agility, stamina, intelligence, perception, ap, password, loggedIn)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) 
     ''', (
         profile['name'],
         profile['age'],
@@ -63,7 +65,8 @@ def add_profile_to_db(profile):
         10,             # Default value for intelligence
         10,             # Default value for perception
         0,              # Default value for ap
-        profile['password']
+        profile['password'],
+        'no'
     ))
     conn.commit()
     conn.close()
@@ -152,3 +155,17 @@ def get_profile_by_name_and_password(name, password):
 #     conn.close()
 #     return user is not None
 
+def update_profile_loggedIn(profile_id, loggedIn_value):
+    try:
+        conn = sqlite3.connect(PROFILES_DB)
+        cursor = conn.cursor()
+        cursor.execute("UPDATE profiles SET loggedIn = ? WHERE id = ?", (loggedIn_value, profile_id))
+        conn.commit()
+        if cursor.rowcount == 0:
+            return False
+        return True
+    except Exception as e:
+        logger.error(f"Error updating profile loggedIn: {e}")
+        return False
+    finally:
+        conn.close()

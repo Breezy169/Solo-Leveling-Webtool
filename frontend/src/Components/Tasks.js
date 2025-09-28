@@ -9,9 +9,10 @@ import { useTheme } from '@mui/material/styles';
 import Settings from './Settings';
 import '../Css/borders.css';
 import systeminfo from '../Images/systeminfo.png';
-import { AuthContext } from '../AuthContext';
+import systeminfopurple2 from '../Images/systeminfopurple2.png';
 
 const TaskModal = ({ show, onClose, onSubmit }) => {
+  const [profile, setProfile] = useState(null);
   const [category, setCategory] = useState('');
   const [name, setName] = useState('');
   const [difficulty, setDifficulty] = useState('');
@@ -20,7 +21,21 @@ const TaskModal = ({ show, onClose, onSubmit }) => {
 
   const categorys = ['Intelligence', 'Strength', 'Agility', 'Durability', 'Skills', 'Projects'];
   const difficulties = ['E-Rank', 'D-Rank', 'C-Rank', 'B-Rank', 'A-Rank', 'S-Rank'];
+  const fetchProfiles = async () => {
+    try {
+      const response = await fetch('http://localhost:5000/api/profile');
+      if (!response.ok) throw new Error('Network response was not ok');
+      const data = await response.json();
+      setProfile(data.length > 0 ? data[0] : null);
+    } catch (error) {
+      console.error("Error fetching profile:", error);
+    }
+  };
 
+
+  useEffect(() => {
+    fetchProfiles();
+  }, []);
   const handleSubmit = () => {
     if (!category || !name || !difficulty || !description || !maxProgress) {
       alert("Bitte alle Felder ausfüllen.");
@@ -30,7 +45,7 @@ const TaskModal = ({ show, onClose, onSubmit }) => {
       category,
       name,
       difficulty,
-      description: 'Description: ' + description,
+      description: description,
       max_progress: parseInt(maxProgress, 10),
       progress: 0
     };
@@ -54,10 +69,10 @@ const TaskModal = ({ show, onClose, onSubmit }) => {
         display: 'flex', justifyContent: 'center', alignItems: 'center',
         zIndex: 2000,
       }}
-    >
-      <Box sx={{ backgroundColor: '#252420', padding: '20px', border: '2px solid #CFA63D', width: '400px' }}>
-        <Typography variant="h6" sx={{ marginBottom: '30px', color: "#CFA63D" }}>Add new quest</Typography>
-        <Box sx={{ marginBottom: '30px', color: "#CFA63D"}}>
+    > 
+      <Box sx={{ backgroundColor: '#252420', padding: '20px', border: profile?.level >= 25 ? ' #CF9FFF'  : ' #CFA63D', width: '400px' }}>
+        <Typography variant="h6" sx={{ marginBottom: '30px', color: profile?.level >= 25 ? ' #CF9FFF'  : ' #CFA63D' }}>Add new quest</Typography>
+        <Box sx={{ marginBottom: '30px', color :profile?.level >= 25 ? ' #CF9FFF'  : ' #CFA63D'}}>
           <Typography sx={{ fontSize: '12px' }}>QUEST CATEGORY:</Typography>
           <select value={category} onChange={e => setCategory(e.target.value)}>
             <option value="">Select category</option>
@@ -66,11 +81,11 @@ const TaskModal = ({ show, onClose, onSubmit }) => {
             ))}
           </select>
         </Box>
-        <Box sx={{ marginBottom: '30px', color: "#CFA63D" }}>
+        <Box sx={{ marginBottom: '30px', color: profile?.level >= 25 ? ' #CF9FFF'  : ' #CFA63D' }}>
           <Typography sx={{ fontSize: '12px' }}>QUEST NAME:</Typography>
           <input type="text" value={name} onChange={e => setName(e.target.value)} style={{ width: '100%' }} />
         </Box>
-        <Box sx={{ marginBottom: '30px', color: "#CFA63D" }}>
+        <Box sx={{ marginBottom: '30px', color: profile?.level >= 25 ? ' #CF9FFF'  : ' #CFA63D' }}>
           <Typography sx={{ fontSize: '12px' }}>QUEST GRADE:</Typography>
           <select value={difficulty} onChange={e => setDifficulty(e.target.value)}>
             <option value="">Select rank</option>
@@ -79,12 +94,12 @@ const TaskModal = ({ show, onClose, onSubmit }) => {
             ))}
           </select>
         </Box>
-        <Box sx={{ marginBottom: '30px', color: "#CFA63D" }}>
+        <Box sx={{ marginBottom: '30px', color: profile?.level >= 25 ? ' #CF9FFF'  : ' #CFA63D' }}>
           <Typography sx={{ fontSize: '12px' }}>DESCRIPTION:</Typography>
           <textarea value={description} onChange={e => setDescription(e.target.value)} style={{ width: '100%' }} />
         </Box>
         {/* Neues Eingabefeld für den maximalen Fortschritt */}
-        <Box sx={{ marginBottom: '30px', color: "#CFA63D" }}>
+        <Box sx={{ marginBottom: '30px', color: profile?.level >= 25 ? ' #CF9FFF'  : ' #CFA63D'}}>
           <Typography sx={{ fontSize: '12px' }}>QUANTITY:</Typography>
           <input
             type="number"
@@ -94,10 +109,10 @@ const TaskModal = ({ show, onClose, onSubmit }) => {
           />
         </Box>
         <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-          <Button onClick={handleSubmit} variant="contained" color="transparent" sx={{ color: "#CFA63D", '&:hover': { transform: 'scale(1.02)', boxShadow: '0 0 10px #CFA63D' } }}>
+          <Button onClick={handleSubmit} variant="contained" color="transparent" sx={{ color: profile?.level >= 25 ? ' #CF9FFF'  : ' #CFA63D', '&:hover': { transform: 'scale(1.02)',  boxShadow: profile?.level >= 25 ? '0 0 10px #CF9FFF'  : '0 0 10px #CFA63D' } }}>
             Add
           </Button>
-          <Button onClick={onClose} variant="transpare" color="transparent" sx={{ marginLeft: '10px', color: "#CFA63D", '&:hover': { transform: 'scale(1.02)', boxShadow: '0 0 10px #CFA63D' } }}>
+          <Button onClick={onClose} variant="transpare" color="transparent" sx={{ marginLeft: '10px', color: profile?.level >= 25 ? ' #CF9FFF'  : ' #CFA63D', '&:hover': { transform: 'scale(1.02)',  boxShadow: profile?.level >= 25 ? '0 0 10px #CF9FFF'  : '0 0 10px #CFA63D'  } }}>
             Cancel
           </Button>
         </Box>
@@ -113,8 +128,7 @@ function Tasks() {
   const [expandedTask, setExpandedTask] = useState(null);
   const [profile, setProfile] = useState(null);
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
-
-  const { loggedIn } = useContext(AuthContext);
+  
   // API-Aufrufe
   const fetchProfiles = async () => {
     try {
@@ -247,8 +261,10 @@ function Tasks() {
       console.error("Error updating task progress:", error);
     }
   };
+  console.log(profile?.loggedIn)
 
   return (
+    
     <div>
       <Box
         sx={{
@@ -270,7 +286,7 @@ function Tasks() {
         >
           <img
             alt="System Info"
-            src={systeminfo}
+            src={profile?.level >= 25 ? systeminfopurple2 : systeminfo}
             style={{
               position: 'absolute',
               top: 0,
@@ -286,7 +302,7 @@ function Tasks() {
               top: '13px',
               right: '142%',
               zIndex: 1,
-              color: '#CFA63D',
+              color: profile?.level >= 25 ? '#CF9FFF'  : '#CFA63D' ,
               width: '300px',
             }}
           >
@@ -300,7 +316,7 @@ function Tasks() {
               top: '69px',
               right: '142%',
               zIndex: 1,
-              color: '#CFA63D',
+              color: profile?.level >= 25 ? '#CF9FFF'  : '#CFA63D' ,
               width: '300px',
             }}
           >
@@ -311,7 +327,7 @@ function Tasks() {
               TITLE: {profile?.title}
             </Typography>
             {/* Settings werden nur angezeigt, wenn nicht als Guest */}
-            {loggedIn && (
+            {profile?.loggedIn === 'yes' && (
               <Box sx={{ position: 'absolute', right: '-60px', top: '-40px', zIndex: 999 }}>
                 <Settings />
               </Box>
@@ -334,7 +350,7 @@ function Tasks() {
               top: '71px',
               right: '105%',
               zIndex: 1,
-              color: '#CFA63D',
+              color: profile?.level >= 25 ? '#CF9FFF'  : '#CFA63D' ,
               width: '300px',
             }}
           >
@@ -354,7 +370,7 @@ function Tasks() {
                   marginTop: '5px',
                   backgroundColor: 'rgba(0, 0, 0, 0.1)',
                   '& .MuiLinearProgress-bar': {
-                    backgroundColor: 'gold',
+                    backgroundColor: profile?.level >= 25 ? '#CF9FFF'  : '#CFA63D',
                   },
                 }}
               />
@@ -380,7 +396,7 @@ function Tasks() {
             height: '625px',
             display: 'flex',
             fontWeight: 'bold',
-            color: '#CFA63D',
+            color: profile?.level >= 25 ? '#CF9FFF'  : '#CFA63D' ,
             top: '50px',
             right: '150px',
           }}
@@ -390,17 +406,17 @@ function Tasks() {
             sx={{
               width: '20%',
               padding: '10px',
-              borderRight: '1px solid #CFA63D',
+              borderRight: profile?.level >= 25 ? '1px solid #CF9FFF'  : '1px solid #CFA63D',
               display: 'flex',
               flexDirection: 'column',
             }}
           >
             {/* Add Button wird nur angezeigt, wenn nicht als Guest */}
-            {loggedIn && (
+            {profile?.loggedIn === 'yes' && (
               <IconButton
                 onClick={() => setIsTaskModalOpen(true)}
                 sx={{
-                  color: '#CFA63D',
+                  color: profile?.level >= 25 ? '#CF9FFF'  : '#CFA63D' ,
                   alignSelf: 'flex-start',
                   marginBottom: '10px'
                 }}
@@ -408,7 +424,7 @@ function Tasks() {
                 <AddIcon />
               </IconButton>
             )}
-            <List sx={{ color: '#CFA63D', padding: 0 }}>
+            <List sx={{ color: profile?.level >= 25 ? '#CF9FFF'  : '#CFA63D' , padding: 0 }}>
               {['Intelligence', 'Strength', 'Agility', 'Durability', 'Skills', 'Projects', 'Completed Tasks'].map((category) => (
                 <ListItem
                   key={category}
@@ -416,13 +432,13 @@ function Tasks() {
                   sx={{
                     cursor: 'pointer',
                     border: selectedCategory === category ? 1 : 'none',
-                    boxShadow: selectedCategory === category ? '0 0 10px #CFA63D' : 'none',
+                    boxShadow: selectedCategory === category ? profile?.level >= 25 ? '0 0 10px #CF9FFF' : '0 0 10px #CFA63D'  : 'none',
                     '&:hover': {
                       border: 1,
                       transition: 'transform 0.3s, box-shadow 0.3s',
                       '&:hover': {
                         transform: 'scale(1.02)',
-                        boxShadow: '0 0 10px #CFA63D',
+                        boxShadow: profile?.level >= 25 ? '0 0 10px #CF9FFF'  : '0 0 10px #CFA63D' ,
                       },
                     },
                   }}
@@ -440,7 +456,7 @@ function Tasks() {
               padding: '20px',
               overflowY: 'scroll',
               height: '100%',
-              color: '#CFA63D',
+              color: profile?.level >= 25 ? '#CF9FFF'  : '#CFA63D' ,
               position: 'relative',
             }}
           >
@@ -451,12 +467,12 @@ function Tasks() {
                 position: 'absolute',
                 top: '5px',
                 right: '10px',
-                color: '#CFA63D',
+                color: profile?.level >= 25 ? '#CF9FFF'  : '#CFA63D' ,
               }}
             >
               <ResetIcon />
             </IconButton>
-
+            
             <Typography variant="h6" sx={{ fontWeight: 'bold', marginBottom: '10px' }}>
               {selectedCategory}
             </Typography>
@@ -464,8 +480,8 @@ function Tasks() {
               <Box
                 key={task.id}
                 sx={{
-                  border: task.status === 'done' ? '3px solid black' : '1px solid #CFA63D',
-                  padding: '5px',
+                  border: task.status === 'done' ? profile?.level >= 25 ? '2px solid #CF9FFF'  : '3px solid black' : '1px solid #CFA63D',
+                  padding: '15px',
                   marginBottom: '10px',
                   position: 'relative',
                   backgroundColor: task.status === 'done' ? 'transparent' : null
@@ -476,24 +492,23 @@ function Tasks() {
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <Typography>{task.name}</Typography>
                     <Box>
-                      {loggedIn && (<IconButton
+                      {profile?.loggedIn === 'yes' &&  task.status !== 'done'  &&(<IconButton
                         onClick={() => handleIncrementProgress(task)}
                         disabled={task.progress >= task.max_progress}
-                        sx={{ color: task.status === 'done' ? 'black' : '#CFA63D' }}
+                        sx={{ color: task.status === 'done' ? profile?.level >= 25 ?  '#CF9FFF'  : ' #CFA63D': profile?.level >= 25 ?  '#CF9FFF'  : ' #CFA63D'}}
                       >
                         <AddIcon />
                       </IconButton>
                       )}
-                      <IconButton onClick={() => setExpandedTask(expandedTask === index ? null : index)}>
-                        <ExpandMoreIcon sx={{ color: task.status === 'done' ? 'black' : '#CFA63D' }} />
-                      </IconButton>
+                   
                     </Box>
                   </Box>
                   <Typography variant="caption" sx={{ display: 'block', marginTop: '5px' }}>
                     Grade: {task.difficulty} <br />
                     Reward: {task.category + ": " + "+" + task.value} <br />
                     Status: {task.status === 'done' ? 'completed' : 'not completed'} <br />
-                    Progress: {task.progress}/{task.max_progress}
+                    Progress: {task.progress}/{task.max_progress} <br />
+                    EXP: {task.xp}
                   </Typography>
                   <Collapse in={expandedTask === index}>
                     <Box sx={{ padding: '10px' }} theme={theme}>
@@ -508,27 +523,42 @@ function Tasks() {
                     top: '50%',
                     left: '50%',
                     transform: 'translate(-50%, -50%)',
+                    padding: '5px',
                     pointerEvents: 'none',
                     padding: '10px',
                     borderRadius: '5px',
                     textAlign: 'center',
                     color: '#fff'
                   }}>
-                    <Typography sx={{ fontSize: '1.4rem', fontWeight: 'bold' }}>
+                    <Typography sx={{ fontSize: '1.4rem', fontWeight: 'bold', color: '#90EE90' }}>
                       COMPLETED:
-                    </Typography>
-                    <Typography sx={{ fontSize: '1rem', fontWeight: 'bold' }}>
-                      {task.category}-Quest
                     </Typography>
                     <Typography sx={{ fontSize: '0.8rem', fontWeight: 'bold' }}>
                       {task.name}
                     </Typography>
-                    <Typography sx={{ fontSize: '0.8rem', fontWeight: 'bold' }}>
+                    <Typography sx={{ fontSize: '0.8rem', fontWeight: 'bold',
+                       color: 
+                        task.difficulty === 'E-Rank' 
+                        ? '#90EE90' 
+                        : task.difficulty === 'D-Rank' 
+                        ? '#2e86c1' 
+                        : task.difficulty === 'C-Rank' 
+                        ? '#f1c40f'
+                        : task.difficulty === 'B-Rank' 
+                        ? '#e67e22' 
+                        : task.difficulty === 'A-Rank' 
+                        ? '#e91e63' 
+                        : task.difficulty === 'S-Rank' ? '#CF9FFF' : ""
+                        }}>
                       {task.difficulty}
                     </Typography>
                     <Typography sx={{ fontSize: '0.7rem', fontWeight: 'bold' }}>
                       REWARD: {task.category + ": " + "+" + task.value}
                     </Typography>
+                    <Typography sx={{ fontSize: '0.8rem', fontWeight: 'bold' }}>
+                      {task.description}
+                    </Typography>
+
                   </Box>
                 )}
               </Box>
@@ -558,9 +588,10 @@ function Tasks() {
                   justifyContent: 'center',
                   alignItems: 'center',
                   border: 1,
-                  color: '#CFA63D',
+                  boxShadow: profile?.level >= 25 ?  ' 0 0 10px #CF9FFF'  : '0 0 10px #CFA63D' ,
+                  color: profile?.level >= 25 ? '#CF9FFF'  : '#CFA63D' ,
                   transition: 'transform 0.3s, box-shadow 0.3s',
-                  '&:hover': { transform: 'scale(1.05)', boxShadow: '0 0 10px #CFA63D' }
+                  '&:hover': { transform: 'scale(1.05)',  boxShadow: profile?.level >= 25 ? '0 0 10px #CF9FFF'  : '0 0 10px #CFA63D'  }
                 }}>
                   Tasks
                 </Box>
@@ -575,9 +606,9 @@ function Tasks() {
                   justifyContent: 'center',
                   alignItems: 'center',
                   border: 1,
-                  color: '#CFA63D',
+                  color: profile?.level >= 25 ? '#CF9FFF'  : '#CFA63D' ,
                   transition: 'transform 0.3s, box-shadow 0.3s',
-                  '&:hover': { transform: 'scale(1.05)', boxShadow: '0 0 10px #CFA63D' }
+                  '&:hover': { transform: 'scale(1.05)', boxShadow: profile?.level >= 25 ? '0 0 10px #CF9FFF'  : '0 0 10px #CFA63D'  }
                 }}>
                   Achievements
                 </Box>
@@ -592,9 +623,9 @@ function Tasks() {
                   justifyContent: 'center',
                   alignItems: 'center',
                   border: 1,
-                  color: '#CFA63D',
+                  color: profile?.level >= 25 ? '#CF9FFF'  : '#CFA63D' ,
                   transition: 'transform 0.3s, box-shadow 0.3s',
-                  '&:hover': { transform: 'scale(1.05)', boxShadow: '0 0 10px #CFA63D' }
+                  '&:hover': { transform: 'scale(1.05)',  boxShadow: profile?.level >= 25 ? '0 0 10px #CF9FFF'  : '0 0 10px #CFA63D' }
                 }}>
                   Skills
                 </Box>
@@ -609,9 +640,9 @@ function Tasks() {
                   justifyContent: 'center',
                   alignItems: 'center',
                   border: 1,
-                  color: '#CFA63D',
+                  color: profile?.level >= 25 ? '#CF9FFF'  : '#CFA63D' ,
                   transition: 'transform 0.3s, box-shadow 0.3s',
-                  '&:hover': { transform: 'scale(1.05)', boxShadow: '0 0 10px #CFA63D' }
+                  '&:hover': { transform: 'scale(1.05)',  boxShadow: profile?.level >= 25 ? '0 0 10px #CF9FFF'  : '0 0 10px #CFA63D'  }
                 }}>
                   About me
                 </Box>

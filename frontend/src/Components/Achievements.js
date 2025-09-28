@@ -2,7 +2,6 @@ import React, { useState, useEffect, useContext } from 'react';
 import { Box, Typography, IconButton, Collapse, LinearProgress, Button } from '@mui/material';
 import Grid2 from '@mui/material/Grid2';
 import { Link } from 'react-router-dom';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ResetIcon from '@mui/icons-material/Refresh';
 import AddIcon from '@mui/icons-material/Add';
 import Settings from './Settings';
@@ -10,7 +9,8 @@ import '../Css/borders.css';
 import systeminfo from '../Images/systeminfo.png';
 import { useTheme } from '@mui/material/styles';
 import AchievementModal from './AchievementModal.js';
-import { AuthContext } from '../AuthContext.js';
+import systeminfopurple2 from '../Images/systeminfopurple2.png';
+
 
 function Achievements() {
   const theme = useTheme();
@@ -21,7 +21,7 @@ function Achievements() {
   // Filter: "all" = active (not completed), "completed" = done
   const [selectedAchievementFilter, setSelectedAchievementFilter] = useState('all');
   const [skills, setSkills] = useState([]);
-  const { loggedIn } = useContext(AuthContext); 
+ 
   
   const fetchSkills = async () => {
     try {
@@ -105,12 +105,12 @@ function Achievements() {
         }
       }
       if (achievement.increaseLevel && achievement.increaseLevel.toLowerCase() === 'ja') {
-        return `Reward: ${skillObj.name} Lv. ${parseInt(skillObj.level, 10) + 1}`;
+        return `Skill: ${skillObj.name} Lv. ${parseInt(skillObj.level, 10) < 5 ? (parseInt(skillObj.level, 10) + 1) : 'Max.'}`;
       } else {
         return `Skill: ${skillObj.name}`;
       }
     } else {
-      return `Reward: ${achievement.reward}`;
+      return `${achievement.reward}`;
     }
   };
 
@@ -226,7 +226,7 @@ function Achievements() {
         >
           <img
             alt="System Info"
-            src={systeminfo}
+            src={profile?.level >= 25 ? systeminfopurple2 : systeminfo}
             style={{
               position: 'absolute',
               top: 0,
@@ -242,7 +242,7 @@ function Achievements() {
               top: '13px',
               right: '142%',
               zIndex: 1,
-              color: '#CFA63D',
+              color: profile?.level >= 25 ? '#CF9FFF'  : '#CFA63D',
               width: '300px',
             }}
           >
@@ -256,7 +256,7 @@ function Achievements() {
               top: '69px',
               right: '142%',
               zIndex: 1,
-              color: '#CFA63D',
+              color: profile?.level >= 25 ? '#CF9FFF'  : '#CFA63D',
               width: '300px',
             }}
           >
@@ -266,7 +266,7 @@ function Achievements() {
               RANK: {profile?.rank}  <br/>
               TITLE: {profile?.title}
             </Typography>
-            {loggedIn && (
+            {profile?.loggedIn === 'yes' && (
               <Box sx={{ position: 'absolute', right: '-60px', top: '-40px', zIndex: 999 }}>
                 <Settings />
               </Box>
@@ -289,7 +289,7 @@ function Achievements() {
               top: '71px',
               right: '105%',
               zIndex: 1,
-              color: '#CFA63D',
+              color: profile?.level >= 25 ? '#CF9FFF'  : '#CFA63D',
               width: '300px',
             }}
           >
@@ -309,7 +309,7 @@ function Achievements() {
                   marginTop: '5px',
                   backgroundColor: 'rgba(0, 0, 0, 0.1)',
                   '& .MuiLinearProgress-bar': {
-                    backgroundColor: 'gold',
+                    backgroundColor: profile?.level >= 25 ? '#CF9FFF'  : '#CFA63D' , 
                   },
                 }}
               />
@@ -335,7 +335,7 @@ function Achievements() {
             height: '625px',
             display: 'flex',
             fontWeight: 'bold',
-            color: '#CFA63D',
+            color: profile?.level >= 25 ? '#CF9FFF'  : '#CFA63D',
             top: '50px',
             right: '150px',
           }}
@@ -345,16 +345,16 @@ function Achievements() {
             sx={{
               width: '20%',
               padding: '10px',
-              borderRight: '1px solid #CFA63D',
+              borderRight: profile?.level >= 25 ? '1px solid #CF9FFF'  : '1px solid #CFA63D',
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center'
             }}
           >
-            {loggedIn && (
+            {profile?.loggedIn === 'yes' &&(
               <IconButton
                 onClick={() => setIsAchievementModalOpen(true)}
-                sx={{ color: '#CFA63D', marginBottom: '10px', left: '60px' }}
+                sx={{ color: profile?.level >= 25 ? '#CF9FFF'  : '#CFA63D', marginBottom: '10px', left: '60px' }}
               >
                 <AddIcon />
               </IconButton>
@@ -367,15 +367,15 @@ function Achievements() {
                   fontSize: '22px',
                   cursor: 'pointer',
                   border: selectedAchievementFilter === 'all' ? 1 : 'none',
-                  boxShadow: selectedAchievementFilter === 'all' ? '0 0 10px #CFA63D' : 'none',
+                  boxShadow: selectedAchievementFilter === 'all' ? profile?.level >= 25 ? '0 0 10px #CF9FFF'  : '0 0 10px #CFA63D' : 'none',
                   transition: 'transform 0.3s, box-shadow 0.3s',
                   '&:hover': {
                     transform: 'scale(1.02)',
-                    boxShadow: '0 0 10px #CFA63D',
+                    boxShadow: profile?.level >= 25 ? '0 0 10px #CF9FFF'  : '0 0 10px #CFA63D',
                   },
                   '&:active': {
                     transform: 'scale(0.98)',
-                    boxShadow: '0 0 5px #CFA63D',
+                    boxShadow: profile?.level >= 25 ? '0 0 10px #CF9FFF'  : '0 0 10px #CFA63D',
                   },
                   textAlign: 'center',
                   padding: '5px',
@@ -390,15 +390,15 @@ function Achievements() {
                   fontSize: '22px',
                   cursor: 'pointer',
                   border: selectedAchievementFilter === 'completed' ? 1 : 'none',
-                  boxShadow: selectedAchievementFilter === 'completed' ? '0 0 10px #CFA63D' : 'none',
+                  boxShadow: selectedAchievementFilter === 'completed' ? profile?.level >= 25 ? '0 0 10px #CF9FFF'  : '0 0 10px #CFA63D' : 'none',
                   transition: 'transform 0.3s, box-shadow 0.3s',
                   '&:hover': {
                     transform: 'scale(1.02)',
-                    boxShadow: '0 0 10px #CFA63D',
+                    boxShadow: profile?.level >= 25 ? '0 0 10px #CF9FFF'  : '0 0 10px #CFA63D',
                   },
                   '&:active': {
                     transform: 'scale(0.98)',
-                    boxShadow: '0 0 5px #CFA63D',
+                    boxShadow: profile?.level >= 25 ? '0 0 10px #CF9FFF'  : '0 0 10px #CFA63D',
                   },
                   textAlign: 'center',
                   padding: '5px',
@@ -417,7 +417,7 @@ function Achievements() {
               padding: '20px',
               overflowY: 'scroll',
               height: '100%',
-              color: '#CFA63D',
+              color: profile?.level >= 25 ? '#CF9FFF'  : '#CFA63D',
               position: 'relative',
             }}
           >
@@ -428,7 +428,7 @@ function Achievements() {
                 position: 'absolute',
                 top: '5px',
                 right: '10px',
-                color: '#CFA63D',
+                color: profile?.level >= 25 ? '#CF9FFF'  : '#CFA63D',
               }}
             >
               <ResetIcon />
@@ -441,12 +441,12 @@ function Achievements() {
                   position: 'relative',
                   marginTop: '40px',
                   marginBottom: '10px',
-                  border: achievement.status === 'done' ? '3px solid black' : '1px solid #CFA63D',
+                  border: achievement.status === 'done' ? profile?.level >= 25 ? '2px solid #CF9FFF'  : '3px solid black' : profile?.level >= 25 ? '1px solid #CF9FFF'  : '1px solid #CFA63D',
                   padding: '5px'
                 }}
               >
                 {/* Inner content which is blurred if done */}
-                <Box sx={{ filter: achievement.status === 'done' ? 'blur(3px)' : 'none' }}>
+                <Box sx={{ filter: achievement.status === 'done' ? 'blur(3px)' : 'none'}}>
                   <Box
                     sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
                     onClick={() => setExpandedAchievement(expandedAchievement === index ? null : index)}
@@ -454,20 +454,18 @@ function Achievements() {
                     <Typography>{achievement.name}</Typography>
                     <Box>
                       {/* Plus-Button to increment achievement progress */}
-                      {loggedIn &&(<IconButton
+                      {profile?.loggedIn === 'yes' && achievement.status !== 'done' &&(<IconButton
                         onClick={() => handleIncrementAchievement(achievement)}
                         disabled={achievement.progress >= achievement.max_progress}
-                        sx={{ color: achievement.status === 'done' ? 'black' : '#CFA63D' }}
+                        sx={{ color: achievement.status === 'done' ? 'black' : profile?.level >= 25 ? '#CF9FFF'  : '#CFA63D' }}
                       >
                         <AddIcon />
                       </IconButton>
                       )}
-                      <IconButton onClick={() => setExpandedAchievement(expandedAchievement === index ? null : index)}>
-                        <ExpandMoreIcon sx={{ color: achievement.status === 'done' ? 'black' : '#CFA63D' }} />
-                      </IconButton>
+                     
                     </Box>
                   </Box>
-                  <Typography variant="caption" sx={{ color: achievement.status === 'done' ? 'black' : '#CFA63D', fontWeight: 'bold' }}>
+                  <Typography variant="caption" sx={{ color: achievement.status === 'done' ? profile?.level >= 25 ? '#CF9FFF'  : '#CFA63D' : profile?.level >= 25 ? '#CF9FFF'  : '#CFA63D', fontWeight: 'bold' }}>
                     {achievement.description} <br/>
                     {getRewardDisplay(achievement)} <br/>
                     Status: {achievement.status === 'done' ? 'completed' : 'not completed'} <br/>
@@ -490,14 +488,17 @@ function Achievements() {
                       color: '#fff'
                     }}
                   >
-                    <Typography sx={{ fontSize: '1.5rem', fontWeight: 'bold', mt: 1 }}>
+                    <Typography sx={{ fontSize: '1.5rem', fontWeight: 'bold', mt: 1, color:'#90EE90'}}>
                       COMPLETED:
                     </Typography>
                     <Typography sx={{ fontSize: '1rem', fontWeight: 'bold' }}>
                       {achievement.name}
                     </Typography>
                     <Typography sx={{ fontSize: '0.7rem', fontWeight: 'bold'}}>
-                      {getRewardDisplay(achievement).replace(/^(EXP: |Title: |Skill: )/, '')}
+                      Reward: {getRewardDisplay(achievement)}
+                    </Typography>
+                    <Typography sx={{ fontSize: '0.7rem', fontWeight: 'bold'}}>
+                      {achievement.description}
                     </Typography>
                   </Box>
                 )}
@@ -530,9 +531,9 @@ function Achievements() {
                   justifyContent: 'center',
                   alignItems: 'center',
                   border: 1,
-                  color: '#CFA63D',
+                  color: profile?.level >= 25 ? '#CF9FFF'  : '#CFA63D',
                   transition: 'transform 0.3s, box-shadow 0.3s',
-                  '&:hover': { transform: 'scale(1.05)', boxShadow: '0 0 10px #CFA63D' }
+                  '&:hover': { transform: 'scale(1.05)', boxShadow: profile?.level >= 25 ? '0 0 10px #CF9FFF'  : '0 0 10px #CFA63D' }
                 }}>
                   Tasks
                 </Box>
@@ -547,10 +548,10 @@ function Achievements() {
                   justifyContent: 'center',
                   alignItems: 'center',
                   border: 1,
-                  boxShadow: '0 0 10px #CFA63D',
-                  color: '#CFA63D',
+                  boxShadow: profile?.level >= 25 ? '0 0 10px #CF9FFF'  : '0 0 10px #CFA63D',
+                  color: profile?.level >= 25 ? '#CF9FFF'  : '#CFA63D',
                   transition: 'transform 0.3s, box-shadow 0.3s',
-                  '&:hover': { transform: 'scale(1.05)', boxShadow: '0 0 10px #CFA63D' }
+                  '&:hover': { transform: 'scale(1.05)', boxShadow: profile?.level >= 25 ? '0 0 10px #CF9FFF'  : '0 0 10px #CFA63D' }
                 }}>
                   Achievements
                 </Box>
@@ -565,9 +566,9 @@ function Achievements() {
                   justifyContent: 'center',
                   alignItems: 'center',
                   border: 1,
-                  color: '#CFA63D',
+                  color: profile?.level >= 25 ? '#CF9FFF'  : '#CFA63D',
                   transition: 'transform 0.3s, box-shadow 0.3s',
-                  '&:hover': { transform: 'scale(1.05)', boxShadow: '0 0 10px #CFA63D' }
+                  '&:hover': { transform: 'scale(1.05)', boxShadow: profile?.level >= 25 ? '0 0 10px #CF9FFF'  : '0 0 10px #CFA63D' }
                 }}>
                   Skills
                 </Box>
@@ -582,9 +583,9 @@ function Achievements() {
                   justifyContent: 'center',
                   alignItems: 'center',
                   border: 1,
-                  color: '#CFA63D',
+                  color: profile?.level >= 25 ? '#CF9FFF'  : '#CFA63D',
                   transition: 'transform 0.3s, box-shadow 0.3s',
-                  '&:hover': { transform: 'scale(1.05)', boxShadow: '0 0 10px #CFA63D' }
+                  '&:hover': { transform: 'scale(1.05)', boxShadow: profile?.level >= 25 ? '0 0 10px #CF9FFF'  : '0 0 10px #CFA63D' }
                 }}>
                   About me
                 </Box>
