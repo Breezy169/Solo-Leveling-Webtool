@@ -111,7 +111,7 @@ function AboutMe() {
           >
             <Typography variant="h6">Box 1 Titel</Typography>
             <IconButton onClick={toggleExpandedBox1}>
-              <ExpandMoreIcon sx={{ color: '#CFA63D' }} />
+              <ExpandMoreIcon sx={{ color: profile?.level >= 25 ? '#CF9FFF'  :  '#CFA63D'}} />
             </IconButton>
           </Box>
           <Collapse in={expandedBox1} timeout="auto" unmountOnExit>

@@ -10,9 +10,10 @@ import Settings from './Settings';
 import '../Css/borders.css';
 import systeminfo from '../Images/systeminfo.png';
 import systeminfopurple2 from '../Images/systeminfopurple2.png';
+import { ProfileContext } from "./ProfileContext";
 
 const TaskModal = ({ show, onClose, onSubmit }) => {
-  const [profile, setProfile] = useState(null);
+  const { profile } = useContext(ProfileContext);
   const [category, setCategory] = useState('');
   const [name, setName] = useState('');
   const [difficulty, setDifficulty] = useState('');
@@ -21,21 +22,10 @@ const TaskModal = ({ show, onClose, onSubmit }) => {
 
   const categorys = ['Intelligence', 'Strength', 'Agility', 'Durability', 'Skills', 'Projects'];
   const difficulties = ['E-Rank', 'D-Rank', 'C-Rank', 'B-Rank', 'A-Rank', 'S-Rank'];
-  const fetchProfiles = async () => {
-    try {
-      const response = await fetch('http://localhost:5000/api/profile');
-      if (!response.ok) throw new Error('Network response was not ok');
-      const data = await response.json();
-      setProfile(data.length > 0 ? data[0] : null);
-    } catch (error) {
-      console.error("Error fetching profile:", error);
-    }
-  };
+ 
 
 
-  useEffect(() => {
-    fetchProfiles();
-  }, []);
+ 
   const handleSubmit = () => {
     if (!category || !name || !difficulty || !description || !maxProgress) {
       alert("Bitte alle Felder ausfüllen.");
@@ -128,7 +118,7 @@ function Tasks() {
   const [expandedTask, setExpandedTask] = useState(null);
   const [profile, setProfile] = useState(null);
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
-  
+ 
   // API-Aufrufe
   const fetchProfiles = async () => {
     try {
@@ -159,7 +149,7 @@ function Tasks() {
   useEffect(() => {
     fetchProfiles();
   }, []);
-
+  
   useEffect(() => {
     if (selectedCategory) {
       fetchTasks();
@@ -167,11 +157,16 @@ function Tasks() {
     }
   }, [selectedCategory]);
 
+  if (!profile) {
+    return null; // oder Spinner
+  }
+
   const handleReset = () => {
     fetchTasks();
     setExpandedTask(null);
   };
 
+  
   const handleAddTask = async (task) => {
     try {
       const response = await fetch('http://localhost:5000/api/addTask', {
