@@ -29,7 +29,7 @@ export const ProfileProvider = ({ children }) => {
       value={{
         profile,
         setProfile,
-        refreshProfile: fetchProfile  // 👈 DAS ist wichtig
+        refreshProfile: fetchProfile  //
       }}
     >
       {!isLoading && children}
