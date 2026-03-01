@@ -5,21 +5,13 @@ import { Link } from 'react-router-dom';
 import Settings from './Settings';
 import systeminfo from '../Images/systeminfo.png';
 import systeminfopurple2 from '../Images/systeminfopurple2.png';
+import { ProfileContext } from './ProfileContext';
 
 function Skills() {
-  const [profile, setProfile] = useState(null);
+  const { profile, refreshProfile } = useContext(ProfileContext)
   const [skills, setSkills] = useState([]);
 
 
-  const fetchProfiles = async () => {
-    try {
-      const response = await fetch('http://localhost:5000/api/profile');
-      const data = await response.json();
-      setProfile(data.length > 0 ? data[0] : null);
-    } catch (error) {
-      console.error('Error fetching profile:', error);
-    }
-  };
 
   const fetchSkills = async () => {
     try {
@@ -27,13 +19,13 @@ function Skills() {
       if (!response.ok) throw new Error('Network response was not ok');
       const data = await response.json();
       setSkills(data);
+      await refreshProfile();
     } catch (error) {
       console.error('Error fetching skills:', error);
     }
   };
 
   useEffect(() => {
-    fetchProfiles();
     fetchSkills();
   }, []);
 

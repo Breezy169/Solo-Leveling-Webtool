@@ -1,41 +1,23 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { Box, IconButton, Typography, Collapse } from '@mui/material';
 import Grid2 from '@mui/material/Grid2';
 import { Link } from 'react-router-dom';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-
+import { ProfileContext } from './ProfileContext';
 function AboutMe() {
   // Zustand für den expandierten Inhalt
   const [expandedAboutMe, setExpandedAboutMe] = useState(false);
-  const [profile, setProfile] = useState(null);
+  const { profile } = useContext(ProfileContext)
 
   const [expandedBox1, setExpandedBox1] = useState(false);
   const [expandedBox2, setExpandedBox2] = useState(false);
   const [expandedBox3, setExpandedBox3] = useState(false);
 
   // Toggle-Funktionen
-  const toggleExpandedAboutMe = () => setExpandedAboutMe(prev => !prev);
+
   const toggleExpandedBox1 = () => setExpandedBox1(prev => !prev);
-  const fetchProfiles = async () => {
-    try {
-      const response = await fetch('http://localhost:5000/api/profile');
-      if (!response.ok) throw new Error('Network response was not ok');
-      const data = await response.json();
-      setProfile(data.length > 0 ? data[0] : null);
-    } catch (error) {
-      console.error("Error fetching profile:", error);
-    }
-  };
-
-
-
-  useEffect(() => {
-    fetchProfiles();
-  }, []);
-  // Toggle-Funktion
-  const toggleExpanded = () => {
-    setExpandedAboutMe(prev => !prev);
-  };
+  const toggleExpanded = () => setExpandedAboutMe(prev => !prev);
+  
 
   return (
     <div>

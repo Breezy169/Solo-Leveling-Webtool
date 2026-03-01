@@ -116,20 +116,11 @@ function Tasks() {
   const [selectedCategory, setSelectedCategory] = useState('Intelligence');
   const [tasks, setTasks] = useState([]);
   const [expandedTask, setExpandedTask] = useState(null);
-  const [profile, setProfile] = useState(null);
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
+  const { profile, refreshProfile } = useContext(ProfileContext);
  
   // API-Aufrufe
-  const fetchProfiles = async () => {
-    try {
-      const response = await fetch('http://localhost:5000/api/profile');
-      if (!response.ok) throw new Error('Network response was not ok');
-      const data = await response.json();
-      setProfile(data.length > 0 ? data[0] : null);
-    } catch (error) {
-      console.error("Error fetching profile:", error);
-    }
-  };
+ 
 
   const fetchTasks = async () => {
     try {
@@ -141,14 +132,14 @@ function Tasks() {
           ? data.filter(task => task.status === 'done')
           : data.filter(task => task.category === selectedCategory && task.status !== 'done');
       setTasks(filteredTasks);
+      await refreshProfile();
     } catch (error) {
       console.error('Error fetching tasks:', error);
     }
+    
   };
 
-  useEffect(() => {
-    fetchProfiles();
-  }, []);
+ 
   
   useEffect(() => {
     if (selectedCategory) {
@@ -158,7 +149,7 @@ function Tasks() {
   }, [selectedCategory]);
 
   if (!profile) {
-    return null; // oder Spinner
+    return ; // oder Spinner
   }
 
   const handleReset = () => {
@@ -246,7 +237,7 @@ function Tasks() {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ level: newLevel, xp: updatedXP }),
           });
-          fetchProfiles();
+          
         }
         fetchTasks();
       } else {

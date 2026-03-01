@@ -10,13 +10,13 @@ import systeminfo from '../Images/systeminfo.png';
 import { useTheme } from '@mui/material/styles';
 import AchievementModal from './AchievementModal.js';
 import systeminfopurple2 from '../Images/systeminfopurple2.png';
-
+import { ProfileContext } from "./ProfileContext";
 
 function Achievements() {
-  const theme = useTheme();
+/*   const { profile } = useContext(ProfileContext); */
   const [achievements, setAchievements] = useState([]);
   const [expandedAchievement, setExpandedAchievement] = useState(null);
-  const [profile, setProfile] = useState(null);
+  const { profile , refreshProfile } = useContext(ProfileContext);
   const [isAchievementModalOpen, setIsAchievementModalOpen] = useState(false);
   // Filter: "all" = active (not completed), "completed" = done
   const [selectedAchievementFilter, setSelectedAchievementFilter] = useState('all');
@@ -29,21 +29,13 @@ function Achievements() {
       if (!response.ok) throw new Error('Network response was not ok');
       const data = await response.json();
       setSkills(data);
+      await refreshProfile();
     } catch (error) {
       console.error('Error fetching skills:', error);
     }
   };
 
-  const fetchProfiles = async () => {
-    try {
-      const response = await fetch('http://localhost:5000/api/profile');
-      if (!response.ok) throw new Error('Network response was not ok');
-      const data = await response.json();
-      setProfile(data.length > 0 ? data[0] : null);
-    } catch (error) {
-      console.error('Error fetching profile:', error);
-    }
-  };
+  
 
   const fetchAchievements = async () => {
     try {
@@ -51,15 +43,17 @@ function Achievements() {
       if (!response.ok) throw new Error('Network response was not ok');
       const data = await response.json();
       setAchievements(data);
+      await refreshProfile();
     } catch (error) {
       console.error('Error fetching achievements:', error);
     }
   };
 
   useEffect(() => {
-    fetchProfiles();
+   
     fetchAchievements();
     fetchSkills();
+    
   }, []);
 
   const handleReset = () => {
@@ -193,9 +187,9 @@ function Achievements() {
               window.alert('Skill erfolgreich hinzugefügt!');
             }
           }
-          fetchProfiles();
         }
         fetchAchievements();
+        await refreshProfile();
       } else {
         alert("Fehler beim Aktualisieren des Fortschritts: " + result.error);
       }
