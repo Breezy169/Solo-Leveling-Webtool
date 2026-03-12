@@ -71,7 +71,7 @@ const TaskModal = ({ show, onClose, onSubmit }) => {
             ))}
           </select>
         </Box>
-        <Box sx={{ marginBottom: '30px', color: profile?.level >= 25 ? ' #CF9FFF'  : ' #CFA63D' }}>
+        <Box sx={{ marginBottom: '30px', color: profile?.level >= 25 ? ' #CF9FFF'  : ' #CFA63D'}}>
           <Typography sx={{ fontSize: '12px' }}>QUEST NAME:</Typography>
           <input type="text" value={name} onChange={e => setName(e.target.value)} style={{ width: '100%' }} />
         </Box>
@@ -466,7 +466,13 @@ function Tasks() {
               <Box
                 key={task.id}
                 sx={{
-                  border: task.status === 'done' ? profile?.level >= 25 ? '2px solid #CF9FFF'  : '3px solid black' : '1px solid #CFA63D',
+                  border: task.status === 'done'
+                    ? profile?.level >= 25
+                      ? '2px solid #CF9FFF'
+                      : '2px solid black'
+                    : profile?.level >= 25
+                      ? '2px solid #CF9FFF'
+                      : '2px solid #CFA63D',                  
                   padding: '15px',
                   marginBottom: '10px',
                   position: 'relative',
