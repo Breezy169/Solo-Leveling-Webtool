@@ -56,9 +56,10 @@ function Home() {
                     justifyContent: 'center',
                     alignItems: 'center',
                     border: 1,
-                    color: '#CFA63D',
+                    color: profile?.level >= 25 ? '#CF9FFF'  : '#CFA63D',
                     transition: 'transform 0.3s, box-shadow 0.3s',
-                    '&:hover': { transform: 'scale(1.05)', boxShadow: '0 0 10px #CFA63D' }
+                    '&:hover': { transform: 'scale(1.05)', boxShadow: profile?.level >= 25 ?  ' 0 0 10px #CF9FFF'  : '0 0 10px #CFA63D'
+ }
                   }}>
                     Tasks
                   </Box>
@@ -73,9 +74,9 @@ function Home() {
                     justifyContent: 'center',
                     alignItems: 'center',
                     border: 1,
-                    color: '#CFA63D',
+                    color: profile?.level >= 25 ? '#CF9FFF'  : '#CFA63D',
                     transition: 'transform 0.3s, box-shadow 0.3s',
-                    '&:hover': { transform: 'scale(1.05)', boxShadow: '0 0 10px #CFA63D' }
+                    '&:hover': { transform: 'scale(1.05)', boxShadow: profile?.level >= 25 ?  ' 0 0 10px #CF9FFF'  : '0 0 10px #CFA63D'}
                   }}>
                     Skills
                   </Box>
@@ -90,9 +91,10 @@ function Home() {
                     justifyContent: 'center',
                     alignItems: 'center',
                     border: 1,
-                    color: '#CFA63D',
+                    color: profile?.level >= 25 ? '#CF9FFF'  : '#CFA63D',
                     transition: 'transform 0.3s, box-shadow 0.3s',
-                    '&:hover': { transform: 'scale(1.05)', boxShadow: '0 0 10px #CFA63D' }
+                    '&:hover': { transform: 'scale(1.05)', boxShadow: profile?.level >= 25 ?  ' 0 0 10px #CF9FFF'  : '0 0 10px #CFA63D'
+ }
                   }}>
                     Achievements
                   </Box>
@@ -107,9 +109,10 @@ function Home() {
                     justifyContent: 'center',
                     alignItems: 'center',
                     border: 1,
-                    color: '#CFA63D',
+                    color: profile?.level >= 25 ? '#CF9FFF'  : '#CFA63D',
                     transition: 'transform 0.3s, box-shadow 0.3s',
-                    '&:hover': { transform: 'scale(1.05)', boxShadow: '0 0 10px #CFA63D' }
+                    '&:hover': { transform: 'scale(1.05)', boxShadow: profile?.level >= 25 ?  ' 0 0 10px #CF9FFF'  : '0 0 10px #CFA63D'
+ }
                   }}>
                     About me
                   </Box>

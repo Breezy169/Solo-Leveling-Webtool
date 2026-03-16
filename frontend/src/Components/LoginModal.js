@@ -91,7 +91,30 @@ const LoginModal = ({ show, onLogin }) => {
           onChange={(e) => setName(e.target.value)}
           fullWidth
           variant="outlined"
-          sx={{ mb: 2 }}
+          sx={{
+              mb: 2,
+              "& .MuiInputBase-input": {
+                color: "#FFFFFF",   // Farbe des eingegebenen Textes
+              },
+              "& .MuiInputLabel-root": {
+                color: "#FFFFFF",
+              },
+              "& .MuiInputLabel-root.Mui-focused": {
+                color: "#FFFFFF",
+              },
+            
+              "& .MuiOutlinedInput-root": {
+                "& fieldset": {
+                  borderColor: "#FFFFFF",
+                },
+                "&:hover fieldset": {
+                  borderColor: "#FFFFFF",
+                },
+                "&.Mui-focused fieldset": {
+                  borderColor: "#FFFFFF",
+                },
+              },
+            }}
         />
         <TextField
           label="Password"
@@ -100,7 +123,27 @@ const LoginModal = ({ show, onLogin }) => {
           onChange={(e) => setPassword(e.target.value)}
           fullWidth
           variant="outlined"
-          sx={{ mb: 2 }}
+          sx={{
+            mb: 2,
+            "& .MuiInputLabel-root": {
+              color: "#FFFFFF",
+            },
+            "& .MuiInputLabel-root.Mui-focused": {
+              color: "#FFFFFF",
+            },
+          
+            "& .MuiOutlinedInput-root": {
+              "& fieldset": {
+                borderColor: "#FFFFFF",
+              },
+              "&:hover fieldset": {
+                borderColor: "#FFFFFF",
+              },
+              "&.Mui-focused fieldset": {
+                borderColor: "#FFFFFF",
+              },
+            },
+            }}
         />
         <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
           <Button onClick={handleGuest} variant="contained" sx={{ color: "#CFA63D", mr: 1 }}>
