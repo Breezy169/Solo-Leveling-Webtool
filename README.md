@@ -1,4 +1,4 @@
-# Personal-Website
+# Solo Leveling Personal Development Tool
 
 A personal website with achievements and tracking progress
 
