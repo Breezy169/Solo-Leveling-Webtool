@@ -4,9 +4,11 @@ A personal website with achievements and tracking progress
 
 This project is still ongoing and wont be available estimatedly until the end of 2026.
 
-Improvements & Updates missing:
+Improvements & Updates to make:
 - Edge Cases are to be evaluated
-- Domain to publish
+- No more login context -> converting to a local app
+- Complete data: titles etc.
+- Rework choice of words
 
 Some Screenshots from the current stage of this project:
   
